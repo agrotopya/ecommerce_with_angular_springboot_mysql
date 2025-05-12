@@ -1,0 +1,169 @@
+// src/app/features/admin/user-management/user-management.component.scss
+.user-management-container {
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+
+  h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: var(--primary-color); // Proje ana rengi
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 0.5rem;
+  }
+
+  .filters-card { // .filters-container -> .filters-card (HTML'deki gibi)
+    background-color: var(--light-gray);
+    padding: 1rem 1.5rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--box-shadow);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-end;
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      flex-grow: 1;
+      min-width: 180px; // Filtre elemanları için min genişlik
+
+      label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-color-secondary);
+      }
+
+      input[type="text"],
+      select {
+        // Global stilleri kullanır (styles.scss'ten)
+        font-size: 0.9rem; // Gerekirse özelleştir
+      }
+    }
+
+    .filter-actions {
+      display: flex;
+      gap: 0.5rem;
+      padding-top: 1.25rem; // label ile aynı hizaya gelmesi için
+    }
+  }
+
+  .loading-indicator,
+  .error-message,
+  .no-users-message {
+    text-align: center;
+    padding: 1rem;
+    margin-top: 1rem;
+  }
+
+  .error-message {
+    color: #d9534f;
+    background-color: #f2dede;
+    border: 1px solid #ebccd1;
+    border-radius: 4px;
+  }
+
+  .no-users-message {
+    color: #555;
+  }
+
+  .users-table-container {
+    overflow-x: auto;
+  }
+
+  .users-table-container {
+    overflow-x: auto;
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+  }
+
+  .users-table {
+    width: 100%;
+    border-collapse: collapse;
+    // margin-top: 1rem; // users-table-container'a geçti
+
+    th, td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color); // #eee -> var(--border-color)
+      vertical-align: middle;
+    }
+
+    thead { // thead için stil eklendi
+      background-color: var(--light-gray);
+      th {
+        font-weight: 700;
+        color: var(--primary-color);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+      }
+    }
+
+    tbody tr:hover {
+      background-color: var(--light-gray); // #f9f9f9 -> var(--light-gray)
+    }
+
+    select.form-control-sm { // Tablo içindeki select için daha spesifik
+      // Global form-control stillerini kullanır, gerekirse özelleştir
+      padding: 0.3rem 0.5rem; // Örnek
+      font-size: 0.85rem;    // Örnek
+    }
+
+    .btn { // Global .btn stillerini kullanır, .btn-sm de globalde tanımlı olmalı
+      // padding, font-size vb. global .btn ve .btn-sm'den gelmeli
+      // Renkler için global .btn-success, .btn-danger kullanılacak
+      // Özel bir durum yoksa buradaki .btn tanımına gerek kalmayabilir.
+      // Eğer .btn-success vb. globalde yoksa, burada tanımlanabilir:
+      // &.btn-success { background-color: var(--bright-green); ... }
+      // &.btn-danger { background-color: #dc3545; ... }
+    }
+
+    .role-actions {
+      display: flex;
+      gap: 0.3rem; // Butonlar arası boşluk
+
+      .role-btn {
+        // padding: 0.25rem 0.5rem; // Daha küçük butonlar için
+        // font-size: 0.75rem;
+        // Global .btn-sm stilini kullanabilir veya özelleştirebiliriz.
+        // .btn-primary ve .btn-outline-secondary globalde tanımlı olmalı
+        // veya burada özel stiller verilmeli.
+        // Örnek:
+        // &.btn-primary { background-color: var(--primary-color); color: white; }
+        // &.btn-outline-secondary { border: 1px solid var(--secondary-color); color: var(--secondary-color); ... }
+        // &:disabled { opacity: 0.7; background-color: var(--primary-color) !important; } // Aktif rol butonu için
+      }
+    }
+  }
+
+  .pagination { // AdminOrderList'teki ile benzer stil
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1.5rem;
+    gap: 0.5rem;
+
+    button {
+      // Global .btn ve .btn-sm stillerini kullanır
+      // padding: 0.4rem 0.8rem;
+      // font-size: 0.85rem;
+      // background-color: var(--light-gray);
+      // color: var(--primary-color);
+      // border: 1px solid var(--border-color);
+
+      // &.active {
+      //   background-color: var(--primary-color);
+      //   color: var(--white);
+      //   border-color: var(--primary-color);
+      // }
+      // &:disabled {
+      //   opacity: 0.6;
+      //   cursor: not-allowed;
+      // }
+    }
+  }
+}

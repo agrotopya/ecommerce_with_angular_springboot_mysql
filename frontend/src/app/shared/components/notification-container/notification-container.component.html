@@ -1,0 +1,19 @@
+<div class="notification-container-wrapper">
+  <div *ngFor="let notification of notifications()"
+       class="notification-toast"
+       [ngClass]="'toast-' + notification.type">
+    <div class="toast-icon" *ngIf="notification.icon || getIconClass(notification.type) as iconClass">
+      <i [class]="iconClass"></i>
+      <!-- Veya SVG ikonları için:
+      <svg *ngIf="notification.type === 'success'" ...>...</svg>
+      -->
+    </div>
+    <div class="toast-content">
+      <!-- <h5 *ngIf="notification.title" class="toast-title">{{ notification.title }}</h5> -->
+      <p class="toast-message">{{ notification.message }}</p>
+    </div>
+    <button class="toast-close-button" (click)="removeNotification(notification.id)" aria-label="Close">
+      &times; <!-- Basit bir çarpı işareti -->
+    </button>
+  </div>
+</div>

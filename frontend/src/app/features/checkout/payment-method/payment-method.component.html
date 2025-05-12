@@ -1,0 +1,54 @@
+<!-- src/app/features/checkout/payment-method/payment-method.component.html -->
+<div class="payment-method-container">
+  <h3>Payment Method</h3>
+
+  <form [formGroup]="paymentForm" (ngSubmit)="onSubmit()" class="payment-form">
+    <div class="form-group">
+      <label>Select Payment Method:</label>
+      <div class="payment-options">
+        <div *ngFor="let type of paymentTypes" class="payment-option">
+          <input
+            type="radio"
+            [id]="type.id"
+            formControlName="type"
+            [value]="type.id"
+          >
+          <label [for]="type.id">{{ type.name }}</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kredi Kartı Detayları (Stripe Hosted Checkout için bu bölüm kaldırıldı) -->
+
+    <!-- Banka Havalesi Bilgileri -->
+    <div *ngIf="paymentForm.get('type')?.value === 'bank_transfer'" class="bank-transfer-info">
+      <div class="info-box">
+        <h4>Bank Transfer Information</h4>
+        <p>Please transfer the total amount to the following bank account:</p>
+        <ul>
+          <li><strong>Bank Name:</strong> Example Bank</li>
+          <li><strong>Account Name:</strong> E-Commerce Company</li>
+          <li><strong>IBAN:</strong> TR00 0000 0000 0000 0000 0000 00</li>
+          <li><strong>Reference:</strong> Please include your order number in the payment reference.</li>
+        </ul>
+        <p class="note">Your order will be processed after we receive your payment.</p>
+      </div>
+    </div>
+
+    <!-- Kapıda Ödeme Bilgileri -->
+    <div *ngIf="paymentForm.get('type')?.value === 'cash_on_delivery'" class="cod-info">
+      <div class="info-box">
+        <h4>Cash on Delivery Information</h4>
+        <p>You will pay the total amount to the courier when you receive your order.</p>
+        <p class="note">Additional fee may apply for cash on delivery orders.</p>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn-back" (click)="onBack()" [disabled]="isProcessing()">Back</button>
+      <button type="submit" class="btn-continue" [disabled]="paymentForm.invalid || isProcessing()">
+        {{ isProcessing() ? 'Processing...' : 'Continue' }}
+      </button>
+    </div>
+  </form>
+</div>

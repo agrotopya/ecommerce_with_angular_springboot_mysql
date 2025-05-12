@@ -1,0 +1,48 @@
+<!-- src/app/features/profile/view-profile/view-profile.component.html -->
+<div class="profile-container card">
+  <div class="card-header">
+    <h2>User Profile</h2>
+  </div>
+  <div class="card-body" *ngIf="user() as currentUserData; else loadingOrError">
+    <div class="profile-details">
+      <div class="detail-item">
+        <span class="label">Username:</span>
+        <span class="value">{{ currentUserData.username }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="label">Email:</span>
+        <span class="value">{{ currentUserData.email }}</span>
+      </div>
+      <div class="detail-item" *ngIf="currentUserData.firstName">
+        <span class="label">First Name:</span>
+        <span class="value">{{ currentUserData.firstName }}</span>
+      </div>
+      <div class="detail-item" *ngIf="currentUserData.lastName">
+        <span class="label">Last Name:</span>
+        <span class="value">{{ currentUserData.lastName }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="label">Roles:</span>
+        <span class="value roles">
+          <span *ngFor="let role of currentUserData.roles" class="role-badge">{{ role }}</span>
+        </span>
+      </div>
+      <div class="detail-item">
+        <span class="label">Active:</span>
+        <span class="value status" [class.active]="currentUserData.isActive" [class.inactive]="!currentUserData.isActive">
+          {{ currentUserData.isActive ? 'Active' : 'Inactive' }}
+        </span>
+      </div>
+      <!-- Diğer kullanıcı bilgileri eklenebilir (örn: createdAt) -->
+    </div>
+    <div class="profile-actions">
+      <!-- İleride eklenecek linkler -->
+      <!-- <a routerLink="/profile/edit" class="btn btn-primary">Edit Profile</a> -->
+      <!-- <a routerLink="/profile/change-password" class="btn btn-secondary">Change Password</a> -->
+    </div>
+  </div>
+  <ng-template #loadingOrError>
+    <p *ngIf="!user()">Loading profile data or not logged in...</p>
+    <!-- Hata durumu için ek bir mesaj eklenebilir -->
+  </ng-template>
+</div>

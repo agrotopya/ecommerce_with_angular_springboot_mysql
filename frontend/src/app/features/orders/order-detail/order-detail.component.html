@@ -1,0 +1,119 @@
+<!-- src/app/features/orders/order-detail/order-detail.component.html -->
+<div class="order-detail-container">
+  <h2>Order Details</h2>
+
+  <div *ngIf="isLoading()" class="loading-indicator">Loading order details...</div>
+  <div *ngIf="errorMessage()" class="error-message">{{ errorMessage() }}</div>
+
+  <div *ngIf="!isLoading() && order() as currentOrder; else noOrderFound">
+    <div class="order-header">
+      <h3>Order #{{ currentOrder.id }}</h3>
+      <p><strong>Date:</strong> {{ currentOrder.createdAt | date:'fullDate' }}</p>
+      <p><strong>Status:</strong>
+        <span class="status-badge" [ngClass]="'status-' + currentOrder.status.toLowerCase()">
+          {{ currentOrder.status.replace('_', ' ') | titlecase }}
+        </span>
+      </p>
+    </div>
+
+    <div class="order-content-grid">
+      <div class="order-items-section">
+        <h4>Items</h4>
+        <div *ngFor="let item of currentOrder.items" class="order-item-card">
+          <img [src]="item.product.mainImageUrl || (item.product && item.product.productImages && item.product.productImages.length > 0 ? item.product.productImages[0].imageUrl : 'assets/images/placeholder.png')" [alt]="item.product.name" class="item-image">
+          <div class="item-info">
+            <a *ngIf="item.product" [routerLink]="['/products', item.product.slug]" class="item-name">{{ item.product.name }}</a>
+            <span *ngIf="!item.product">Product details not available</span>
+            <p class="item-quantity">Quantity: {{ item.quantity }}</p>
+            <p class="item-price">Price at purchase: {{ item.unitPrice | currency:'TRY':'symbol':'1.2-2' }}</p>
+            <p class="item-total">Item Total: {{ item.totalPrice | currency:'TRY':'symbol':'1.2-2' }}</p>
+            <!-- Yorum Yap Linki -->
+            <div class="item-actions" *ngIf="currentOrder.status === OrderStatusEnum.DELIVERED && item.product.slug">
+              <a *ngIf="item.product" [routerLink]="['/products', item.product.slug]" class="btn btn-outline-primary btn-sm review-link">
+                Review Product
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="order-summary-section">
+        <h4>Summary</h4>
+        <div class="summary-row">
+          <span>Subtotal:</span>
+          <span>{{ currentOrder.totalAmount | currency:'TRY':'symbol':'1.2-2' }}</span>
+        </div>
+        <div class="summary-row" *ngIf="currentOrder.discountAmount">
+          <span>Discount:</span>
+          <span class="discount">-{{ currentOrder.discountAmount | currency:'TRY':'symbol':'1.2-2' }}</span>
+        </div>
+        <div class="summary-row">
+          <span>Shipping:</span>
+          <span>{{ (currentOrder.shippingFee || 0) === 0 ? 'Free' : (currentOrder.shippingFee | currency:'TRY':'symbol':'1.2-2') }}</span>
+        </div>
+        <div class="summary-row grand-total">
+          <span>Grand Total:</span>
+          <span>{{ currentOrder.finalAmount | currency:'TRY':'symbol':'1.2-2' }}</span>
+        </div>
+
+        <div class="payment-info">
+          <h4>Payment Information</h4>
+          <p><strong>Method:</strong> {{ currentOrder.paymentMethod | titlecase }}</p>
+          <p><strong>Status:</strong>
+            <span class="status-badge" [ngClass]="'status-payment-' + (currentOrder.paymentStatus || 'pending').toLowerCase()">
+              {{ (currentOrder.paymentStatus || 'Pending') | titlecase }}
+            </span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="address-section">
+      <div class="shipping-address">
+        <h4>Shipping Address</h4>
+        <p>{{ currentOrder.shippingAddress.street }}</p>
+        <p *ngIf="currentOrder.shippingAddress.addressLine2">{{ currentOrder.shippingAddress.addressLine2 }}</p>
+        <p>{{ currentOrder.shippingAddress.city }}, {{ currentOrder.shippingAddress.state }} {{ currentOrder.shippingAddress.zipCode }}</p>
+        <p>{{ currentOrder.shippingAddress.country }}</p>
+        <p *ngIf="currentOrder.shippingAddress.phoneNumber">Phone: {{ currentOrder.shippingAddress.phoneNumber }}</p>
+      </div>
+      <div *ngIf="currentOrder.billingAddress" class="billing-address">
+        <h4>Billing Address</h4>
+        <p>{{ currentOrder.billingAddress.street }}</p>
+        <p *ngIf="currentOrder.billingAddress.addressLine2">{{ currentOrder.billingAddress.addressLine2 }}</p>
+        <p>{{ currentOrder.billingAddress.city }}, {{ currentOrder.billingAddress.state }} {{ currentOrder.billingAddress.zipCode }}</p>
+        <p>{{ currentOrder.billingAddress.country }}</p>
+        <p *ngIf="currentOrder.billingAddress.phoneNumber">Phone: {{ currentOrder.billingAddress.phoneNumber }}</p>
+      </div>
+    </div>
+
+    <div class="order-actions-footer">
+      <!-- Tekrar Ödeme Butonu -->
+      <div *ngIf="canRetryPayment" class="retry-payment-section">
+        <p *ngIf="order()?.paymentStatus === 'FAILED'" class="payment-failed-notice">
+          Your previous payment attempt failed.
+        </p>
+        <p *ngIf="order()?.status === 'PENDING_PAYMENT' && order()?.paymentStatus !== 'FAILED'" class="payment-pending-notice">
+          This order is awaiting payment.
+        </p>
+        <button type="button" class="btn btn-success" (click)="retryPayment()" [disabled]="isRetryingPayment()">
+          {{ isRetryingPayment() ? 'Processing Payment...' : 'Pay Now' }}
+        </button>
+        <div *ngIf="retryPaymentErrorMessage()" class="error-message retry-error-message">
+          {{ retryPaymentErrorMessage() }}
+        </div>
+      </div>
+
+      <!-- Sipariş İptal Butonu (ileride eklenecek) -->
+      <!-- <button *ngIf="currentOrder.status === 'PENDING_PAYMENT' || currentOrder.status === 'PROCESSING'" (click)="cancelOrder()" class="btn btn-danger" [disabled]="isLoading()">Cancel Order</button> -->
+    </div>
+
+    <div class="back-link">
+      <a routerLink="/profile/orders" class="btn btn-secondary">Back to My Orders</a>
+    </div>
+  </div>
+
+  <ng-template #noOrderFound>
+    <p *ngIf="!isLoading() && !errorMessage()">Order not found.</p>
+  </ng-template>
+</div>

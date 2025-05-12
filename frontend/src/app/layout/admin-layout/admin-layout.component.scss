@@ -1,0 +1,71 @@
+// src/app/layout/admin-layout/admin-layout.component.scss
+.admin-layout-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+
+  // Admin Header için stiller (ileride eklenecek)
+  // app-admin-header {
+  //   background-color: #343a40;
+  //   color: white;
+  //   padding: 1rem;
+  //   // Diğer stiller
+  // }
+
+  .admin-main-content {
+    display: flex;
+    flex-grow: 1;
+
+    .admin-temp-sidebar {
+      width: 230px; // Sidebar genişliği
+      background-color: #495057; // Koyu gri arka plan
+      padding: 1rem;
+      color: var(--light-gray); // Linkler için açık renk
+
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
+        li {
+          margin-bottom: 0.5rem;
+
+          a {
+            color: var(--light-gray);
+            text-decoration: none;
+            display: block;
+            padding: 0.6rem 0.8rem;
+            border-radius: var(--border-radius);
+            transition: background-color 0.2s ease, color 0.2s ease;
+            font-size: 0.95rem;
+
+            &:hover {
+              background-color: #5a6268; // Biraz daha açık hover rengi
+              color: var(--white);
+            }
+
+            &.active-link {
+              background-color: var(--primary-color); // Aktif link mor
+              color: var(--white);
+              font-weight: 600;
+            }
+          }
+        }
+      }
+    }
+
+    .admin-page-content {
+      flex-grow: 1;
+      padding: 2rem;
+      background-color: #e9ecef; // Sayfa içeriği için farklı bir arka plan
+    }
+  }
+
+  // Admin Footer için stiller (ileride eklenebilir)
+  // app-admin-footer {
+  //   background-color: #f8f9fa;
+  //   padding: 1rem;
+  //   text-align: center;
+  //   border-top: 1px solid #dee2e6;
+  // }
+}

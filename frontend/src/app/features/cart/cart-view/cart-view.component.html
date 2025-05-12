@@ -1,0 +1,60 @@
+<!-- src/app/features/cart/cart-view/cart-view.component.html -->
+<div class="cart-view-container">
+  <h2>Your Shopping Cart</h2>
+
+  <div *ngIf="isLoading()" class="loading-indicator">Updating cart...</div>
+
+  <div *ngIf="!isLoading() && cart() as currentCart">
+    <div *ngIf="currentCart.items && currentCart.items.length > 0; else emptyCart" class="cart-items">
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th></th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Total</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of currentCart.items">
+            <td>
+              <img *ngIf="item.productImageUrl" [ngSrc]="item.productImageUrl" [alt]="item.productName" class="item-image" width="50" height="50" priority="false">
+            </td>
+            <td>
+              <!-- productSlug backend'den geliyorsa onu kullan, yoksa productId'yi fallback olarak al -->
+              <a [routerLink]="['/products', item.productSlug || item.productId]">{{ item.productName || ('Product ' + item.productId) }}</a>
+            </td>
+            <td>{{ item.productPrice | currency:'TRY':'symbol':'1.2-2' }}</td>
+            <td>
+              <input type="number" [value]="item.quantity"
+                     (change)="updateQuantity(item, $event)"
+                     min="1" [max]="item.productStock" class="quantity-input" #quantityInput>
+            </td>
+            <!-- itemTotal backend'den geliyor, onu kullanalım -->
+            <td>{{ item.itemTotal | currency:'TRY':'symbol':'1.2-2' }}</td>
+            <td>
+              <button (click)="removeItemFromCart(item.productId)" class="btn-remove">Remove</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="cart-summary">
+        <h3>Cart Totals</h3>
+        <!-- cartSubtotal backend'den geliyor -->
+        <p>Subtotal: <strong>{{ currentCart.cartSubtotal | currency:'TRY':'symbol':'1.2-2' }}</strong></p>
+        <!-- totalItems backend'den geliyor -->
+        <p>Total Items: <strong>{{ currentCart.totalItems }}</strong></p>
+        <button class="btn-checkout" routerLink="/checkout" [disabled]="currentCart.items.length === 0">Proceed to Checkout</button>
+        <button (click)="clearUserCart()" class="btn-clear-cart" [disabled]="currentCart.items.length === 0">Clear Cart</button>
+      </div>
+    </div>
+
+    <ng-template #emptyCart>
+      <p class="empty-cart-message">Your cart is currently empty.</p>
+      <a routerLink="/products" class="btn-shop">Continue Shopping</a>
+    </ng-template>
+  </div>
+</div>

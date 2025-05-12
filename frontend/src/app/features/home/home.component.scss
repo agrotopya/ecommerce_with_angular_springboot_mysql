@@ -1,0 +1,341 @@
+// src/app/features/home/home.component.scss
+
+.home-page {
+  // Genel sayfa padding'i veya container'lar kendi padding'ini yönetebilir.
+}
+
+// Hero Section
+.hero-section {
+  background-color: var(--bright-green);
+  color: var(--white);
+  padding: 1rem var(--container-padding, 15px); // Üst ve alt padding azaltıldı
+  // border-radius: var(--border-radius); // Tam genişlikte bu kaldırılabilir veya bırakılabilir
+  margin-bottom: 2rem;
+  position: relative; // Navigasyon ve dot'lar için
+  overflow: hidden; // Slide'ların taşmasını engellemek için
+
+  .hero-carousel-wrapper {
+    width: 100%;
+    overflow: hidden; // Sadece aktif slide görünsün
+    // position: relative; // Zaten .hero-section relative
+  }
+
+  .hero-carousel-slides {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+  }
+
+  .hero-carousel-slide {
+    min-width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center; // İçeriği ortala (görsel ve bilgi)
+    gap: 2rem;
+    padding: 2rem 4rem; // Slide içi padding, navigasyon okları için daha fazla yer
+
+    .hero-slide-image-container {
+      flex: 0 0 auto;
+      max-width: 40%;
+      width: 40%; // Genişliği de set edelim
+      position: relative; // NgOptimizedImage fill modu için gerekli
+      // aspect-ratio: 16 / 9; // Veya istediğiniz bir en-boy oranı
+      height: 350px; // Sabit bir yükseklik verelim, veya aspect-ratio kullanalım
+
+      img.hero-slide-image {
+        // fill modu kullanıldığında width ve height %100 olur, object-fit ile sığdırılır
+        object-fit: contain; // veya 'cover', tasarıma göre
+        border-radius: var(--border-radius);
+      }
+      .image-placeholder-hero {
+        width: 100%;
+        min-height: 300px; // Görselle benzer yükseklik
+        background-color: rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--border-radius);
+        span {
+          color: var(--white);
+          opacity: 0.7;
+        }
+      }
+    }
+
+    .hero-product-info {
+      flex: 1 1 auto; // Kalan alanı alsın
+      max-width: 55%; // Genişliğin %55'ini alsın
+      text-align: left;
+
+      .hero-title {
+        font-size: 2.5rem; // Daha kompakt
+        font-weight: 800;
+        color: var(--white);
+        margin-bottom: 0.5rem;
+        line-height: 1.1;
+      }
+
+      .hero-price {
+        font-size: 1.8rem; // Daha kompakt
+        font-weight: 700;
+        color: var(--white);
+        margin-bottom: 1.25rem;
+      }
+
+      .hero-actions {
+        display: flex;
+        gap: 0.75rem; // Buton arası boşluk azaltıldı
+        justify-content: flex-start;
+
+        .btn {
+          padding: 0.7rem 1.5rem; // Buton padding'i biraz azaltıldı
+          font-size: 0.9rem; // Buton yazı boyutu biraz azaltıldı
+          text-transform: none;
+          border-radius: 25px;
+          font-weight: 600; // Biraz inceltildi
+          color: var(--white);
+          border: none;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn-add-to-cart {
+          background-color: var(--deep-purple);
+          &:hover { background-color: var(--deep-purple-darker); }
+        }
+        .btn-bestsellers {
+          background-color: var(--vibrant-orange);
+          &:hover { background-color: var(--vibrant-orange-darker); }
+        }
+        .btn-flash-deals {
+          background-color: rgba(255, 255, 255, 0.9);
+          color: var(--vibrant-orange);
+          &:hover { background-color: #f2e2d8; }
+        }
+      }
+    }
+  }
+
+  .carousel-control {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(var(--deep-purple-rgb, 62, 30, 104), 0.4); // Biraz daha saydam
+    color: var(--white);
+    border: none;
+    border-radius: 50%;
+    width: 45px; // Biraz büyütüldü
+    height: 45px; // Biraz büyütüldü
+    font-size: 1.8rem; // İkon büyütüldü
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+    z-index: 10;
+
+    &:hover {
+      background-color: rgba(var(--deep-purple-rgb, 62, 30, 104), 0.7);
+    }
+
+    &.prev {
+      left: 15px; // Kenara biraz daha yakın
+    }
+    &.next {
+      right: 15px; // Kenara biraz daha yakın
+    }
+  }
+
+  .carousel-dots {
+    position: absolute;
+    bottom: 15px; // Biraz yukarı alındı
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px; // Noktalar arası boşluk artırıldı
+    z-index: 10;
+
+    .dot {
+      width: 10px; // Biraz küçültüldü
+      height: 10px; // Biraz küçültüldü
+      border-radius: 50%;
+      background-color: rgba(var(--white-rgb, 255, 255, 255), 0.4); // Daha saydam
+      border: 1px solid rgba(var(--deep-purple-rgb, 62, 30, 104), 0.3); // Hafif kenarlık
+      padding: 0;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+
+      &:hover {
+        background-color: rgba(var(--white-rgb, 255, 255, 255), 0.7);
+        transform: scale(1.1);
+      }
+
+      &.active {
+        background-color: var(--white);
+        transform: scale(1.2);
+        border-color: var(--white);
+      }
+    }
+  }
+}
+
+// @keyframes fadeIn { // Basit fade animasyonu
+//   from { opacity: 0.7; }
+//   to { opacity: 1; }
+// }
+
+// Category Icons Section
+.category-icons-section {
+  margin-bottom: 2.5rem;
+  padding: 1.5rem 0;
+
+  .category-icon-grid {
+    display: flex;
+    flex-wrap: wrap; // Gerekirse alta sarsın
+    justify-content: center; // İkonları ortala
+    gap: 1.5rem; // İkonlar arası boşluk
+
+    .category-icon-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: var(--text-color);
+      width: 100px; // Her bir ikonun genişliği
+      transition: transform 0.2s ease;
+
+      &:hover {
+        transform: translateY(-5px); // Hafif yukarı kalkma efekti
+        .category-icon-name {
+          color: var(--vibrant-orange);
+        }
+      }
+
+      .icon-wrapper {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 0.5rem;
+        // Farklı arka plan renkleri için :nth-child kullanılabilir veya
+        // kategori verisinden bir renk kodu gelebilir.
+        // Şimdilik tek renk veya görseldeki gibi karışık.
+        // Örnek: Görselde turuncu, yeşil, sarı tonları var.
+        // Bu renkleri doğrudan atayabiliriz veya kategoriye göre dinamik yapabiliriz.
+        // Şimdilik genel bir stil:
+        background-color: var(--light-gray); // Placeholder arka plan
+        // Örnek renkler (görseldeki gibi)
+        &:nth-child(6n+1) { background-color: var(--vibrant-orange); }
+        &:nth-child(6n+2) { background-color: var(--bright-green); }
+        &:nth-child(6n+3) { background-color: var(--vibrant-orange); } // Avantajlı ürün
+        &:nth-child(6n+4) { background-color: var(--bright-green); } // İndirim kuponları
+        &:nth-child(6n+5) { background-color: var(--vibrant-orange); } // Kediler
+        &:nth-child(6n+6) { background-color: var(--soft-yellow); color: var(--deep-purple); } // Yeni gelenler
+
+        .category-icon-image {
+          width: 40px; // İkon görsel boyutu
+          height: 40px;
+          object-fit: contain;
+          // SVG ikonlar için fill: var(--white); veya var(--deep-purple)
+        }
+      }
+
+      .category-icon-name {
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-align: center;
+        color: var(--text-color-secondary);
+      }
+    }
+  }
+}
+
+// Product Section (Popüler Ürünler, Yeni Gelenler)
+.product-section {
+  margin-bottom: 2.5rem;
+
+  .section-title {
+    font-size: 1.8rem;
+    color: var(--deep-purple);
+    margin-bottom: 1.5rem;
+    text-align: center; // Veya sola dayalı
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); // Duyarlı grid
+    gap: 1.5rem; // Kartlar arası boşluk
+  }
+}
+
+// Yükleme Göstergesi
+.loading-indicator-page {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+  color: var(--primary-color);
+}
+
+
+// Responsive Ayarlamalar
+@media (max-width: 992px) {
+  .hero-section {
+    flex-direction: column;
+    text-align: center;
+    .hero-content {
+      max-width: 100%;
+      .hero-actions {
+        justify-content: center;
+      }
+    }
+    .hero-image-container {
+      margin-top: 1.5rem;
+      .hero-image {
+        max-width: 300px;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 2rem 1rem;
+    .hero-content {
+      .hero-title { font-size: 2.5rem; }
+      .hero-price { font-size: 1.8rem; }
+      .hero-actions {
+        flex-direction: column; // Butonları alt alta
+        align-items: center;
+        .btn { width: 80%; max-width: 300px; }
+      }
+    }
+    .hero-image-container .hero-image { max-width: 250px; }
+  }
+
+  .category-icons-section .category-icon-grid {
+    gap: 1rem; // Mobilde ikonlar arası boşluk
+    .category-icon-item {
+      width: 80px; // Mobilde ikon genişliği
+      .icon-wrapper {
+        width: 60px;
+        height: 60px;
+        .category-icon-image { width: 30px; height: 30px; }
+      }
+      .category-icon-name { font-size: 0.8rem; }
+    }
+  }
+
+  .product-section .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); // Mobilde kartlar daha dar olabilir
+  }
+}
+
+@media (max-width: 576px) {
+  .hero-section .hero-content {
+    .hero-title { font-size: 2rem; }
+    .hero-price { font-size: 1.5rem; }
+  }
+   .product-section .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); // Daha da dar
+  }
+}

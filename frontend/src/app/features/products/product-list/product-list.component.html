@@ -1,0 +1,39 @@
+<!-- src/app/features/products/product-list/product-list.component.html -->
+<div class="product-list-container">
+  <h2>Products</h2>
+
+  <!-- Filtreleme Alanı (Basit) -->
+  <div class="filters">
+    <input type="text" [(ngModel)]="searchTerm" (keyup.enter)="onSearch()" placeholder="Search products..." />
+    <button (click)="onSearch()">Search</button>
+
+    <select [(ngModel)]="selectedCategoryId" (ngModelChange)="onCategoryChange()">
+      <option value="">All Categories</option>
+      <option *ngFor="let category of categories()" [value]="category.id">{{ category.name }}</option>
+    </select>
+    <span *ngIf="isLoadingCategories()">Loading categories...</span>
+  </div>
+
+  <div *ngIf="isLoading()" class="loading-indicator">Loading products...</div>
+  <div *ngIf="errorMessage()" class="error-message">{{ errorMessage() }}</div>
+
+  <div *ngIf="!isLoading() && productsResponse() as response">
+    <div *ngIf="response.content && response.content.length > 0; else noProducts" class="products-grid">
+      <app-product-card *ngFor="let product of response.content" [product]="product"></app-product-card>
+    </div>
+    <ng-template #noProducts>
+      <p class="no-products-message">No products found matching your criteria.</p>
+    </ng-template>
+
+    <!-- Sayfalama -->
+    <div *ngIf="response.totalPages > 1" class="pagination">
+      <button (click)="onPageChange(response.number - 1)" [disabled]="response.first">Previous</button>
+      <span *ngFor="let pageNum of pageNumbers">
+        <button (click)="onPageChange(pageNum)" [class.active]="pageNum === response.number">
+          {{ pageNum + 1 }}
+        </button>
+      </span>
+      <button (click)="onPageChange(response.number + 1)" [disabled]="response.last">Next</button>
+    </div>
+  </div>
+</div>

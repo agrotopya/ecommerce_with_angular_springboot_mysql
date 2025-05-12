@@ -1,0 +1,88 @@
+<!-- src/app/features/admin/product-management/admin-product-list/admin-product-list.component.html -->
+<div class="admin-product-list-container">
+  <h2>Product Management (Admin)</h2>
+
+  <!-- Filtreler -->
+  <div class="filters-card">
+    <div class="filter-group">
+      <label for="filterApprovalStatus">Approval Status:</label>
+      <select id="filterApprovalStatus" [(ngModel)]="filterApprovalStatus" (change)="applyFilters()">
+        <option value="">All</option>
+        <option value="approved">Approved</option>
+        <option value="not_approved">Not Approved / Pending</option>
+      </select>
+    </div>
+    <!-- Başka filtreler buraya eklenebilir (örn: Kategori, Satıcı) -->
+    <div class="filter-actions">
+      <button class="btn btn-secondary" (click)="clearFilters()">Clear Filters</button>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading()" class="loading-indicator">Loading products...</div>
+  <div *ngIf="errorMessage()" class="error-message">{{ errorMessage() }}</div>
+
+  <div *ngIf="!isLoading() && productsResponse() as pageData">
+    <div *ngIf="pageData.content && pageData.content.length > 0; else noProducts" class="products-table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Image</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Seller</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Approved</th>
+            <th>Active</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let product of pageData.content">
+            <td>{{ product.id }}</td>
+            <td>
+              <img [src]="product.mainImageUrl || (product.productImages && product.productImages.length > 0 ? product.productImages[0].imageUrl : 'assets/images/placeholder.png')" [alt]="product.name" class="product-thumbnail">
+            </td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.categoryName || 'N/A' }}</td>
+            <td>{{ product.sellerUsername || 'N/A' }}</td>
+            <td>{{ product.price | currency:'TRY':'symbol':'1.2-2' }}</td>
+            <td>{{ product.stock }}</td>
+            <td>
+              <span class="status-badge" [class.approved]="product.approved" [class.pending]="!product.approved">
+                {{ product.approved ? 'Approved' : (product.approved === false ? 'Rejected/Pending' : 'Pending') }}
+              </span>
+            </td>
+            <td>
+              <button class="btn btn-sm"
+                      [ngClass]="product.active ? 'btn-success' : 'btn-outline-secondary'"
+                      (click)="toggleProductActiveStatus(product)">
+                {{ product.active ? 'Active' : 'Inactive' }}
+              </button>
+            </td>
+            <td class="action-buttons">
+              <button *ngIf="!product.approved" class="btn btn-sm btn-success" (click)="approveProduct(product.id)">Approve</button>
+              <button *ngIf="product.approved" class="btn btn-sm btn-warning" (click)="rejectProduct(product.id)">Reject</button>
+              <button class="btn btn-sm btn-danger" (click)="deleteProduct(product.id)">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ng-template #noProducts>
+      <p class="no-results-message">No products found matching your criteria.</p>
+    </ng-template>
+
+    <!-- Sayfalama -->
+    <div *ngIf="pageData.totalPages > 1" class="pagination">
+      <button (click)="onPageChange(pageData.number - 1)" [disabled]="pageData.first" class="btn btn-sm">Previous</button>
+      <span *ngFor="let pageNum of pageNumbers">
+        <button (click)="onPageChange(pageNum)" [class.active]="pageNum === pageData.number" class="btn btn-sm">
+          {{ pageNum + 1 }}
+        </button>
+      </span>
+      <button (click)="onPageChange(pageData.number + 1)" [disabled]="pageData.last" class="btn btn-sm">Next</button>
+    </div>
+  </div>
+</div>

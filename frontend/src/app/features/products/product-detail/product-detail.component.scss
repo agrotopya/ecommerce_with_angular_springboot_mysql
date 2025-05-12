@@ -1,0 +1,178 @@
+// src/app/features/products/product-detail/product-detail.component.scss
+.product-detail-container {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 20px;
+
+  .loading-indicator, .error-message, .not-found p {
+    text-align: center;
+    padding: 40px;
+    font-size: 1.2em;
+    color: #777;
+  }
+  .error-message { color: red; }
+
+  .breadcrumb {
+    margin-bottom: 20px;
+    font-size: 0.9em;
+    color: #555;
+    a {
+      color: #007bff;
+      text-decoration: none;
+      &:hover { text-decoration: underline; }
+    }
+    span:last-child {
+      font-weight: bold;
+      color: #333;
+    }
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr; // Default single column
+    gap: 30px;
+
+    @media (min-width: 768px) {
+      grid-template-columns: 2fr 3fr; // Desktop: gallery left, info right
+    }
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem; // Butonlar arası boşluk
+    margin-top: 1.5rem;
+
+    .btn-add-to-cart {
+      // Stiller genel .btn ve .btn-primary'den gelebilir veya özelleştirilebilir
+      padding: 0.8rem 1.8rem;
+      font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5em;
+      // background-color: var(--bright-green); // Genelden alabilir
+      // color: var(--white);
+      // border-color: var(--bright-green);
+      // &:hover {
+      //   background-color: var(--bright-green-darker);
+      //   border-color: var(--bright-green-darker);
+      // }
+      // &:disabled {
+      //   background-color: var(--medium-gray-color);
+      //   border-color: var(--medium-gray-color);
+      // }
+    }
+
+    .btn-wishlist {
+      padding: 0.5rem; // Daha da kompakt
+      background-color: var(--white); // Beyaz arka plan
+      border: 2px solid var(--border-color-light); // Kenarlık rengi
+      border-radius: 50%;
+      color: var(--text-color-secondary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease-in-out;
+      line-height: 1;
+      cursor: pointer;
+      width: 40px; // Sepete ekle butonuyla daha uyumlu bir boyut
+      height: 40px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      // font-size: 0; // Kaldırıldı, ikon fontu yüklendiği için gerek yok
+      overflow: hidden; // Metin taşmasını engelle (ihtiyaç olursa kalabilir)
+
+      .material-icons {
+        font-family: 'Material Icons'; // Font ailesini belirt
+        font-size: 24px; // İkon boyutunu px olarak ayarla
+        transition: transform 0.2s ease-in-out, color 0.2s ease-in-out;
+        display: inline-block; // İkonun düzgün görüntülenmesi için
+        line-height: 1; // Dikey hizalama için
+        vertical-align: middle; // Dikey hizalama için
+        // İkonun render edilmesini garantilemek için ek stiller
+        speak: none;
+        font-style: normal;
+        font-weight: normal;
+        font-variant: normal;
+        text-transform: none;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      &:hover:not(:disabled) {
+        background-color: var(--light-gray-hover);
+        border-color: var(--primary-color-darker); // Hover'da kenarlık rengi
+        color: var(--primary-color); // Hover'da ikon rengi
+        transform: scale(1.05);
+        box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+      }
+
+      &.wishlisted {
+        color: var(--danger-color); // Beğenilmişse (istek listesinde ise) kırmızı
+        border-color: var(--danger-color); // Kenarlık da kırmızı
+        background-color: var(--white); // Arka plan beyaz kalsın veya çok hafif kırmızı
+
+        .material-icons {
+          // İkon dolgun görünebilir veya animasyon eklenebilir
+        }
+
+        &:hover:not(:disabled) {
+          background-color: var(--danger-light-color);
+          color: var(--white); // İkon rengi beyaz
+          border-color: var(--danger-color-darker);
+        }
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background-color: var(--light-gray);
+        border-color: var(--border-color-light);
+        color: var(--text-color-disabled);
+      }
+    }
+  }
+
+  .description {
+    margin-top: 2rem;
+    h3 {
+      margin-bottom: 0.75rem;
+      font-size: 1.3rem;
+      color: var(--text-color);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.5rem;
+      }
+    // Missing closing brace for .description added below
+    }
+
+  .product-reviews-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color-light);
+  }
+
+  .loading-indicator, .error-message, .image-placeholder-large {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px; // Yüklenirken veya hata durumunda alan kaplaması için
+    font-size: 1.2rem;
+    color: var(--text-color-secondary);
+  }
+
+  .error-message {
+    color: var(--danger-color);
+  }
+
+  .image-placeholder-large {
+    background-color: var(--light-gray-color);
+    border-radius: var(--border-radius-lg);
+    width: 100%;
+    max-width: 400px; // Resim boyutuyla eşleşebilir
+    height: 400px;
+  }
+}
+// Alt kısımdaki fazlalık bloklar kaldırıldı.
+// .product-info içindeki .actions zaten yukarıda tanımlı.
+// Bu alt kısımdaki .price-section, .stock-status, .actions, .description blokları
+// .product-info kapsamı dışında kalmış ve muhtemelen birleştirme hatası.
+// Yukarıdaki .product-info içindeki tanımlar geçerli olmalı.

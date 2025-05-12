@@ -1,0 +1,104 @@
+:host {
+  display: block;
+  position: fixed;
+  top: 80px; // Header yüksekliğine göre ayarlanabilir (header: 60px + 20px boşluk)
+  right: 20px;
+  z-index: 2000; // Diğer her şeyin üzerinde
+  width: 320px; // Bildirimlerin maksimum genişliği
+}
+
+.notification-container-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px; // Bildirimler arası boşluk
+}
+
+.notification-toast {
+  background-color: var(--white);
+  color: var(--text-color);
+  padding: 14px 20px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: flex-start; // İkon ve metni üste hizala
+  border-left: 5px solid transparent; // Tip rengi için sol kenarlık
+  animation: toastInRight 0.5s ease-out forwards; // Giriş animasyonu
+
+  .toast-icon {
+    margin-right: 12px;
+    font-size: 1.4em; // İkon boyutu
+    line-height: 1.2; // Metinle hizalamak için
+    flex-shrink: 0;
+  }
+
+  .toast-content {
+    flex-grow: 1;
+    .toast-message {
+      margin: 0;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+  }
+
+  .toast-close-button {
+    background: none;
+    border: none;
+    color: var(--text-color-secondary);
+    font-size: 1.3rem;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0 0 0 10px; // Sol tarafa biraz boşluk
+    line-height: 1;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  // Tipine göre renkler
+  &.toast-success {
+    border-left-color: var(--bright-green);
+    .toast-icon { color: var(--bright-green); }
+  }
+  &.toast-error {
+    border-left-color: #dc3545; // Kırmızı (Bootstrap danger rengi)
+    .toast-icon { color: #dc3545; }
+  }
+  &.toast-info {
+    border-left-color: var(--info-color); // Yeni değişken kullanıldı
+    .toast-icon { color: var(--info-color); }
+  }
+  &.toast-warning {
+    border-left-color: var(--warning-color); // Yeni değişken kullanıldı
+    .toast-icon { color: var(--warning-color); }
+  }
+}
+
+// Animasyonlar
+@keyframes toastInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+// Opsiyonel: Çıkış animasyonu için (JS ile class eklenerek tetiklenebilir)
+// .notification-toast.fade-out {
+//   animation: toastOutRight 0.5s ease-in forwards;
+// }
+// @keyframes toastOutRight {
+//   from {
+//     transform: translateX(0);
+//     opacity: 1;
+//   }
+//   to {
+//     transform: translateX(100%);
+//     opacity: 0;
+//   }
+// }

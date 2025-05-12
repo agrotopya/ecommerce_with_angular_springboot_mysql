@@ -1,0 +1,40 @@
+<!-- src/app/features/auth/login/login.component.html -->
+<div class="login-container">
+  <h2>Login</h2>
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <div>
+      <label for="usernameOrEmail">Username or Email:</label>
+      <input id="usernameOrEmail" type="text" formControlName="usernameOrEmail" />
+      <div
+        *ngIf="loginForm.get('usernameOrEmail')?.invalid && (loginForm.get('usernameOrEmail')?.dirty || loginForm.get('usernameOrEmail')?.touched)"
+        class="error-message"
+      >
+        <small *ngIf="loginForm.get('usernameOrEmail')?.errors?.['required']">Username or Email is required.</small>
+      </div>
+    </div>
+
+    <div>
+      <label for="password">Password:</label>
+      <input id="password" type="password" formControlName="password" />
+      <div
+        *ngIf="loginForm.get('password')?.invalid && (loginForm.get('password')?.dirty || loginForm.get('password')?.touched)"
+        class="error-message"
+      >
+        <small *ngIf="loginForm.get('password')?.errors?.['required']">Password is required.</small>
+      </div>
+    </div>
+
+    <button type="submit" [disabled]="loginForm.invalid || isLoading()">
+      {{ isLoading() ? 'Logging in...' : 'Login' }}
+    </button>
+  </form>
+  <div *ngIf="errorMessage()" class="error-message global-error">
+    {{ errorMessage() }}
+  </div>
+  <p>
+    Don't have an account? <a routerLink="/auth/register">Register here</a>
+  </p>
+  <p>
+    <a routerLink="/auth/forgot-password">Forgot Password?</a>
+  </p>
+</div>

@@ -1,0 +1,61 @@
+/* frontend/src/app/features/feels/components/feel-list/feel-list.component.scss */
+.feel-list-container {
+  max-width: 1200px; // Sayfa genişliği
+  margin: 2rem auto;
+  padding: 1rem;
+
+  .page-title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--text-color-dark);
+    margin-bottom: 1.5rem;
+    text-align: center;
+    border-bottom: 2px solid var(--primary-color-lighter);
+    padding-bottom: 0.5rem;
+  }
+
+  .loading-indicator,
+  .error-message,
+  .empty-list-message {
+    text-align: center;
+    padding: 3rem 1rem;
+    font-size: 1.1rem;
+    color: var(--text-color-secondary);
+  }
+
+  .error-message {
+    color: var(--danger-color);
+    background-color: var(--danger-light-color);
+    border: 1px solid var(--danger-color-lighter);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+  }
+
+  .empty-list-message {
+    p {
+      margin-bottom: 1rem;
+    }
+    .btn { // Genel buton stilleri kullanılabilir
+      padding: 0.8rem 1.5rem;
+    }
+  }
+
+  .feels-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); // Duyarlı grid
+    gap: 1.5rem; // Kartlar arası boşluk
+    margin-bottom: 2rem;
+
+    @media (min-width: 576px) { // Small devices
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+    @media (min-width: 992px) { // Large devices
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 2rem;
+    }
+  }
+
+  app-paginator {
+    margin-top: 2rem;
+  }
+}

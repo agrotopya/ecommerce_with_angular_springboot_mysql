@@ -1,0 +1,29 @@
+<!-- src/app/layout/admin-layout/admin-layout.component.html -->
+<div class="admin-layout-container">
+  <!-- İleride Admin Header eklenecek -->
+  <div style="background-color: #333; color: white; padding: 1rem; text-align: center;">
+    ADMIN PANEL HEADER PLACEHOLDER
+  </div>
+
+  <div class="admin-main-content">
+    <!-- Geçici Admin Sidebar -->
+    <nav class="admin-temp-sidebar">
+      <ul>
+        <li><a routerLink="/admin/dashboard" routerLinkActive="active-link">Dashboard</a></li>
+        <li><a routerLink="/admin/user-management" routerLinkActive="active-link">User Management</a></li>
+        <li><a routerLink="/admin/product-management" routerLinkActive="active-link">Product Management</a></li>
+        <li><a routerLink="/admin/orders" routerLinkActive="active-link">Order Management</a></li>
+        <li><a routerLink="/admin/coupon-management" routerLinkActive="active-link">Coupon Management</a></li>
+        <li><a routerLink="/admin/feel-management" routerLinkActive="active-link">Feel Management</a></li>
+        <li><a routerLink="/admin/review-management" routerLinkActive="active-link">Review Management</a></li>
+        <!-- Diğer admin linkleri buraya eklenebilir -->
+      </ul>
+    </nav>
+
+    <div class="admin-page-content">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+  <!-- İleride Admin Footer eklenebilir -->
+  <app-notification-container></app-notification-container> <!-- Eklendi -->
+</div>

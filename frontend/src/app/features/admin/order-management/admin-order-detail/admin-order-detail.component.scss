@@ -1,0 +1,139 @@
+/* src/app/features/admin/order-management/admin-order-detail/admin-order-detail.component.scss */
+.admin-order-detail-container {
+  padding: 1.5rem;
+
+  h2 {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 0.5rem;
+  }
+
+  .card {
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    margin-bottom: 1.5rem;
+
+    .card-header {
+      background-color: var(--light-gray);
+      padding: 0.75rem 1.25rem;
+      border-bottom: 1px solid var(--border-color);
+      border-top-left-radius: var(--border-radius);
+      border-top-right-radius: var(--border-radius);
+      h3, h4 {
+        margin: 0;
+        color: var(--primary-color);
+        font-size: 1.1rem;
+      }
+    }
+    .card-body {
+      padding: 1.25rem;
+      p {
+        margin-bottom: 0.6rem;
+        line-height: 1.5;
+        strong {
+          color: var(--text-color-secondary);
+        }
+      }
+    }
+  }
+
+  .update-status-card {
+    .form-group {
+      margin-bottom: 1rem;
+      label {
+        display: block;
+        margin-bottom: 0.3rem;
+        font-weight: 600;
+      }
+      select, input[type="text"] {
+        width: 100%;
+        max-width: 300px; // Form elemanları çok geniş olmasın
+      }
+    }
+    .btn-primary {
+      margin-top: 0.5rem;
+    }
+  }
+
+  .order-items-card {
+    .order-item-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--light-gray);
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+    .item-thumbnail {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+    }
+    .item-details {
+      flex-grow: 1;
+      a {
+        font-weight: 600;
+        color: var(--primary-color);
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+      span {
+        display: block;
+        font-size: 0.85rem;
+        color: var(--text-color-secondary);
+      }
+    }
+    .item-pricing {
+      text-align: right;
+      min-width: 120px;
+      span { display: block; font-size: 0.9rem; }
+      strong { display: block; font-weight: 700; }
+    }
+  }
+
+  .addresses-card {
+    .address-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    h5 {
+      color: var(--text-color-secondary);
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px dashed var(--border-color);
+      padding-bottom: 0.3rem;
+    }
+  }
+
+  .status-badge { // AdminOrderList'teki ile aynı stil
+    padding: 0.25em 0.6em;
+    font-size: 0.8rem;
+    font-weight: 700;
+    border-radius: 10px;
+    color: var(--white);
+    text-transform: capitalize;
+
+    &.status-pending_payment, &.status-payment-pending { background-color: var(--warning-color); color: var(--black); }
+    &.status-processing { background-color: var(--info-color); }
+    &.status-shipped { background-color: #007bff; }
+    &.status-delivered, &.status-payment-completed { background-color: var(--bright-green); }
+    &.status-cancelled_by_customer, &.status-cancelled_by_seller, &.status-cancelled_by_admin { background-color: var(--dark-gray); }
+    &.status-payment-failed { background-color: #dc3545; }
+  }
+
+  .loading-indicator, .error-message {
+    padding: 2rem;
+    text-align: center;
+  }
+  .mb-3 { // Back to Order List butonu için
+    margin-bottom: 1rem !important;
+  }
+}

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Frontend</title>
+  <base href="/">
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src 'self' https://js.stripe.com https://b.stripecdn.com https://m.stripe.network 'unsafe-inline' 'unsafe-eval';
+    style-src 'self' https://fonts.googleapis.com 'unsafe-inline';
+    img-src 'self' http://localhost:8080 data: https: *.stripe.com;
+    font-src 'self' https://fonts.gstatic.com data:;
+    connect-src 'self' http://localhost:8080 https://api.stripe.com https://q.stripe.com https://b.stripecdn.com *.stripe.com;
+    frame-src 'self' https://js.stripe.com https://b.stripecdn.com https://hooks.stripe.com https://newassets.hcaptcha.com https://m.stripe.network;
+    worker-src 'self' blob: https://js.stripe.com https://b.stripecdn.com https://m.stripe.network;
+  ">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <!-- Google Fonts - Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="preconnect" href="https://manisa.tarimorman.gov.tr">
+  <link rel="preconnect" href="http://localhost:8080">
+  <!-- Diğer önemli görsel kaynakları için de eklenebilir -->
+  <script src="https://js.stripe.com/v3/"></script> <!-- Stripe.js eklendi -->
+</head>
+<body>
+  <app-root></app-root>
+</body>
+</html>

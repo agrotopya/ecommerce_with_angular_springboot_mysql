@@ -1,0 +1,99 @@
+<!-- src/app/features/feels/components/feel-detail/feel-detail.component.html -->
+<div class="feel-detail-page">
+  <button (click)="goBack()" class="btn btn-link back-button mb-3">
+    <i class="fas fa-arrow-left"></i> Back
+  </button>
+
+  <div *ngIf="isLoadingFeel()" class="loading-indicator text-center my-5">
+    <p>Loading Feel...</p>
+    <!-- Spinner eklenebilir -->
+  </div>
+
+  <div *ngIf="!isLoadingFeel() && !feel()" class="error-message text-center my-5">
+    <p>Could not load Feel details or Feel not found.</p>
+  </div>
+
+  <div *ngIf="feel() as currentFeel" class="feel-content-wrapper">
+    <div class="video-player-container">
+      <div class="video-aspect-ratio-wrapper">
+        <iframe
+          *ngIf="safeVideoUrl()"
+          [src]="safeVideoUrl()"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+          class="feel-video-iframe">
+        </iframe>
+        <div *ngIf="!safeVideoUrl()" class="video-placeholder">
+          <i class="fas fa-video-slash"></i>
+          <span>Video Not Available</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="feel-info-sidebar">
+      <div class="seller-info-detailed">
+        <img
+          *ngIf="currentFeel.sellerProfileImageUrl"
+          [ngSrc]="currentFeel.sellerProfileImageUrl"
+          [alt]="currentFeel.sellerUsername"
+          width="48"
+          height="48"
+          class="seller-avatar-large" />
+        <div class="seller-name-container">
+          <a [routerLink]="['/seller', currentFeel.sellerUsername]" class="seller-username-link">{{ currentFeel.sellerUsername }}</a>
+          <!-- Takip et butonu eklenebilir -->
+        </div>
+      </div>
+
+      <h2 class="feel-title-detail">{{ currentFeel.title }}</h2>
+      <p class="feel-description-detail" *ngIf="currentFeel.description">{{ currentFeel.description }}</p>
+
+      <div class="feel-stats-detailed">
+        <span class="view-count-detail">
+          <i class="fas fa-eye"></i> {{ currentFeel.viewCount | number }} views
+        </span>
+        <button class="like-button" (click)="toggleFeelLike()" [class.liked]="isFeelLiked()" [disabled]="isLikingFeel()">
+          <i [ngClass]="isFeelLiked() ? 'fas fa-heart' : 'far fa-heart'"></i>
+          <span>{{ currentFeel.likeCount | number }} {{ currentFeel.likeCount === 1 ? 'Like' : 'Likes' }}</span>
+          <span *ngIf="isLikingFeel()" class="spinner-like"></span>
+        </button>
+        <!-- Yorum butonu/sayısı eklenebilir -->
+        <!-- Paylaş butonu eklenebilir -->
+      </div>
+
+      <div class="related-product-section" *ngIf="currentFeel.productId && product() as relatedProduct">
+        <h4 class="related-product-title">Related Product</h4>
+        <a [routerLink]="['/products', relatedProduct.slug]" class="related-product-card">
+          <img
+            *ngIf="relatedProduct.mainImageUrl"
+            [ngSrc]="relatedProduct.mainImageUrl"
+            [alt]="relatedProduct.name"
+            width="80"
+            height="80"
+            class="related-product-image-detail" />
+          <div *ngIf="!relatedProduct.mainImageUrl && relatedProduct.productImages && relatedProduct.productImages.length > 0" class="related-product-image-detail">
+             <img [ngSrc]="relatedProduct.productImages[0].imageUrl" [alt]="relatedProduct.name" width="80" height="80" />
+          </div>
+          <div *ngIf="!relatedProduct.mainImageUrl && (!relatedProduct.productImages || relatedProduct.productImages.length === 0)" class="related-product-placeholder-detail">
+            <i class="fas fa-box"></i>
+          </div>
+          <div class="related-product-info-detail">
+            <span class="related-product-name-detail">{{ relatedProduct.name }}</span>
+            <span class="related-product-price-detail">{{ relatedProduct.price | currency:'TRY':'symbol':'1.2-2' }}</span>
+          </div>
+          <i class="fas fa-chevron-right product-link-arrow"></i>
+        </a>
+      </div>
+      <div *ngIf="currentFeel.productId && isLoadingProduct()" class="loading-indicator">
+        <p>Loading product...</p>
+      </div>
+
+      <!-- Ürün Yorumları (Eğer ürün varsa) -->
+      <div class="product-reviews-container" *ngIf="currentFeel.productId">
+        <app-product-reviews [productId]="currentFeel.productId"></app-product-reviews>
+      </div>
+
+    </div>
+  </div>
+</div>

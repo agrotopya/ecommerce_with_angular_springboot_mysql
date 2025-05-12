@@ -1,0 +1,99 @@
+<!-- src/app/features/admin/user-management/user-management.component.html -->
+<div class="user-management-container">
+  <h2>User Management</h2>
+
+  <!-- Filtreler -->
+  <div class="filters-card">
+    <div class="filter-group">
+      <label for="filterSearchTerm">Search:</label>
+      <input type="text" id="filterSearchTerm" [(ngModel)]="filterSearchTerm" placeholder="Username, Email, Name...">
+    </div>
+    <div class="filter-group">
+      <label for="filterSelectedRole">Role:</label>
+      <select id="filterSelectedRole" [(ngModel)]="filterSelectedRole">
+        <option value="">All Roles</option>
+        <option *ngFor="let role of roles" [value]="role">{{ role | titlecase }}</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="filterSelectedStatus">Status:</label>
+      <select id="filterSelectedStatus" [(ngModel)]="filterSelectedStatus">
+        <option value="">All Statuses</option>
+        <option value="true">Active</option>
+        <option value="false">Inactive</option>
+      </select>
+    </div>
+    <div class="filter-actions">
+      <button class="btn btn-primary" (click)="applyFilters()">Apply Filters</button>
+      <button class="btn btn-secondary" (click)="clearFilters()">Clear Filters</button>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading()" class="loading-indicator">Loading users...</div>
+  <div *ngIf="errorMessage()" class="error-message">{{ errorMessage() }}</div>
+
+  <div *ngIf="!isLoading() && usersPage() as pageData">
+    <div *ngIf="pageData.content && pageData.content.length > 0; else noUsers" class="users-table-container">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of pageData.content; trackBy: trackByUser">
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.firstName || '-' }}</td>
+            <td>{{ user.lastName || '-' }}</td>
+            <td class="role-actions">
+              <ng-container *ngFor="let roleOpt of roles">
+                <button
+                  class="btn btn-sm role-btn"
+                  [class.btn-primary]="getUserDisplayRole(user) === roleOpt"
+                  [class.btn-outline-secondary]="getUserDisplayRole(user) !== roleOpt"
+                  [disabled]="getUserDisplayRole(user) === roleOpt"
+                  (click)="updateUserRole(user.id, roleOpt)">
+                  {{ roleOpt | titlecase }}
+                </button>
+              </ng-container>
+            </td>
+            <td>
+              <button class="btn btn-sm"
+                      [ngClass]="user.active ? 'btn-success' : 'btn-danger'"
+                      (click)="updateUserStatus(user.id, !user.active)">
+                {{ user.active ? 'Active' : 'Inactive' }}
+              </button>
+            </td>
+            <td>
+              <!-- <a [routerLink]="['/admin/user-management/edit', user.id]" class="btn btn-sm btn-primary">Edit</a> -->
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Sayfalama -->
+      <div *ngIf="pageData.totalPages > 1" class="pagination">
+        <button (click)="onPageChange(pageData.number - 1)" [disabled]="pageData.first" class="btn btn-sm">Previous</button>
+        <span *ngFor="let pageNum of pageNumbers">
+          <button (click)="onPageChange(pageNum)" [class.active]="pageNum === pageData.number" class="btn btn-sm">
+            {{ pageNum + 1 }}
+          </button>
+        </span>
+        <button (click)="onPageChange(pageData.number + 1)" [disabled]="pageData.last" class="btn btn-sm">Next</button>
+      </div>
+    </div>
+
+    <ng-template #noUsers>
+      <p *ngIf="!isLoading() && !errorMessage()" class="no-users-message">No users found matching your criteria.</p>
+    </ng-template>
+  </div>
+</div>

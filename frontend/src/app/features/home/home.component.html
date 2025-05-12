@@ -1,0 +1,119 @@
+<!-- src/app/features/home/home.component.html -->
+<div class="home-page">
+  <!-- Hero Section with Carousel -->
+  <section class="hero-section"> <!-- .container sınıfı kaldırıldı -->
+    <div class="hero-carousel-wrapper"
+         (mouseenter)="stopAutoScroll()"
+         (mouseleave)="startAutoScroll()">
+      <div class="hero-carousel-slides"
+           *ngIf="heroProducts().length > 0"
+           [style.transform]="'translateX(-' + (currentHeroIndex() * 100) + '%)'">
+        <div class="hero-carousel-slide" *ngFor="let product of heroProducts(); let i = index">
+          <!-- Ürün Görseli Eklendi -->
+          <div class="hero-slide-image-container">
+            <img *ngIf="product.mainImageUrl" [ngSrc]="product.mainImageUrl" [alt]="product.name" fill priority class="hero-slide-image"/>
+            <div *ngIf="!product.mainImageUrl && !(product.productImages && product.productImages.length > 0)" class="image-placeholder-hero"><span>Image Coming Soon</span></div>
+            <img *ngIf="!product.mainImageUrl && product.productImages && product.productImages.length > 0" [ngSrc]="product.productImages[0].imageUrl" [alt]="product.name" fill priority class="hero-slide-image"/>
+          </div>
+          <div class="hero-product-info">
+            <h1 class="hero-title">{{ product.name }}</h1>
+            <p class="hero-price">{{ product.price | currency:'TRY':'symbol':'1.2-2' }}</p>
+            <div class="hero-actions">
+              <a [routerLink]="['/products', product.slug]" class="btn btn-primary btn-add-to-cart">Detayları Gör</a>
+              <button class="btn btn-secondary btn-bestsellers">En Çok Satanlar</button>
+              <button class="btn btn-tertiary btn-flash-deals">Flaş Ürünler</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ng-template #noHeroProducts>
+        <!-- heroProducts boşsa veya yüklenememişse burası gösterilebilir -->
+      </ng-template>
+
+      <!-- Carousel Navigasyon Butonları (hero-carousel-wrapper içine taşındı) -->
+      <button class="carousel-control prev" (click)="prevHeroProduct()" *ngIf="heroProducts().length > 1" aria-label="Previous Product">&#10094;</button>
+      <button class="carousel-control next" (click)="nextHeroProduct()" *ngIf="heroProducts().length > 1" aria-label="Next Product">&#10095;</button>
+
+      <!-- Gösterge Noktaları (Dots) -->
+      <div class="carousel-dots" *ngIf="heroProducts().length > 1">
+        <button
+          *ngFor="let product of heroProducts(); let i = index"
+          class="dot"
+          [class.active]="i === currentHeroIndex()"
+          (click)="goToHeroProduct(i)"
+          [attr.aria-label]="'Go to product ' + (i + 1)">
+        </button>
+      </div>
+    </div>
+
+    <!-- Maskot görseli kaldırıldı veya yorumlandı, çünkü her slide kendi ürün görselini içerecek -->
+    <!--
+    <div class="hero-image-container">
+      <img [src]="heroProductImageUrl()" alt="Fibiyo Maskot" class="hero-image">
+    </div>
+    -->
+  </section>
+
+  <ng-template #heroLoadingOrError>
+    <section class="hero-section container">
+      <div class="hero-content">
+        <h1 class="hero-title">Harika Fırsatlar Burada!</h1>
+        <p class="hero-price">En yeni ürünleri keşfedin.</p>
+        <div class="hero-actions">
+          <a routerLink="/products" class="btn btn-primary">Tüm Ürünler</a>
+        </div>
+      </div>
+      <div class="hero-image-container">
+        <img [src]="heroProductImageUrl()" alt="Fibiyo Maskot" class="hero-image">
+      </div>
+    </section>
+  </ng-template>
+
+  <!-- Category Icons Section -->
+  <section class="category-icons-section container" *ngIf="featuredCategories().length > 0">
+    <div class="category-icon-grid">
+      <a *ngFor="let category of featuredCategories()"
+         [routerLink]="['/products']"
+         [queryParams]="{ category: category.slug }"
+         class="category-icon-item">
+        <!-- Kategori ikonu için placeholder veya category.imageUrl kullanılabilir -->
+        <div class="icon-wrapper">
+          <img [src]="category.imageUrl || 'assets/icons/default-category.svg'" [alt]="category.name" class="category-icon-image">
+        </div>
+        <span class="category-icon-name">{{ category.name }}</span>
+      </a>
+      <!-- Statik categoryIcons listesini kullanmak isterseniz:
+      <a *ngFor="let catIcon of categoryIcons"
+         [routerLink]="['/products']"
+         [queryParams]="{ category: catIcon.slug }"
+         class="category-icon-item">
+        <div class="icon-wrapper">
+          <img [src]="catIcon.icon" [alt]="catIcon.name" class="category-icon-image">
+        </div>
+        <span class="category-icon-name">{{ catIcon.name }}</span>
+      </a>
+      -->
+    </div>
+  </section>
+
+  <!-- Popular Products Section (Artık En Çok Satanlar) -->
+  <section class="product-section container" *ngIf="popularProducts().length > 0">
+    <h2 class="section-title">En Çok Satanlar</h2>
+    <div class="product-grid">
+      <app-product-card *ngFor="let product of popularProducts()" [product]="product"></app-product-card>
+    </div>
+  </section>
+
+  <!-- New Products Section -->
+  <section class="product-section container" *ngIf="newProducts().length > 0">
+    <h2 class="section-title">Yeni Gelenler</h2>
+    <div class="product-grid">
+      <app-product-card *ngFor="let product of newProducts()" [product]="product"></app-product-card>
+    </div>
+  </section>
+
+  <!-- Yükleme Durumları (Opsiyonel) -->
+  <div *ngIf="isLoadingCategories() || isLoadingPopularProducts() || isLoadingNewProducts()" class="loading-indicator-page">
+    Yükleniyor...
+  </div>
+</div>

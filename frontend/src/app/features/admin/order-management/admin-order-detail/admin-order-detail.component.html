@@ -1,0 +1,115 @@
+<div class="admin-order-detail-container">
+  <button class="btn btn-secondary btn-sm mb-3" routerLink="/admin/orders">
+    &larr; Back to Order List
+  </button>
+
+  <h2>Admin - Order Detail</h2>
+
+  <div *ngIf="isLoading()" class="loading-indicator">Loading order details...</div>
+  <div *ngIf="errorMessage()" class="error-message">{{ errorMessage() }}</div>
+
+  <div *ngIf="!isLoading() && order() as currentOrder; else noOrderFound">
+    <div class="order-main-info card">
+      <div class="card-header">
+        <h3>Order #{{ currentOrder.id }}</h3>
+      </div>
+      <div class="card-body">
+        <p><strong>Customer:</strong> {{ currentOrder.customerFirstName || '' }} {{ currentOrder.customerLastName || '' }} (User ID: {{ currentOrder.userId }})</p>
+        <p><strong>Order Date:</strong> {{ currentOrder.createdAt | date:'fullDate' }} ({{ currentOrder.createdAt | date:'shortTime' }})</p>
+        <p><strong>Current Status:</strong>
+          <span class="status-badge" [ngClass]="'status-' + currentOrder.status.toLowerCase()">
+            {{ currentOrder.status.replace('_', ' ') | titlecase }}
+          </span>
+        </p>
+        <p><strong>Payment Method:</strong> {{ currentOrder.paymentMethod | titlecase }}</p>
+        <p><strong>Payment Status:</strong>
+          <span class="status-badge" [ngClass]="'status-payment-' + (currentOrder.paymentStatus || 'pending').toLowerCase()">
+            {{ (currentOrder.paymentStatus || 'Pending') | titlecase }}
+          </span>
+        </p>
+        <p *ngIf="currentOrder.trackingNumber"><strong>Tracking Number:</strong> {{ currentOrder.trackingNumber }}</p>
+      </div>
+    </div>
+
+    <!-- Update Status Form -->
+    <div class="update-status-card card">
+      <div class="card-header">
+        <h4>Update Order Status</h4>
+      </div>
+      <div class="card-body">
+        <form [formGroup]="updateStatusForm" (ngSubmit)="submitUpdateStatus()">
+          <div class="form-group">
+            <label for="newStatus">New Status:</label>
+            <select id="newStatus" formControlName="newStatus" (change)="onStatusChange($event)">
+              <option *ngFor="let status of orderStatusOptions" [value]="status">
+                {{ status.replace('_', ' ') | titlecase }}
+              </option>
+            </select>
+            <div *ngIf="updateStatusForm.get('newStatus')?.hasError('required')" class="error-message">
+              Status is required.
+            </div>
+          </div>
+
+          <div class="form-group" *ngIf="updateStatusForm.get('newStatus')?.value === OrderStatusEnum.SHIPPED">
+            <label for="trackingNumber">Tracking Number:</label>
+            <input type="text" id="trackingNumber" formControlName="trackingNumber" placeholder="Enter tracking number">
+            <div *ngIf="updateStatusForm.get('trackingNumber')?.invalid && updateStatusForm.get('trackingNumber')?.touched" class="error-message">
+              Tracking number is required if status is SHIPPED (min 3 chars).
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" [disabled]="updateStatusForm.invalid || isUpdatingStatus()">
+            {{ isUpdatingStatus() ? 'Updating...' : 'Update Status' }}
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div class="order-items-card card">
+      <div class="card-header">
+        <h4>Order Items ({{ currentOrder.items.length }})</h4>
+      </div>
+      <div class="card-body">
+        <div *ngFor="let item of currentOrder.items" class="order-item-row">
+          <img [src]="item.product.mainImageUrl || (item.product && item.product.productImages && item.product.productImages.length > 0 ? item.product.productImages[0].imageUrl : 'assets/images/placeholder.png')" [alt]="item.product.name" class="item-thumbnail">
+          <div class="item-details">
+            <a *ngIf="item.product" [routerLink]="['/products', item.product.slug]" target="_blank">{{ item.product.name }}</a>
+            <span *ngIf="!item.product">Product details not available</span>
+            <span>SKU: {{ item.product.sku || 'N/A' }}</span>
+          </div>
+          <div class="item-pricing">
+            <span>{{ item.unitPrice | currency:'TRY':'symbol':'1.2-2' }} x {{ item.quantity }}</span>
+            <strong>{{ item.totalPrice | currency:'TRY':'symbol':'1.2-2' }}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="addresses-card card">
+      <div class="card-header">
+        <h4>Addresses</h4>
+      </div>
+      <div class="card-body address-grid">
+        <div class="shipping-address">
+          <h5>Shipping Address</h5>
+          <p>{{ currentOrder.shippingAddress.street }}</p>
+          <p *ngIf="currentOrder.shippingAddress.addressLine2">{{ currentOrder.shippingAddress.addressLine2 }}</p>
+          <p>{{ currentOrder.shippingAddress.city }}, {{ currentOrder.shippingAddress.state }} {{ currentOrder.shippingAddress.zipCode }}</p>
+          <p>{{ currentOrder.shippingAddress.country }}</p>
+          <p *ngIf="currentOrder.shippingAddress.phoneNumber">Phone: {{ currentOrder.shippingAddress.phoneNumber }}</p>
+        </div>
+        <div *ngIf="currentOrder.billingAddress" class="billing-address">
+          <h5>Billing Address</h5>
+          <p>{{ currentOrder.billingAddress.street }}</p>
+          <p *ngIf="currentOrder.billingAddress.addressLine2">{{ currentOrder.billingAddress.addressLine2 }}</p>
+          <p>{{ currentOrder.billingAddress.city }}, {{ currentOrder.billingAddress.state }} {{ currentOrder.billingAddress.zipCode }}</p>
+          <p>{{ currentOrder.billingAddress.country }}</p>
+          <p *ngIf="currentOrder.billingAddress.phoneNumber">Phone: {{ currentOrder.billingAddress.phoneNumber }}</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <ng-template #noOrderFound>
+    <p *ngIf="!isLoading() && !errorMessage()">Order details could not be loaded.</p>
+  </ng-template>
+</div>

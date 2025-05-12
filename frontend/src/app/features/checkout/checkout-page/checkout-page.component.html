@@ -1,0 +1,62 @@
+<!-- src/app/features/checkout/checkout-page/checkout-page.component.html -->
+<div class="checkout-container">
+  <h2>Checkout</h2>
+
+  <div *ngIf="isLoading()" class="loading-indicator">Loading checkout data...</div>
+  <div *ngIf="errorMessage()" class="error-message">{{ errorMessage() }}</div>
+
+  <div *ngIf="!isLoading() && cart() as currentCart">
+    <!-- Sepet boşsa mesaj göster -->
+    <div *ngIf="!currentCart.items || currentCart.items.length === 0" class="empty-cart-message">
+      <p>Your cart is empty. Please add some products before proceeding to checkout.</p>
+      <a routerLink="/products" class="btn-shop">Continue Shopping</a>
+    </div>
+
+    <!-- Sepet doluysa checkout adımlarını göster -->
+    <div *ngIf="currentCart.items && currentCart.items.length > 0" class="checkout-steps">
+      <!-- Adım göstergeleri -->
+      <div class="step-indicators">
+        <div class="step" [class.active]="currentStep() === 1" (click)="goToStep(1)">1. Shipping Address</div>
+        <div class="step" [class.active]="currentStep() === 2" [class.disabled]="currentStep() < 2">2. Payment Method</div>
+        <div class="step" [class.active]="currentStep() === 3" [class.disabled]="currentStep() < 3">3. Review & Place Order</div>
+      </div>
+
+      <!-- Adım içerikleri -->
+      <div class="step-content">
+        <!-- Adım 1: Teslimat Adresi -->
+        <div *ngIf="currentStep() === 1" class="step-shipping">
+          <app-shipping-address
+            (addressSubmitted)="handleAddressSubmitted($event)"
+            (cancelClicked)="goToStep(1)"
+          ></app-shipping-address>
+        </div>
+
+        <!-- Adım 2: Ödeme Yöntemi -->
+        <div *ngIf="currentStep() === 2" class="step-payment">
+          <app-payment-method
+            (paymentMethodSubmitted)="handlePaymentMethodSubmitted($event)"
+            (backClicked)="goToStep(1)"
+          ></app-payment-method>
+        </div>
+
+        <!-- Adım 3: Sipariş Özeti ve Onay -->
+        <div *ngIf="currentStep() === 3" class="step-review">
+          <div class="coupon-section">
+            <label for="couponCode">Coupon Code (Optional):</label>
+            <input type="text" id="couponCode" name="couponCode" [(ngModel)]="couponCode">
+            <!-- Kupon uygulama butonu eklenebilir -->
+          </div>
+          <app-order-summary
+            [cart]="currentCart"
+            [showActions]="true"
+            (backClicked)="goToStep(2)"
+            (placeOrderClicked)="createOrder()"
+            (couponApplied)="handleCouponApplied($event)"
+            [class.disabled]="isPlacingOrder()"
+          ></app-order-summary>
+          <div *ngIf="isPlacingOrder()" class="placing-order-indicator">Placing your order...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

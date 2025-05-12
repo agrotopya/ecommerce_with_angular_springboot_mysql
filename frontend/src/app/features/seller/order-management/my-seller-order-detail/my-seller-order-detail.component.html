@@ -1,0 +1,186 @@
+<div class="order-detail-container" *ngIf="order() as currentOrder; else loadingOrError">
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h2>Order #{{ currentOrder.id }} - Details</h2>
+      <button class="btn btn-outline-secondary btn-sm" routerLink="/seller/orders">
+        <i class="fas fa-arrow-left"></i> Back to My Orders
+      </button>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <!-- Sol Sütun: Sipariş Bilgileri -->
+        <div class="col-md-7">
+          <h4>Order Information</h4>
+          <table class="table table-sm table-borderless info-table">
+            <tbody>
+              <tr>
+                <td><strong>Order ID:</strong></td>
+                <td>#{{ currentOrder.id }}</td>
+              </tr>
+              <tr>
+                <td><strong>Order Date:</strong></td>
+                <td>{{ currentOrder.createdAt | date:'MMM d, y, h:mm:ss a' }} ({{ currentOrder.createdAt | timeAgo }})</td>
+              </tr>
+              <tr>
+                <td><strong>Tracking Number:</strong></td>
+                <td>{{ currentOrder.trackingNumber || 'Not available yet' }}</td>
+              </tr>
+              <tr>
+                <td><strong>Current Status:</strong></td>
+                <td>
+                  <span class="badge" [ngClass]="'status-' + currentOrder.status.toLowerCase()">
+                    {{ formatOrderStatus(currentOrder.status) }}
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Payment Method:</strong></td>
+                <td>{{ currentOrder.paymentMethod }}</td>
+              </tr>
+              <tr>
+                <td><strong>Payment Status:</strong></td>
+                <td>
+                  <span class="badge" [ngClass]="'payment-status-' + currentOrder.paymentStatus.toLowerCase()">
+                    {{ formatPaymentStatus(currentOrder.paymentStatus) }}
+                  </span>
+                </td>
+              </tr>
+              <tr *ngIf="currentOrder.couponCode">
+                <td><strong>Coupon Used:</strong></td>
+                <td>{{ currentOrder.couponCode }}</td>
+              </tr>
+              <tr *ngIf="currentOrder.notes">
+                <td><strong>Notes:</strong></td>
+                <td>{{ currentOrder.notes }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <hr class="my-4">
+
+          <h4>Update Order Status</h4>
+          <div class="form-group update-status-group">
+            <label for="orderStatusSelect">New Status:</label>
+            <select id="orderStatusSelect" class="form-control form-control-sm"
+                    [ngModel]="selectedStatus()"
+                    (ngModelChange)="selectedStatus.set($event)">
+              <option *ngFor="let statusOpt of orderStatusOptions()"
+                      [value]="statusOpt.value"
+                      [disabled]="!isStatusUpdatable(statusOpt.value) || statusOpt.value === currentOrder.status">
+                {{ statusOpt.label }}
+              </option>
+            </select>
+            <button class="btn btn-primary btn-sm mt-2"
+                    (click)="updateOrderStatus()"
+                    [disabled]="isLoading() || !selectedStatus() || selectedStatus() === currentOrder.status || !isStatusUpdatable(selectedStatus()!)">
+              <i class="fas fa-save"></i> Update Status
+            </button>
+          </div>
+        </div>
+
+        <!-- Sağ Sütun: Müşteri ve Adres Bilgileri -->
+        <div class="col-md-5">
+          <h4>Customer & Shipping</h4>
+          <table class="table table-sm table-borderless info-table">
+            <tbody>
+              <tr>
+                <td><strong>Customer:</strong></td>
+                <td>{{ currentOrder.customerFirstName || 'N/A' }} {{ currentOrder.customerLastName || '' }}</td>
+              </tr>
+              <tr>
+                <td><strong>Email:</strong></td>
+                <td>{{ currentOrder.customerEmail || 'N/A' }}</td>
+              </tr>
+              <tr>
+                <td colspan="2"><strong>Shipping Address:</strong></td>
+              </tr>
+              <tr>
+                <td colspan="2">
+                  {{ currentOrder.shippingAddress.street }}<br>
+                  {{ currentOrder.shippingAddress.city }}, {{ currentOrder.shippingAddress.state }} {{ currentOrder.shippingAddress.zipCode }}<br>
+                  {{ currentOrder.shippingAddress.country }}
+                  <div *ngIf="currentOrder.shippingAddress.phoneNumber" class="mt-1">
+                    <small>Phone: {{ currentOrder.shippingAddress.phoneNumber }}</small>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="currentOrder.billingAddress && (currentOrder.billingAddress.street !== currentOrder.shippingAddress.street || currentOrder.billingAddress.city !== currentOrder.shippingAddress.city)">
+                <td colspan="2"><strong>Billing Address:</strong></td>
+              </tr>
+              <tr *ngIf="currentOrder.billingAddress && (currentOrder.billingAddress.street !== currentOrder.shippingAddress.street || currentOrder.billingAddress.city !== currentOrder.shippingAddress.city)">
+                <td colspan="2">
+                  {{ currentOrder.billingAddress.street }}<br>
+                  {{ currentOrder.billingAddress.city }}, {{ currentOrder.billingAddress.state }} {{ currentOrder.billingAddress.zipCode }}<br>
+                  {{ currentOrder.billingAddress.country }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <hr class="my-4">
+
+      <h4>Order Items ({{ currentOrder.items.length }})</h4>
+      <div class="order-items-table-container">
+        <table class="table table-sm order-items-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th class="text-right">Unit Price</th>
+              <th class="text-center">Quantity</th>
+              <th class="text-right">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of currentOrder.items">
+              <td>
+                <div class="d-flex align-items-center">
+                  <img [src]="item.product.mainImageUrl || 'assets/images/placeholder-image.png'"
+                       [alt]="item.product.name" class="item-thumbnail mr-2">
+                  <div>
+                    <a [routerLink]="['/products', item.product.slug || item.product.id]">{{ item.product.name || 'Product not available' }}</a>
+                    <div class="small text-muted">SKU: {{ item.product.sku || 'N/A' }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="text-right">{{ item.unitPrice | currency:currentOrder.currency:'symbol':'1.2-2' }}</td>
+              <td class="text-center">{{ item.quantity }}</td>
+              <td class="text-right">{{ calculateItemTotal(item) | currency:currentOrder.currency:'symbol':'1.2-2' }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" class="text-right"><strong>Subtotal:</strong></td>
+              <td class="text-right">{{ currentOrder.totalAmount | currency:currentOrder.currency:'symbol':'1.2-2' }}</td>
+            </tr>
+            <tr *ngIf="currentOrder.discountAmount">
+              <td colspan="3" class="text-right"><strong>Discount:</strong></td>
+              <td class="text-right text-danger">-{{ currentOrder.discountAmount | currency:currentOrder.currency:'symbol':'1.2-2' }}</td>
+            </tr>
+            <tr *ngIf="currentOrder.shippingFee">
+              <td colspan="3" class="text-right"><strong>Shipping:</strong></td>
+              <td class="text-right">{{ currentOrder.shippingFee | currency:currentOrder.currency:'symbol':'1.2-2' }}</td>
+            </tr>
+            <tr>
+              <td colspan="3" class="text-right"><strong>Grand Total:</strong></td>
+              <td class="text-right"><strong>{{ currentOrder.finalAmount | currency:currentOrder.currency:'symbol':'1.2-2' }}</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #loadingOrError>
+  <div *ngIf="isLoading()" class="loading-indicator full-page-loader">
+    <p>Loading order details...</p>
+    <!-- Add a spinner or more elaborate loading animation here if desired -->
+  </div>
+  <div *ngIf="errorMessage() && !isLoading()" class="error-message global-error full-page-error">
+    <p>{{ errorMessage() }}</p>
+    <button class="btn btn-secondary" (click)="loadOrderDetail()">Try Again</button>
+    <button class="btn btn-outline-secondary ml-2" routerLink="/seller/orders">Back to My Orders</button>
+  </div>
+</ng-template>

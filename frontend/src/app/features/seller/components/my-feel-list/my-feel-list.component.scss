@@ -1,0 +1,172 @@
+/* frontend/src/app/features/seller/components/my-feel-list/my-feel-list.component.scss */
+.my-feels-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 1rem;
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color-light);
+
+    .page-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: var(--text-color-dark);
+      margin: 0;
+    }
+
+    .btn-create-feel {
+      // Genel .btn ve .btn-primary stilleri kullanılabilir
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.95rem;
+      padding: 0.6rem 1.2rem;
+    }
+  }
+
+  .loading-indicator,
+  .error-message,
+  .empty-list-message {
+    text-align: center;
+    padding: 3rem 1rem;
+    font-size: 1.1rem;
+    color: var(--text-color-secondary);
+  }
+
+  .error-message {
+    color: var(--danger-color);
+    background-color: var(--danger-light-color);
+    border: 1px solid var(--danger-color-lighter);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+  }
+
+  .empty-list-message {
+    p {
+      margin-bottom: 1rem;
+    }
+  }
+
+  .feels-grid-seller {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem; // Kartlar ve aksiyonlar arası boşluk
+    margin-bottom: 2rem;
+
+    @media (min-width: 768px) {
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    }
+
+    .feel-card-wrapper-seller {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--border-color-light);
+      border-radius: var(--border-radius-lg);
+      overflow: hidden; // app-feel-card'ın kendi border-radius'u ile çakışmaması için
+      background-color: var(--white); // Kart arka planı
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+
+      app-feel-card {
+        flex-grow: 1; // Kartın wrapper'ı doldurmasını sağlar
+        border-bottom-left-radius: 0; // Alt aksiyonlar için köşeleri sıfırla
+        border-bottom-right-radius: 0;
+        box-shadow: none; // Wrapper'da zaten gölge var
+        border: none; // Wrapper'da zaten kenarlık var
+      }
+
+      .feel-actions-seller {
+        padding: 0.75rem 1rem;
+        background-color: var(--light-gray-background); // Hafif farklı bir arka plan
+        border-top: 1px solid var(--border-color-light);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+
+        .status-badge {
+          font-size: 0.8rem;
+          font-weight: 500;
+          padding: 0.25rem 0.6rem;
+          border-radius: var(--border-radius-pill);
+
+          &.active {
+            background-color: var(--success-light-color);
+            color: var(--success-color-darker);
+          }
+          &.inactive {
+            background-color: var(--medium-gray);
+            color: var(--text-color-secondary);
+          }
+        }
+
+        .btn-edit-feel, .btn-delete-feel {
+          // .btn-sm, .btn-outline-secondary, .btn-outline-danger stilleri kullanılabilir
+          display: inline-flex;
+          align-items: center;
+          gap: 0.3rem;
+          font-size: 0.85rem;
+          padding: 0.4rem 0.8rem;
+
+          .material-icons {
+            font-size: 1.1rem;
+          }
+        }
+      }
+    }
+  }
+
+  app-paginator {
+    margin-top: 2rem;
+  }
+
+  // Basit Modal Stilleri (ConfirmationModalComponent gelene kadar)
+  .delete-confirmation-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050; // Diğerlerinden üstte
+  }
+
+  .delete-confirmation-modal {
+    background-color: var(--white);
+    padding: 2rem;
+    border-radius: var(--border-radius-lg);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 450px;
+    text-align: center;
+
+    h4 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+      color: var(--text-color-dark);
+    }
+
+    p {
+      margin-bottom: 1.5rem;
+      color: var(--text-color-secondary);
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+
+      .btn {
+        padding: 0.6rem 1.2rem;
+      }
+    }
+  }
+}
