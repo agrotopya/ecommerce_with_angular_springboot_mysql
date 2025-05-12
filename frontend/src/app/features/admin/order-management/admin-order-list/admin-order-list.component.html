@@ -1,0 +1,87 @@
+<div class="admin-order-list-container">
+  <h2>Admin - Order Management</h2>
+
+  <!-- Filtreler -->
+  <div class="filters-card">
+    <div class="filter-group">
+      <label for="filterCustomerKeyword">Customer Search:</label>
+      <input type="text" id="filterCustomerKeyword" [(ngModel)]="filterCustomerKeyword" placeholder="Name, Email, etc.">
+    </div>
+    <div class="filter-group">
+      <label for="filterStartDate">Start Date:</label>
+      <input type="date" id="filterStartDate" [(ngModel)]="filterStartDate">
+    </div>
+    <div class="filter-group">
+      <label for="filterEndDate">End Date:</label>
+      <input type="date" id="filterEndDate" [(ngModel)]="filterEndDate">
+    </div>
+    <div class="filter-group">
+      <label for="filterStatus">Order Status:</label>
+      <select id="filterStatus" [(ngModel)]="filterStatus">
+        <option value="">All Statuses</option>
+        <option *ngFor="let status of orderStatusOptions" [value]="status">{{ status.replace('_', ' ') | titlecase }}</option>
+      </select>
+    </div>
+    <div class="filter-actions">
+      <button class="btn btn-primary" (click)="applyFilters()">Apply Filters</button>
+      <button class="btn btn-secondary" (click)="clearFilters()">Clear Filters</button>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading()" class="loading-indicator">Loading orders...</div>
+  <div *ngIf="errorMessage()" class="error-message">{{ errorMessage() }}</div>
+
+  <div *ngIf="!isLoading() && ordersPage() as pageData">
+    <div *ngIf="pageData.content && pageData.content.length > 0; else noOrders" class="orders-table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Date</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Payment Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of pageData.content">
+            <td>#{{ order.id }}</td>
+            <td>{{ order.customerFirstName || '' }} {{ order.customerLastName || '' }} (User ID: {{ order.userId }})</td>
+            <td>{{ order.createdAt | date:'medium' }}</td>
+            <td>{{ order.finalAmount | currency:'TRY':'symbol':'1.2-2' }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="'status-' + order.status.toLowerCase()">
+                {{ order.status.replace('_', ' ') | titlecase }}
+              </span>
+            </td>
+            <td>
+              <span class="status-badge" [ngClass]="'status-payment-' + (order.paymentStatus || 'pending').toLowerCase()">
+                {{ (order.paymentStatus || 'Pending') | titlecase }}
+              </span>
+            </td>
+            <td>
+              <button class="btn btn-sm btn-info" (click)="navigateToOrderDetail(order.id)">View Details</button>
+              <!-- İleride hızlı durum güncelleme butonları eklenebilir -->
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ng-template #noOrders>
+      <p class="no-results-message">No orders found matching your criteria.</p>
+    </ng-template>
+
+    <!-- Sayfalama -->
+    <div *ngIf="pageData.totalPages > 1" class="pagination">
+      <button (click)="onPageChange(pageData.number - 1)" [disabled]="pageData.first">Previous</button>
+      <span *ngFor="let pageNum of pageNumbers">
+        <button (click)="onPageChange(pageNum)" [class.active]="pageNum === pageData.number">
+          {{ pageNum + 1 }}
+        </button>
+      </span>
+      <button (click)="onPageChange(pageData.number + 1)" [disabled]="pageData.last">Next</button>
+    </div>
+  </div>
+</div>

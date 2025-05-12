@@ -1,0 +1,135 @@
+// src/app/features/products/product-list/product-list.component.scss
+.product-list-container {
+  padding: 2rem 1rem; // Genel sayfa içi boşluk
+  max-width: 1200px; // Sayfa içeriğini sınrla
+  margin: 0 auto; // Ortala
+
+  h2 {
+    text-align: center;
+    margin-bottom: 2rem; // Başlık altı boşluk
+    font-size: 2.2rem; // Başlık boyutu
+    color: var(--primary-color);
+  }
+
+  .filters {
+    display: flex;
+    gap: 1rem; // Elemanlar arası boşluk
+    margin-bottom: 2rem;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 1rem;
+    background-color: var(--light-gray); // Filtre alanı arka planı
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+
+    input[type='text'], select {
+      padding: var(--input-padding); // Global input padding'ini kullan
+      border: 1px solid var(--border-color); // Global border rengi
+      border-radius: var(--border-radius); // Global border radius
+      font-size: 0.95rem;
+      background-color: var(--white);
+      color: var(--text-color);
+      &:focus {
+        border-color: var(--secondary-color); // Turuncu focus
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(247, 147, 30, 0.25);
+      }
+    }
+
+    input[type='text'] {
+      flex-grow: 1; // Arama input'u esnesin
+      min-width: 200px; // Minimum genişlik
+    }
+
+    select {
+      min-width: 180px; // Kategori dropdown genişliği
+      cursor: pointer;
+    }
+
+    button {
+      // Global .btn stilini kullanıyor, renkleri burada özelleştirebiliriz
+      // veya HTML'de .btn-primary gibi class'lar eklenebilir.
+      // Şimdilik global .btn stilini varsayalım.
+      // Eğer özel bir stil gerekirse:
+      // background-color: var(--primary-color);
+      // color: var(--white);
+      // padding: var(--input-padding); // Inputlarla aynı yükseklik için
+      // &:hover {
+      //   background-color: var(--deep-purple-darker);
+      // }
+    }
+    span { // "Loading categories..." mesajı için
+      font-style: italic;
+      color: var(--text-color-secondary);
+    }
+  }
+
+  .products-grid {
+    display: grid;
+    // Ürün kartı genişliğine göre ayarla, minmax(250px, 1fr) daha iyi olabilir
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem; // Kartlar arası boşluk
+    margin-bottom: 2rem;
+  }
+
+  .loading-indicator, .no-products-message {
+    text-align: center;
+    padding: 3rem 1rem;
+    font-size: 1.2rem;
+    color: var(--text-color-secondary);
+    min-height: 200px; // İçerik olmadığında da alan kaplasın
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .error-message { // Global .error-message stilini kullanacak
+    text-align: center;
+    padding: 1.5rem;
+    // color: #dc3545; // Zaten globalde var
+    background-color: rgba(220, 53, 69, 0.1); // Hafif kırmızı arka plan
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    border-radius: var(--border-radius);
+    margin-bottom: 2rem;
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem; // Butonlar arası boşluk
+    margin-top: 2rem;
+    padding-bottom: 2rem; // Sayfa sonu boşluk
+
+    button {
+      // Global .btn stilini kullanabilir veya özelleştirilebilir
+      padding: 0.6rem 1rem;
+      border: 1px solid var(--border-color);
+      background-color: var(--surface-color);
+      color: var(--primary-color); // Buton metni ana renk
+      cursor: pointer;
+      border-radius: var(--border-radius);
+      font-weight: 600;
+      transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+
+      &:disabled {
+        background-color: var(--light-gray);
+        color: var(--medium-gray);
+        border-color: var(--medium-gray);
+        cursor: not-allowed;
+        opacity: 0.8;
+      }
+
+      &.active {
+        background-color: var(--primary-color); // Aktif sayfa butonu ana renk
+        color: var(--white);
+        border-color: var(--primary-color);
+      }
+
+      &:hover:not(:disabled):not(.active) {
+        background-color: var(--medium-gray);
+        border-color: var(--dark-gray);
+      }
+    }
+  }
+}

@@ -1,0 +1,94 @@
+<div class="my-orders-container">
+  <h2>My Orders</h2>
+
+  <div class="filters mb-3">
+    <div class="form-group">
+      <label for="statusFilter">Filter by Status:</label>
+      <select id="statusFilter" class="form-control"
+              [ngModel]="selectedStatus()"
+              (ngModelChange)="selectedStatus.set($event); onFilterChange()">
+        <option value="">All Statuses</option>
+        <option *ngFor="let statusOption of orderStatusOptions()" [value]="statusOption.value">
+          {{ statusOption.label }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading()" class="loading-indicator">Loading orders...</div>
+  <div *ngIf="errorMessage()" class="error-message global-error">{{ errorMessage() }}</div>
+
+  <ng-container *ngIf="orders() as ordersPage">
+    <div *ngIf="ordersPage.content.length === 0 && !isLoading()" class="no-orders-message">
+      <p>You have no orders matching the current criteria.</p>
+    </div>
+
+    <div *ngIf="ordersPage.content.length > 0" class="orders-table-container">
+      <table class="table table-hover orders-table">
+        <thead>
+          <tr>
+            <th (click)="onSort('id')" class="sortable">
+              Order ID <i class="fas" [ngClass]="{'fa-sort': sortColumn() !== 'id', 'fa-sort-up': sortColumn() === 'id' && sortDirection() === 'asc', 'fa-sort-down': sortColumn() === 'id' && sortDirection() === 'desc'}"></i>
+            </th>
+            <th (click)="onSort('orderDate')" class="sortable">
+              Date <i class="fas" [ngClass]="{'fa-sort': sortColumn() !== 'orderDate', 'fa-sort-up': sortColumn() === 'orderDate' && sortDirection() === 'asc', 'fa-sort-down': sortColumn() === 'orderDate' && sortDirection() === 'desc'}"></i>
+            </th>
+            <th>Customer</th>
+            <th (click)="onSort('finalAmount')" class="sortable text-right">
+              Total <i class="fas" [ngClass]="{'fa-sort': sortColumn() !== 'finalAmount', 'fa-sort-up': sortColumn() === 'finalAmount' && sortDirection() === 'asc', 'fa-sort-down': sortColumn() === 'finalAmount' && sortDirection() === 'desc'}"></i>
+            </th>
+            <th (click)="onSort('status')" class="sortable">
+              Status <i class="fas" [ngClass]="{'fa-sort': sortColumn() !== 'status', 'fa-sort-up': sortColumn() === 'status' && sortDirection() === 'asc', 'fa-sort-down': sortColumn() === 'status' && sortDirection() === 'desc'}"></i>
+            </th>
+            <th (click)="onSort('paymentStatus')" class="sortable">
+              Payment <i class="fas" [ngClass]="{'fa-sort': sortColumn() !== 'paymentStatus', 'fa-sort-up': sortColumn() === 'paymentStatus' && sortDirection() === 'asc', 'fa-sort-down': sortColumn() === 'paymentStatus' && sortDirection() === 'desc'}"></i>
+            </th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of ordersPage.content" (click)="viewOrderDetail(order.id)" class="order-row">
+            <td>#{{ order.id }}</td>
+            <td>{{ order.createdAt | date:'MMM d, y, h:mm a' }} <small>({{ order.createdAt | timeAgo }})</small></td>
+            <td>
+              {{ order.customerFirstName || 'N/A' }} {{ order.customerLastName || '' }}
+              <div class="text-muted small">{{ order.customerEmail }}</div>
+            </td>
+            <td class="text-right">{{ order.finalAmount | currency:order.currency:'symbol':'1.2-2' }}</td>
+            <td>
+              <span class="badge" [ngClass]="'status-' + order.status.toLowerCase()">
+                {{ formatOrderStatus(order.status) }}
+              </span>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="'payment-status-' + order.paymentStatus.toLowerCase()">
+                {{ formatPaymentStatus(order.paymentStatus) }}
+              </span>
+            </td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary" (click)="viewOrderDetail(order.id); $event.stopPropagation()">
+                <i class="fas fa-eye"></i> View
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="ordersPage.totalPages > 1" class="pagination-controls">
+      <button
+        class="btn btn-pagination"
+        (click)="onPageChange(currentPage() - 1)"
+        [disabled]="ordersPage.first">
+        <i class="fas fa-chevron-left"></i> Previous
+      </button>
+      <span>Page {{ currentPage() + 1 }} of {{ ordersPage.totalPages }}</span>
+      <button
+        class="btn btn-pagination"
+        (click)="onPageChange(currentPage() + 1)"
+        [disabled]="ordersPage.last">
+        Next <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </ng-container>
+</div>

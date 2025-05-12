@@ -1,0 +1,128 @@
+.order-detail-container {
+  padding: 20px;
+  background-color: var(--background-color-light);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+
+  .card {
+    border: none; // Kartın kendi sınırını kaldır
+    box-shadow: none; // Kartın kendi gölgesini kaldır
+  }
+
+  .card-header {
+    background-color: transparent; // Başlık arka planını şeffaf yap
+    border-bottom: 1px solid var(--border-color-light);
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+
+    h2 {
+      color: var(--text-color-dark);
+      font-weight: 600;
+      margin-bottom: 0;
+    }
+  }
+
+  .card-body {
+    padding: 0; // Card body padding'ini sıfırla, iç bölümler kendi padding'ini ayarlasın
+  }
+
+  h4 {
+    color: var(--text-color-dark);
+    margin-top: 20px;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-bottom: 1px solid var(--border-color-extralight);
+    padding-bottom: 8px;
+  }
+
+  .info-table {
+    td {
+      border-top: none; // Tablo hücrelerinin üst sınırını kaldır
+      padding: 0.4rem 0;
+      color: var(--text-color-primary);
+
+      strong {
+        color: var(--text-color-secondary);
+        margin-right: 8px;
+      }
+    }
+  }
+
+  .update-status-group {
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .form-control-sm {
+      max-width: 250px; // Select kutusunun genişliğini sınırla
+      border-color: var(--border-color-light);
+       &:focus {
+          border-color: var(--primary-color);
+          box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.25);
+        }
+    }
+    .btn-sm {
+        padding: 0.35rem 0.75rem;
+    }
+  }
+
+  .badge {
+    padding: 0.4em 0.65em;
+    font-size: 0.88em;
+    font-weight: 500;
+  }
+
+  .status-pending_payment, .payment-status-pending { background-color: rgba(var(--warning-color-rgb), 0.15); color: var(--warning-color-darker); border: 1px solid rgba(var(--warning-color-rgb), 0.25); }
+  .status-processing { background-color: rgba(var(--info-color-rgb), 0.15); color: var(--info-color-darker); border: 1px solid rgba(var(--info-color-rgb), 0.25); }
+  .status-shipped { background-color: rgba(var(--primary-color-rgb), 0.15); color: var(--primary-color-darker); border: 1px solid rgba(var(--primary-color-rgb), 0.25); }
+  .status-delivered, .payment-status-completed, .payment-status-paid { background-color: rgba(var(--success-color-rgb), 0.15); color: var(--success-color-darker); border: 1px solid rgba(var(--success-color-rgb), 0.25); }
+  .status-cancelled_by_customer, .status-cancelled_by_seller, .status-cancelled_by_admin, .payment-status-failed { background-color: rgba(var(--danger-color-rgb), 0.15); color: var(--danger-color-darker); border: 1px solid rgba(var(--danger-color-rgb), 0.25); }
+  .status-refunded, .payment-status-refunded, .payment-status-partially_refunded { background-color: rgba(var(--secondary-color-rgb), 0.15); color: var(--text-color-secondary); border: 1px solid rgba(var(--secondary-color-rgb), 0.25); }
+
+
+  .order-items-table-container {
+    margin-top: 20px;
+    overflow-x: auto;
+  }
+
+  .order-items-table {
+    thead th {
+      background-color: var(--table-header-bg);
+      color: var(--text-color-dark);
+      font-weight: 500;
+      border-bottom: 2px solid var(--border-color-strong);
+    }
+    tbody td {
+      vertical-align: middle;
+      color: var(--text-color-primary);
+    }
+    .item-thumbnail {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 4px;
+      margin-right: 10px;
+    }
+    tfoot td {
+      font-weight: 500;
+      color: var(--text-color-dark);
+    }
+    .text-danger {
+      color: var(--danger-color) !important;
+    }
+  }
+
+  .full-page-loader, .full-page-error {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px; // Yükseklik ver
+    p {
+      font-size: 1.1rem;
+      margin-bottom: 15px;
+    }
+  }
+}

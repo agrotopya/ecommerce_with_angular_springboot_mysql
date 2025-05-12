@@ -1,0 +1,32 @@
+<div class="feel-list-container">
+  <h2 class="page-title">Discover Feels</h2>
+
+  <app-loading-spinner *ngIf="isLoading()" [message]="'Loading feels...'"></app-loading-spinner>
+
+  <div *ngIf="errorMessage()" class="error-message">
+    {{ errorMessage() }}
+  </div>
+
+  <div *ngIf="!isLoading() && !errorMessage() && (!feelsResponse()?.content || feelsResponse()!.content!.length === 0)" class="empty-list-message">
+    <p>No feels available at the moment. Check back later!</p>
+    <!-- Opsiyonel: Ürünlere veya ana sayfaya yönlendirme butonu -->
+    <!-- <a routerLink="/products" class="btn btn-primary">Explore Products</a> -->
+  </div>
+
+  <div *ngIf="feelsResponse()?.content && feelsResponse()!.content!.length > 0" class="feels-grid">
+    <app-feel-card
+      *ngFor="let feel of feelsResponse()?.content"
+      [feel]="feel">
+      <!-- (likeClicked)="handleLikeToggle($event)" Eğer beğenme işlemi burada yönetilecekse -->
+    </app-feel-card>
+  </div>
+
+  <app-paginator
+    *ngIf="!isLoading() && feelsResponse() && feelsResponse()!.totalPages > 1"
+    [currentPage]="currentPage()"
+    [totalPages]="feelsResponse()!.totalPages"
+    [totalItems]="feelsResponse()!.totalElements"
+    [itemsPerPage]="pageSize()"
+    (pageChange)="onPageChange($event)">
+  </app-paginator>
+</div>

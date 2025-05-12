@@ -1,0 +1,89 @@
+<div class="product-reviews-container">
+  <h3>Product Reviews</h3>
+
+  <!-- Yorum Ekleme Formu -->
+  <div *ngIf="authService.isAuthenticated(); else loginToReview">
+    <div class="review-form-section" *ngIf="!userHasReviewed(); else alreadyReviewed">
+      <h4>Leave a Review</h4>
+      <form [formGroup]="reviewForm" (ngSubmit)="onSubmitReview()">
+        <div class="form-group rating-group">
+        <label for="rating">Rating:</label>
+        <select id="rating" formControlName="rating">
+          <option [ngValue]="null" disabled>Select a rating</option>
+          <option [ngValue]="5">5 Stars</option>
+          <option [ngValue]="4">4 Stars</option>
+          <option [ngValue]="3">3 Stars</option>
+          <option [ngValue]="2">2 Stars</option>
+          <option [ngValue]="1">1 Star</option>
+        </select>
+        <div *ngIf="reviewForm.get('rating')?.invalid && (reviewForm.get('rating')?.dirty || reviewForm.get('rating')?.touched)" class="error-message">
+          Rating is required (1-5 stars).
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="comment">Comment (Optional):</label>
+        <textarea id="comment" formControlName="comment" rows="4"></textarea>
+        <div *ngIf="reviewForm.get('comment')?.hasError('maxlength')" class="error-message">
+          Comment cannot exceed 5000 characters.
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary" [disabled]="reviewForm.invalid || isSubmittingReview()">
+        {{ isSubmittingReview() ? 'Submitting...' : 'Submit Review' }}
+      </button>
+      <div *ngIf="errorSubmittingReview()" class="error-message submit-error">
+        {{ errorSubmittingReview() }}
+      </div>
+    </form>
+  </div>
+  <ng-template #alreadyReviewed>
+    <div class="already-reviewed-message">
+      <p>You have already reviewed this product. Thank you for your feedback!</p>
+      <!-- Opsiyonel: Kullanıcının mevcut yorumunu göstermek veya düzenleme linki eklenebilir -->
+    </div>
+  </ng-template>
+</div>
+<ng-template #loginToReview>
+  <div class="login-prompt">
+    <p>You must be <a routerLink="/auth/login" [queryParams]="{ returnUrl: router.url }">logged in</a> to leave a review.</p>
+  </div>
+</ng-template>
+
+  <!-- Yorum Listesi -->
+  <div class="reviews-list-section">
+    <h4>Customer Reviews ({{ reviewsPage()?.totalElements || 0 }})</h4>
+    <div *ngIf="isLoading()" class="loading-indicator">Loading reviews...</div>
+    <div *ngIf="errorLoadingReviews()" class="error-message">{{ errorLoadingReviews() }}</div>
+
+    <div *ngIf="reviewsPage() as page">
+      <div *ngIf="page.content && page.content.length > 0; else noReviews">
+        <div *ngFor="let review of page.content" class="review-item">
+          <div class="review-header">
+            <span class="review-author">{{ review.customerUsername }}</span>
+            <span class="review-date">{{ review.createdAt | date:'mediumDate' }}</span>
+          </div>
+          <div class="review-rating">
+            <!-- Basit yıldız gösterimi -->
+            <span *ngFor="let i of [1,2,3,4,5]" class="star" [class.filled]="i <= review.rating">&#9733;</span>
+          </div>
+          <p class="review-comment" *ngIf="review.comment">{{ review.comment }}</p>
+          <!-- Opsiyonel: Kullanıcının kendi yorumunu silme butonu -->
+          <!-- <button *ngIf="authService.currentUserSignal()?.id === review.customerId" (click)="deleteReview(review.id)">Delete My Review</button> -->
+        </div>
+
+        <!-- Sayfalama -->
+        <div *ngIf="page.totalPages > 1" class="pagination">
+          <button (click)="onPageChange(page.number - 1)" [disabled]="page.first">Previous</button>
+          <span *ngFor="let pageNum of pageNumbers">
+            <button (click)="onPageChange(pageNum)" [class.active]="pageNum === page.number">
+              {{ pageNum + 1 }}
+            </button>
+          </span>
+          <button (click)="onPageChange(page.number + 1)" [disabled]="page.last">Next</button>
+        </div>
+      </div>
+      <ng-template #noReviews>
+        <p>Be the first to review this product!</p>
+      </ng-template>
+    </div>
+  </div>
+</div>

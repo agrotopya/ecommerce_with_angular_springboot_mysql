@@ -1,0 +1,48 @@
+<!-- src/app/features/orders/order-list/order-list.component.html -->
+<div class="order-list-container">
+  <h2>My Orders</h2>
+
+  <div *ngIf="isLoading()" class="loading-indicator">Loading orders...</div>
+  <div *ngIf="errorMessage()" class="error-message">{{ errorMessage() }}</div>
+
+  <div *ngIf="!isLoading() && ordersResponse()?.content && ordersResponse()!.content!.length > 0; else noOrders" class="orders-table-container">
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Date</th>
+          <th>Total Amount</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let order of ordersResponse()?.content">
+          <td>#{{ order.id }}</td>
+          <td>{{ order.createdAt | date:'medium' }}</td>
+          <td>{{ order.finalAmount | currency:'TRY':'symbol':'1.2-2' }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="'status-' + order.status.toLowerCase()">
+              {{ order.status.replace('_', ' ') | titlecase }}
+            </span>
+          </td>
+          <td>
+            <a [routerLink]="['/profile/orders', order.id]" class="btn btn-sm btn-info">View Details</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <app-paginator
+      *ngIf="ordersResponse() && ordersResponse()!.totalPages > 1"
+      [currentPage]="currentPage()"
+      [totalPages]="ordersResponse()!.totalPages"
+      [totalItems]="ordersResponse()!.totalElements"
+      [itemsPerPage]="pageSize()"
+      (pageChange)="onPageChange($event)">
+    </app-paginator>
+  </div>
+
+  <ng-template #noOrders>
+    <p *ngIf="!isLoading() && !errorMessage()" class="no-orders-message">You have no orders yet.</p>
+  </ng-template>
+</div>

@@ -1,0 +1,154 @@
+.product-form-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+mat-card-title {
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-size: 1.8rem;
+}
+
+.section-title {
+  font-size: 1.3rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #eee;
+  color: #3f51b5; // Angular Material primary color
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.5rem; // Reduced margin as fields have their own
+  flex-wrap: wrap; // Allow wrapping
+}
+
+.form-field-full {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.form-field-half {
+  flex: 1 1 calc(50% - 0.5rem);
+  min-width: 250px;
+  margin-bottom: 1rem;
+}
+
+.form-field-third {
+  flex: 1 1 calc(33.333% - 0.67rem);
+  min-width: 200px;
+  margin-bottom: 1rem;
+}
+
+mat-form-field {
+  width: 100%; // Default to full width within its container
+}
+
+.attribute-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.attribute-name-field {
+  flex: 1;
+}
+
+.attribute-value-field {
+  flex: 2;
+}
+
+.add-attribute-button {
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.image-upload-container {
+  margin-bottom: 1rem;
+}
+
+.image-previews-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 0.5rem;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
+  min-height: 100px; // Ensure it has some height even when empty
+}
+
+.image-preview-item {
+  position: relative;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0.3rem;
+  background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 120px; // Fixed width for consistency
+
+  img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    margin-bottom: 0.5rem;
+    border-radius: 2px;
+  }
+
+  .image-actions {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    button {
+        min-width: 40px; // Ensure buttons are not too small
+    }
+  }
+}
+
+.toggle-row {
+    gap: 2rem; // More space between toggles
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+mat-progress-spinner {
+  margin-left: 1rem;
+}
+
+// Responsive adjustments for smaller screens
+@media (max-width: 600px) {
+  .form-row {
+    flex-direction: column;
+    gap: 0; // Remove gap as they stack
+  }
+  .form-field-half, .form-field-third {
+    flex-basis: 100%;
+    min-width: unset;
+  }
+  .attribute-row {
+    flex-direction: column;
+    align-items: stretch;
+    button[mat-icon-button] {
+        align-self: flex-end;
+        margin-top: -0.5rem; // Adjust to align better when stacked
+    }
+  }
+}
+

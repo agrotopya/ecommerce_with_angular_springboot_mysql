@@ -1,0 +1,436 @@
+/* src/app/layout/header/header.component.scss */
+// src/app/layout/header/header.component.scss
+
+:host {
+  display: block; // Header'ın tam genişlikte olmasını sağlar
+}
+
+header {
+  background-color: var(--primary-color); // Mor (#3E1E68)
+  color: var(--white);
+  padding: 0.8rem 0; // Biraz daha kompakt padding
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  .navbar-content { // .container sınıfı ile birlikte kullanılır
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem; // Elementler arası boşluk
+  }
+
+  .logo {
+    font-family: 'Nunito', sans-serif; // Global fontu kullanır ama özelleştirilebilir
+    font-size: 2.2rem; // "fibiyo" için daha büyük ve stilize
+    font-weight: 800; // Kalın
+    color: var(--white);
+    text-decoration: none;
+    letter-spacing: -1px; // Harf aralığı
+    // Görseldeki gibi bir font bulunabilir veya SVG logo kullanılabilir.
+  }
+
+  .search-bar {
+    display: flex;
+    align-items: center;
+    flex-grow: 1; // Arama çubuğu kalan alanı doldursun
+    max-width: 500px; // Maksimum genişlik
+
+    input[type="text"] {
+      flex-grow: 1;
+      padding: 0.75rem 1rem; // Biraz daha yüksek
+      border: none; // Kenarlık yok (tasarıma göre)
+      border-radius: 25px; // Tam yuvarlak köşeler
+      font-size: 0.95rem;
+      background-color: var(--white);
+      color: var(--text-color); // Input içindeki yazı rengi
+      outline: none;
+
+      &::placeholder {
+        color: #aaa; // Placeholder rengi
+      }
+    }
+
+    .search-button {
+      background-color: var(--vibrant-orange); // Turuncu (#F7931E)
+      color: var(--white);
+      border: none;
+      padding: 0.75rem; // Kare buton için
+      border-radius: 50%; // Tam yuvarlak buton
+      margin-left: -40px; // Input'un üzerine gelsin
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s ease;
+
+      svg {
+        width: 20px; // İkon boyutu
+        height: 20px;
+      }
+
+      &:hover {
+        background-color: var(--vibrant-orange-darker);
+      }
+    }
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem; // İkonlar/linkler arası boşluk
+
+    .action-link {
+      color: var(--white);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem; // İkon ve yazı arası
+      padding: 0.5rem;
+      border-radius: var(--border-radius);
+      transition: background-color 0.2s ease, color 0.2s ease;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: var(--soft-yellow);
+      }
+
+      svg {
+        width: 24px;
+        height: 24px;
+      }
+    }
+
+    .cart-action {
+      position: relative;
+      .cart-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background-color: var(--vibrant-orange); // Turuncu badge
+        color: var(--white);
+        border-radius: 50%;
+        padding: 0.1em 0.4em;
+        font-size: 0.75rem;
+        font-weight: bold;
+        line-height: 1;
+        min-width: 18px; // Tek haneli sayılar için
+        text-align: center;
+      }
+    }
+
+    .user-menu {
+      position: relative; // Dropdown için
+
+      .profile-action {
+        span {
+          font-weight: 600;
+        }
+      }
+
+      .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background-color: var(--white);
+        color: var(--text-color);
+        border-radius: var(--border-radius);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        list-style: none;
+        padding: 0.5rem 0;
+        margin: 0.5rem 0 0 0; // Üstten biraz boşluk
+        min-width: 180px;
+        z-index: 1001; // Diğer elementlerin üzerinde kalması için
+
+        // Animasyon için başlangıç stilleri
+        opacity: 0;
+        transform: translateY(-10px);
+        visibility: hidden;
+        transition: opacity 0.2s ease-out, transform 0.2s ease-out, visibility 0s linear 0.2s;
+
+        &.open {
+          opacity: 1;
+          transform: translateY(0);
+          visibility: visible;
+          transition-delay: 0s; // Açılırken visibility gecikmesini kaldır
+        }
+
+        li a {
+          display: block;
+          padding: 0.6rem 1.2rem;
+          color: var(--text-color);
+          text-decoration: none;
+          font-size: 0.9rem;
+          &:hover {
+            background-color: var(--light-gray);
+          }
+        }
+        .dropdown-divider {
+          height: 1px;
+          margin: 0.5rem 0;
+          overflow: hidden;
+          background-color: var(--border-color);
+        }
+      }
+
+      // &:hover .dropdown-menu, .dropdown-menu:hover { // Basit hover ile açma ARTIK KULLANILMIYOR
+      //   display: block;
+      // }
+    }
+
+    .btn-secondary, .btn-primary { // Login/Register butonları için
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+    }
+    .btn-secondary {
+        background-color: rgba(255,255,255,0.2);
+        border: 1px solid var(--white);
+        &:hover {
+            background-color: rgba(255,255,255,0.3);
+        }
+    }
+    .btn-primary { // Register butonu turuncu olabilir
+        background-color: var(--vibrant-orange);
+        border-color: var(--vibrant-orange);
+        &:hover {
+            background-color: var(--vibrant-orange-darker);
+            border-color: var(--vibrant-orange-darker);
+        }
+    }
+
+
+    .hamburger-menu {
+      display: none; // Varsayılan olarak gizli, mobil için gösterilecek
+      background-color: var(--vibrant-orange);
+      color: var(--white);
+      border: none;
+      padding: 0.5rem;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      svg {
+        display: block; // İçindeki SVG'nin düzgün hizalanması için
+      }
+    }
+  }
+
+  // Responsive
+  @media (max-width: 992px) {
+    .navbar-content {
+      // Arama çubuğu ve aksiyonlar nasıl sığacak?
+      // Belki arama çubuğu küçülür veya ikonlar sadece gösterilir.
+    }
+    .actions .user-menu .profile-action span {
+        display: none; // Kullanıcı adını mobilde gizle, sadece ikon kalsın
+    }
+  }
+
+  @media (max-width: 768px) {
+    .navbar-content {
+      flex-wrap: wrap; // Gerekirse alta sarsın
+      .logo { margin-bottom: 0.5rem; } // Logo alta kayarsa
+      .search-bar {
+        order: 3; // Arama çubuğunu en alta al
+        width: 100%; // Tam genişlik
+        margin-top: 0.5rem;
+        max-width: none;
+      }
+      .actions {
+        order: 2; // Aksiyonları logonun sağına
+        .profile-action span { display: none; }
+        .btn-secondary, .btn-primary { display: none; } // Login/Register butonlarını gizle
+        .hamburger-menu { display: flex; } // Hamburgeri göster
+        .cart-action, .user-menu { margin-right: 0.5rem; } // Hamburgerden önce
+        .user-menu .dropdown-menu {
+            // Mobil için dropdown pozisyonunu ayarla
+            left: auto;
+            right: 0;
+        }
+      }
+    }
+  }
+}
+
+// Mobil Navigasyon Menüsü Stilleri
+.mobile-nav-menu {
+  position: fixed;
+  top: 0;
+  left: -300px; // Başlangıçta ekranın dışında
+  width: 300px; // Menü genişliği
+  height: 100%;
+  background-color: var(--white); // Veya --primary-color
+  color: var(--text-color); // Eğer arka plan beyazsa
+  box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+  z-index: 1005; // Header'ın üzerinde, overlay'in altında
+  transition: transform 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+
+  &.open {
+    transform: translateX(300px); // Ekrana kaydır
+  }
+
+  .mobile-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+
+    .mobile-menu-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--primary-color); // Başlık rengi
+    }
+
+    .close-mobile-menu {
+      background: none;
+      border: none;
+      color: var(--text-color-secondary);
+      font-size: 1.5rem; // İkon boyutu için
+      cursor: pointer;
+      padding: 0.5rem;
+      line-height: 1;
+      svg { display: block; }
+      &:hover {
+        color: var(--primary-color);
+      }
+    }
+  }
+
+  .mobile-nav-links {
+    list-style: none;
+    padding: 1rem 0;
+    margin: 0;
+    flex-grow: 1; // Kalan alanı doldur
+    overflow-y: auto; // Çok link olursa scroll
+
+    li a {
+      display: block;
+      padding: 0.8rem 1.5rem;
+      text-decoration: none;
+      color: var(--text-color); // Link rengi
+      font-size: 1rem;
+      font-weight: 500;
+      border-bottom: 1px solid var(--light-gray); // Linkler arası ayırıcı
+      transition: background-color 0.2s ease;
+
+      &:hover, &.active {
+        background-color: var(--light-gray); // Hover/aktif arka plan
+        color: var(--primary-color);
+      }
+    }
+    li:last-child a {
+      border-bottom: none;
+    }
+    .logout-link {
+      color: var(--vibrant-orange); // Çıkış linki farklı renkte olabilir
+      font-weight: 600;
+    }
+  }
+}
+
+.mobile-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  z-index: 1004; // Mobil menünün hemen altında
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease-in-out, visibility 0s linear 0.3s;
+
+  &.open {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+}
+
+// Kategori Navigasyon Barı Stilleri
+.category-navbar {
+  background-color: rgba(255, 255, 255, 0.1); // Yarı saydam beyaz arka plan
+  backdrop-filter: blur(12px); // Arkadaki içeriği bulanıklaştır (cam efekti)
+  -webkit-backdrop-filter: blur(12px); // Safari için prefix
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18); // İnce, yarı saydam kenarlık
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); // Yumuşak bir gölge
+
+  .category-navbar-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--deep-purple) var(--bright-green-darker-5); // Değiştirildi
+
+    &::-webkit-scrollbar {
+      height: 6px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--deep-purple); // Scrollbar thumb mor
+      border-radius: 3px;
+    }
+    &::-webkit-scrollbar-track {
+      background-color: var(--bright-green-darker-5); // Değiştirildi
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      gap: 1.8rem; // Linkler arası boşluk biraz artırıldı
+
+      li {
+        a {
+          color: var(--white);
+          text-decoration: none;
+          font-weight: 600; // Kalınlık iyi
+          font-size: 0.95rem; // Font boyutu biraz büyütüldü
+          padding: 0.5rem 0.2rem; // Dikey padding linklere özel ayarlandı
+          white-space: nowrap;
+          transition: color 0.3s ease, transform 0.2s ease, text-shadow 0.3s ease;
+          position: relative; // Alt çizgi animasyonu için
+          letter-spacing: 0.5px; // Harf aralığı eklendi
+
+          &::after { // Hover için alt çizgi animasyonu
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px; // Linkin biraz altına
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--vibrant-orange); // Vurgu rengi turuncu (daha belirgin olabilir)
+            // Veya --soft-yellow kalabilir: background-color: var(--soft-yellow);
+            transition: width 0.3s ease-in-out;
+          }
+
+          &:hover,
+          &.active { // .active sınıfı routerLinkActive ile eklenecek
+            color: var(--white); // Link rengi beyaz kalabilir
+            transform: translateY(-1px);
+            // text-shadow: 0 0 8px rgba(var(--vibrant-orange-rgb), 0.7); // Turuncu bir parlama
+            &::after {
+              width: 70%;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .category-navbar-content {
+      justify-content: flex-start;
+      ul {
+        gap: 1.2rem; // Mobilde linkler arası boşluk
+        padding: 0 0.75rem; // Kenarlardan scroll için boşluk
+      }
+    }
+  }
+}

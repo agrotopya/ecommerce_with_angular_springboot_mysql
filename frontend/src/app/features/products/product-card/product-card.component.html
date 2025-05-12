@@ -1,0 +1,49 @@
+<!-- src/app/features/products/product-card/product-card.component.html -->
+<div class="product-card" *ngIf="product">
+  <div class="product-card-content">
+    <a [routerLink]="['/products', product.slug]" class="product-link">
+      <div class="product-image-container">
+        <img *ngIf="product.mainImageUrl"
+             [ngSrc]="product.mainImageUrl"
+             [alt]="product.name"
+             width="200"
+             height="200"
+             priority="false"
+             loading="lazy"
+             class="product-image"/>
+        <img *ngIf="!product.mainImageUrl && product.productImages && product.productImages.length > 0"
+             [ngSrc]="product.productImages[0].imageUrl"
+             [alt]="product.name"
+             width="200"
+             height="200"
+             priority="false"
+             loading="lazy"
+             class="product-image"/>
+        <div *ngIf="!product.mainImageUrl && (!product.productImages || product.productImages.length === 0)" class="product-image-placeholder">
+          <span>No Image</span>
+        </div>
+      </div>
+      <div class="product-info">
+        <h3 class="product-name">{{ product.name }}</h3>
+        <p class="product-price">{{ product.price | currency:'TRY':'symbol':'1.2-2' }}</p>
+        <p class="product-category" *ngIf="product.categoryName">{{ product.categoryName }}</p>
+      </div>
+    </a>
+    <div class="product-actions">
+      <button
+        (click)="onAddToCart($event)"
+        class="btn btn-add-to-cart"
+        [disabled]="!product.stock || product.stock === 0 || !isProductActive(product) || !isProductApproved(product)">
+        <span class="material-icons">shopping_cart</span>
+        {{ (!product.stock || product.stock === 0) ? 'Out of Stock' : (!isProductActive(product) || !isProductApproved(product)) ? 'Unavailable' : 'Add to Cart' }}
+      </button>
+      <button
+        class="btn btn-wishlist"
+        [class.wishlisted]="isWishlistedInput"
+        (click)="onToggleWishlist($event)"
+        [disabled]="isTogglingWishlist()">
+        <span class="material-icons">{{ isWishlistedInput ? 'favorite' : 'favorite_border' }}</span>
+      </button>
+    </div>
+  </div>
+</div>

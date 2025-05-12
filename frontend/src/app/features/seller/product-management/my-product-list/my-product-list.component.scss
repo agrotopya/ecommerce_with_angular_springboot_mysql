@@ -1,0 +1,113 @@
+// src/app/features/seller/product-management/my-product-list/my-product-list.component.scss
+.my-product-list-container {
+  padding: 2rem;
+
+  .list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    h2 {
+      color: var(--primary-color);
+      margin: 0;
+    }
+  }
+
+  .products-table-container {
+    overflow-x: auto; // Küçük ekranlarda tablo kaydırılabilir olsun
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    background-color: var(--surface-color);
+    box-shadow: var(--box-shadow);
+    border-radius: var(--border-radius);
+    overflow: hidden; // Border-radius'un köşelerde düzgün görünmesi için
+
+    th, td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th {
+      background-color: var(--light-gray);
+      color: var(--text-color-secondary);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.85em;
+    }
+
+    tbody tr:hover {
+      background-color: var(--light-gray);
+    }
+
+    .product-thumbnail {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+    }
+
+    .status-active {
+      color: var(--bright-green);
+      font-weight: bold;
+    }
+    .status-inactive {
+      color: var(--dark-gray);
+    }
+    .status-approved {
+      color: var(--bright-green);
+      font-weight: bold;
+    }
+    .status-pending {
+      color: var(--vibrant-orange);
+    }
+    .status-rejected {
+      color: #dc3545; // Kırmızı
+    }
+
+    .actions {
+      button {
+        margin-right: 0.5rem;
+        &:last-child {
+          margin-right: 0;
+        }
+      }
+      // .btn-sm global stillerde tanımlanabilir veya burada
+      .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+      }
+      .btn-danger { // Globalde varsa bu gereksiz
+        background-color: #dc3545;
+        &:hover { background-color: #c82333; }
+      }
+      .btn-secondary { // Globalde varsa bu gereksiz
+         background-color: var(--dark-gray);
+         &:hover { background-color: #5a6268; }
+      }
+    }
+  }
+
+  .no-products-message { // Global stilini kullanabilir
+    // text-align: center;
+    // padding: 2rem;
+    // color: var(--text-color-secondary);
+    a {
+      font-weight: 600;
+    }
+  }
+
+  .pagination { // Global stilini kullanabilir
+    // display: flex;
+    // justify-content: center;
+    // align-items: center;
+    // gap: 0.5rem;
+    // margin-top: 1.5rem;
+  }
+}

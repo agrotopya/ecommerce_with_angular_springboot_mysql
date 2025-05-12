@@ -1,0 +1,154 @@
+.my-orders-container {
+  padding: 20px;
+  background-color: var(--background-color-light); // Ana tema rengi
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); // Hafif gölge
+
+  h2 {
+    color: var(--text-color-dark); // Koyu tema metin rengi
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
+
+  .filters {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: var(--background-color-white); // Beyaz arka plan
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+
+    .form-group {
+      label {
+        font-weight: 500;
+        color: var(--text-color-secondary); // İkincil metin rengi
+        margin-bottom: 5px;
+      }
+      .form-control {
+        border-radius: 4px;
+        border-color: var(--border-color-light); // Açık sınır rengi
+        &:focus {
+          border-color: var(--primary-color); // Odaklandığında ana renk
+          box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.25);
+        }
+      }
+    }
+  }
+
+  .loading-indicator, .no-orders-message, .error-message {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-color-secondary);
+  }
+
+  .error-message {
+    color: var(--danger-color); // Tehlike rengi
+    background-color: rgba(var(--danger-color-rgb), 0.1);
+    border: 1px solid rgba(var(--danger-color-rgb), 0.2);
+    border-radius: 4px;
+  }
+
+  .orders-table-container {
+    overflow-x: auto; // Küçük ekranlarda tabloyu kaydırılabilir yap
+  }
+
+  .orders-table {
+    width: 100%;
+    margin-bottom: 1rem;
+    color: var(--text-color-dark);
+    background-color: var(--background-color-white);
+    border-radius: 6px;
+    overflow: hidden; // Köşeleri yuvarlatmak için
+
+    thead th {
+      background-color: var(--table-header-bg); // Tablo başlığı arka planı
+      color: var(--text-color-dark);
+      border-bottom: 2px solid var(--border-color-strong); // Güçlü sınır rengi
+      font-weight: 600;
+      white-space: nowrap;
+
+      &.sortable {
+        cursor: pointer;
+        &:hover {
+          background-color: var(--table-header-hover-bg); // Başlık üzerine gelince arka plan
+        }
+        i {
+          margin-left: 5px;
+        }
+      }
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border-color-light);
+      transition: background-color 0.2s ease-in-out;
+
+      &.order-row {
+        cursor: pointer;
+        &:hover {
+          background-color: var(--table-row-hover-bg); // Satır üzerine gelince arka plan
+        }
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      td {
+        vertical-align: middle;
+        padding: 0.75rem;
+        color: var(--text-color-primary); // Birincil metin rengi
+
+        .badge {
+          padding: 0.4em 0.6em;
+          font-size: 0.85em;
+          font-weight: 600;
+          border-radius: 0.25rem;
+        }
+
+        .status-pending_payment, .payment-status-pending { background-color: rgba(var(--warning-color-rgb), 0.2); color: var(--warning-color-darker); border: 1px solid rgba(var(--warning-color-rgb), 0.3); }
+        .status-processing { background-color: rgba(var(--info-color-rgb), 0.2); color: var(--info-color-darker); border: 1px solid rgba(var(--info-color-rgb), 0.3); }
+        .status-shipped { background-color: rgba(var(--primary-color-rgb), 0.2); color: var(--primary-color-darker); border: 1px solid rgba(var(--primary-color-rgb), 0.3); }
+        .status-delivered, .payment-status-completed, .payment-status-paid { background-color: rgba(var(--success-color-rgb), 0.2); color: var(--success-color-darker); border: 1px solid rgba(var(--success-color-rgb), 0.3); }
+        .status-cancelled_by_customer, .status-cancelled_by_seller, .status-cancelled_by_admin, .payment-status-failed { background-color: rgba(var(--danger-color-rgb), 0.2); color: var(--danger-color-darker); border: 1px solid rgba(var(--danger-color-rgb), 0.3); }
+        .status-refunded, .payment-status-refunded, .payment-status-partially_refunded { background-color: rgba(var(--secondary-color-rgb), 0.2); color: var(--text-color-secondary); border: 1px solid rgba(var(--secondary-color-rgb), 0.3); }
+        // Diğer durumlar için de benzer stiller eklenebilir
+      }
+    }
+  }
+
+  .pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+
+    .btn-pagination {
+      background-color: var(--primary-color);
+      color: var(--text-color-on-primary);
+      border: none;
+      padding: 8px 15px;
+      margin: 0 5px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+
+      &:hover:not(:disabled) {
+        background-color: var(--primary-color-darker);
+      }
+
+      &:disabled {
+        background-color: var(--disabled-bg-color);
+        color: var(--disabled-text-color);
+        cursor: not-allowed;
+      }
+
+      i {
+        margin-right: 5px;
+        margin-left: 5px;
+      }
+    }
+
+    span {
+      margin: 0 10px;
+      color: var(--text-color-secondary);
+    }
+  }
+}

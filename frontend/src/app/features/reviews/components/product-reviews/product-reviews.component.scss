@@ -1,0 +1,115 @@
+/* src/app/features/reviews/components/product-reviews/product-reviews.component.scss */
+.product-reviews-container {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+
+  h3, h4 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+  }
+
+  .review-form-section {
+    background-color: var(--light-gray);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 2rem;
+    box-shadow: var(--box-shadow);
+
+    .form-group {
+      margin-bottom: 1rem;
+
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--text-color-secondary);
+      }
+
+      select, textarea { /* Global stilleri kullanır, gerekirse özelleştirilebilir */
+        width: 100%;
+        // padding, border, border-radius global stillerden gelir.
+      }
+    }
+    .rating-group select {
+      max-width: 250px; // Rating select daha dar olabilir
+    }
+
+    .btn-primary { /* Global .btn-primary stilini kullanır */
+      margin-top: 0.5rem; // Buton ile son form elemanı arası boşluk
+    }
+    .submit-error {
+      margin-top: 0.5rem;
+    }
+  }
+
+  .login-prompt {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background-color: var(--soft-yellow); // Hafif sarı uyarı
+    border: 1px solid var(--soft-yellow-darker); // Değiştirildi
+    border-radius: var(--border-radius);
+    color: var(--text-color);
+    a {
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+  }
+
+  .reviews-list-section {
+    .loading-indicator, .error-message { // Global stilleri kullanır
+      margin: 2rem 0;
+    }
+
+    .review-item {
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border-color);
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+
+        .review-author {
+          font-weight: 700;
+          color: var(--text-color);
+        }
+        .review-date {
+          font-size: 0.85em;
+          color: var(--text-color-secondary);
+        }
+      }
+
+      .review-rating {
+        margin-bottom: 0.5rem;
+        .star {
+          font-size: 1.2em;
+          color: var(--medium-gray); // Boş yıldız rengi
+          &.filled {
+            color: var(--vibrant-orange); // Dolu yıldız rengi (turuncu)
+          }
+        }
+      }
+
+      .review-comment {
+        font-size: 0.95em;
+        line-height: 1.5;
+        color: var(--text-color);
+        white-space: pre-wrap; // Yorumdaki satır başlarını koru
+      }
+    }
+
+    .pagination { // Global pagination stilini kullanır
+      margin-top: 1.5rem;
+    }
+
+    p { // "Be the first to review" mesajı için
+      color: var(--text-color-secondary);
+      font-style: italic;
+    }
+  }
+}

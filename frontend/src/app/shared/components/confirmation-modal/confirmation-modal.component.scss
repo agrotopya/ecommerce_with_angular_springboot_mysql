@@ -1,0 +1,113 @@
+/* frontend/src/app/shared/components/confirmation-modal/confirmation-modal.component.scss */
+:host {
+  display: contents; // Bileşenin kendisi layout'u etkilemesin
+}
+
+.confirmation-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); // Yarı saydam arka plan
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050; // Diğer elementlerin üzerinde olması için
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+
+  &[style*="visible"] { // Angular'ın *ngIf ile eklediği style'a göre
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease, visibility 0s linear 0s;
+  }
+}
+
+.confirmation-modal {
+  background-color: var(--white);
+  padding: 1.5rem;
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 450px; // Modal genişliği
+  z-index: 1051;
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+
+  .confirmation-modal-overlay[style*="visible"] & {
+    transform: scale(1);
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color-light);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-color-dark);
+    }
+
+    .btn-close {
+      // Bootstrap'in btn-close stili kullanılabilir veya özel stil eklenebilir
+      background: transparent;
+      border: 0;
+      font-size: 1.5rem;
+      opacity: 0.7;
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+
+  .modal-body {
+    margin-bottom: 1.5rem;
+    color: var(--text-color-secondary);
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem; // Butonlar arası boşluk
+
+    .btn {
+      padding: 0.5rem 1rem;
+      font-weight: 500;
+      border-radius: var(--border-radius);
+      min-width: 90px; // Buton minimum genişliği
+    }
+
+    // .btn-danger, .btn-secondary gibi sınıflar global stillerden gelmeli
+    // Örnek:
+    // .btn-danger {
+    //   background-color: var(--danger-color);
+    //   color: var(--white);
+    //   &:hover {
+    //     background-color: var(--danger-color-darker);
+    //   }
+    // }
+    // .btn-secondary {
+    //   background-color: var(--medium-gray);
+    //   color: var(--text-color-dark);
+    //   &:hover {
+    //     background-color: var(--dark-gray);
+    //   }
+    // }
+  }
+}
+
+// Angular *ngIf ile görünürlük yönettiği için, isVisible() sinyaline göre
+// overlay'in stilini doğrudan değiştirmek yerine, Angular'ın eklediği
+// style atribütünü hedefleyebiliriz veya component içinde bir class binding yapabiliriz.
+// Şimdilik yukarıdaki [style*="visible"] seçicisi basit bir çözüm sunar.
+// Daha Angular-vari bir çözüm için:
+// <div class="confirmation-modal-overlay" [class.show]="isVisible()">
+// ve SCSS'te .show sınıfını kullanmak.

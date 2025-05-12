@@ -1,0 +1,123 @@
+// src/app/features/seller/product-management/product-form/product-form.component.scss
+.product-form-container {
+  padding: 2rem;
+  max-width: 900px; // Form için daha geniş bir alan
+  margin: 2rem auto; // Üstten ve alttan boşluk, ortala
+  background-color: var(--surface-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+
+  h2 {
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr; // Varsayılan tek sütun
+    gap: 0 2rem; // Sütunlar arası boşluk (yatay)
+
+    @media (min-width: 768px) { // Orta ekranlarda iki sütun
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .form-column {
+    // Sütunlar için ek stil gerekirse
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-color-secondary);
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="email"], // Gelecekteki formlar için
+    textarea,
+    select {
+      // Global stilleri kullanıyor, burada override gerekebilir
+      // Örneğin: margin-bottom: 0; (label ile input arası boşluk label'dan geliyor)
+    }
+
+    textarea {
+      min-height: 100px; // Açıklama alanı için minimum yükseklik
+      resize: vertical; // Sadece dikeyde boyutlandırılsın
+    }
+
+    .error-message { // Global stilini kullanıyor
+      // margin-top: 0.3rem;
+    }
+  }
+
+  .form-check { // Checkbox için özel düzenleme
+    display: flex;
+    align-items: center;
+    margin-top: 1rem; // Üstündeki elemanla boşluk
+
+    .form-check-input {
+      width: auto; // Checkbox'ın genişliği otomatik olsun
+      margin-right: 0.5rem;
+      margin-bottom: 0; // Alt boşluğu kaldır
+    }
+    .form-check-label {
+      margin-bottom: 0; // Alt boşluğu kaldır
+      font-weight: normal; // Normal font ağırlığı
+      color: var(--text-color);
+    }
+  }
+
+  .image-upload-section {
+    // Resim yükleme alanı için stiller buraya
+    margin-top: 1.5rem;
+    padding: 1rem;
+    border: 1px dashed var(--border-color);
+    border-radius: var(--border-radius);
+    text-align: center;
+    background-color: var(--light-gray);
+  }
+
+  .form-actions {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: flex-end; // Butonları sağa yasla
+    gap: 1rem;
+
+    .btn-secondary { // Global .btn stilini kullanacak, renkleri override edebiliriz
+      background-color: var(--medium-gray);
+      color: var(--text-color);
+      border-color: var(--medium-gray);
+
+      &:hover {
+        background-color: var(--dark-gray);
+        color: var(--white);
+        border-color: var(--dark-gray);
+      }
+    }
+    // .btn-primary global stilini kullanacak
+  }
+
+  // Global hata/başarı mesajları için
+  .global-error, .global-success {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: var(--border-radius);
+    text-align: center;
+  }
+  .global-error { // Zaten .error-message ile benzer
+    // background-color: rgba(220, 53, 69, 0.1);
+    // border: 1px solid rgba(220, 53, 69, 0.3);
+    // color: #721c24;
+  }
+  .global-success {
+    background-color: rgba(117, 192, 67, 0.1); // --bright-green'in rgba karşılığı
+    border: 1px solid rgba(117, 192, 67, 0.3);
+    color: #5DAF34; // --bright-green (#75C043) renginin %10 koyulaştırılmış hali
+  }
+}

@@ -1,0 +1,64 @@
+<!-- src/app/features/checkout/order-summary/order-summary.component.html -->
+<div class="order-summary-container">
+  <h3>Order Summary</h3>
+
+  <div *ngIf="cart && cart.items && cart.items.length > 0; else emptyCart">
+    <div class="order-items">
+      <div *ngFor="let item of cart.items" class="order-item">
+        <div class="item-details">
+          <span class="item-name">{{ item.productName || ('Product ' + item.productId) }}</span>
+          <span class="item-quantity">Qty: {{ item.quantity }}</span>
+        </div>
+        <span class="item-price">{{ item.itemTotal | currency:'TRY':'symbol':'1.2-2' }}</span>
+      </div>
+    </div>
+
+    <div class="order-totals">
+      <div class="total-row">
+        <span>Subtotal:</span>
+        <span>{{ subTotal | currency:'TRY':'symbol':'1.2-2' }}</span>
+      </div>
+
+      <!-- Coupon Section -->
+      <div class="coupon-section">
+        <div class="coupon-input-group">
+          <input type="text" placeholder="Enter coupon code" [formControl]="couponCodeControl" />
+          <button type="button" (click)="applyCoupon()" [disabled]="isApplyingCoupon() || !couponCodeControl.value">
+            {{ isApplyingCoupon() ? 'Applying...' : 'Apply' }}
+          </button>
+        </div>
+        <div *ngIf="couponValidationMessage()" class="coupon-message" [ngClass]="{'success': calculatedDiscount() > 0, 'error': calculatedDiscount() === 0 && couponValidationMessage()}">
+          {{ couponValidationMessage() }}
+        </div>
+        <div *ngIf="calculatedDiscount() > 0" class="coupon-applied-info">
+          <span>Applied Coupon: {{ couponCodeControl.value }}</span>
+          <button type="button" class="btn-remove-coupon" (click)="removeCoupon()">Remove</button>
+        </div>
+      </div>
+
+      <div *ngIf="calculatedDiscount() > 0" class="total-row discount-row">
+        <span>Discount:</span>
+        <span class="discount-amount">-{{ calculatedDiscount() | currency:'TRY':'symbol':'1.2-2' }}</span>
+      </div>
+      <div class="total-row">
+        <span>Shipping:</span>
+        <span>{{ shippingCost === 0 ? 'Free' : (shippingCost | currency:'TRY':'symbol':'1.2-2') }}</span>
+      </div>
+      <div class="total-row grand-total">
+        <span>Total:</span>
+        <span>{{ grandTotal | currency:'TRY':'symbol':'1.2-2' }}</span>
+      </div>
+    </div>
+
+    <div *ngIf="showActions" class="order-actions">
+      <button type="button" class="btn-back" (click)="onBackClick()" [disabled]="isPlacingOrder">Back</button>
+      <button type="button" class="btn-place-order" (click)="onPlaceOrderClick()" [disabled]="isPlacingOrder">
+        {{ isPlacingOrder ? 'Placing Order...' : 'Place Order' }}
+      </button>
+    </div>
+  </div>
+
+  <ng-template #emptyCart>
+    <p class="empty-cart-message">Your cart is empty.</p>
+  </ng-template>
+</div>

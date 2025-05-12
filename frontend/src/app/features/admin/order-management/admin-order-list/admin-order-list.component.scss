@@ -1,0 +1,123 @@
+/* src/app/features/admin/order-management/admin-order-list/admin-order-list.component.scss */
+.admin-order-list-container {
+  padding: 1.5rem;
+
+  h2 {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 0.5rem;
+  }
+
+  .filters-card {
+    background-color: var(--light-gray);
+    padding: 1rem 1.5rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--box-shadow);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-end; // Butonları diğerleriyle aynı hizada tutar
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      flex-grow: 1;
+      min-width: 200px; // Filtre elemanları için minimum genişlik
+
+      label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-color-secondary);
+      }
+
+      input[type="text"],
+      select {
+        // Global stilleri kullanır, padding ve border-radius oradan gelir.
+        font-size: 0.9rem;
+      }
+    }
+
+    .filter-actions {
+      display: flex;
+      gap: 0.5rem;
+      padding-top: 1.25rem; // label ile aynı hizaya gelmesi için (label + gap)
+    }
+  }
+
+  .orders-table-container {
+    overflow-x: auto; // Dar ekranlarda tabloyu kaydır
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+
+    table {
+      width: 100%;
+      border-collapse: collapse; // Kenarlıkları birleştir
+
+      th, td {
+        padding: 0.75rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      thead {
+        background-color: var(--light-gray); // Başlık satırı arka planı
+        th {
+          font-weight: 700;
+          color: var(--primary-color);
+          font-size: 0.9rem;
+          text-transform: uppercase;
+        }
+      }
+
+      tbody {
+        tr {
+          &:hover {
+            background-color: var(--light-gray);
+          }
+          td {
+            font-size: 0.9rem;
+            color: var(--text-color);
+
+            .btn-sm { // "View Details" butonu için
+              padding: 0.3rem 0.6rem;
+              font-size: 0.8rem;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .status-badge {
+    padding: 0.25em 0.6em;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 10px;
+    color: var(--white);
+    text-transform: capitalize;
+
+    &.status-pending_payment, &.status-payment-pending { background-color: var(--warning-color); color: var(--black); }
+    &.status-processing { background-color: var(--info-color); }
+    &.status-shipped { background-color: #007bff; } // Farklı bir mavi
+    &.status-delivered, &.status-payment-completed { background-color: var(--bright-green); }
+    &.status-cancelled_by_customer, &.status-cancelled_by_seller, &.status-cancelled_by_admin { background-color: var(--dark-gray); }
+    &.status-payment-failed { background-color: #dc3545; } // Kırmızı
+    // Diğer durumlar için renkler eklenebilir
+  }
+
+
+  .loading-indicator, .no-results-message, .error-message {
+    // Global stilleri kullanır
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .pagination {
+    // Global pagination stilini kullanır
+    margin-top: 1.5rem;
+  }
+}

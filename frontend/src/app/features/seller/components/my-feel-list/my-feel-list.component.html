@@ -1,0 +1,48 @@
+<div class="my-feels-container">
+  <div class="page-header">
+    <h2 class="page-title">My Feels</h2>
+    <a routerLink="/seller/feels/create" class="btn btn-primary btn-create-feel">
+      <span class="material-icons">add_circle_outline</span> Create New Feel
+    </a>
+  </div>
+
+  <app-loading-spinner *ngIf="isLoading()" [message]="'Loading your feels...'"></app-loading-spinner>
+
+  <div *ngIf="errorMessage()" class="error-message">
+    {{ errorMessage() }}
+  </div>
+
+  <div *ngIf="!isLoading() && !errorMessage() && (!myFeelsResponse()?.content || myFeelsResponse()!.content!.length === 0)" class="empty-list-message">
+    <p>You haven't created any feels yet.</p>
+    <a routerLink="/seller/feels/create" class="btn btn-secondary">Create Your First Feel</a>
+  </div>
+
+  <div *ngIf="myFeelsResponse()?.content && myFeelsResponse()!.content!.length > 0" class="feels-grid-seller">
+    <div *ngFor="let feel of myFeelsResponse()?.content" class="feel-card-wrapper-seller">
+      <app-feel-card [feel]="feel"></app-feel-card>
+      <div class="feel-actions-seller">
+        <span class="status-badge" [class.active]="feel.active" [class.inactive]="!feel.active">
+          {{ feel.active ? 'Active' : 'Inactive' }}
+        </span>
+        <button class="btn btn-sm btn-outline-secondary btn-edit-feel" [routerLink]="['/seller/feels/edit', feel.id]">
+          <span class="material-icons">edit</span> Edit
+        </button>
+        <button class="btn btn-sm btn-outline-danger btn-delete-feel" (click)="promptDeleteFeel(feel.id)">
+          <span class="material-icons">delete_outline</span> Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <app-paginator
+    *ngIf="!isLoading() && myFeelsResponse() && myFeelsResponse()!.totalPages > 1"
+    [currentPage]="currentPage()"
+    [totalPages]="myFeelsResponse()!.totalPages"
+    [totalItems]="myFeelsResponse()!.totalElements"
+    [itemsPerPage]="pageSize()"
+    (pageChange)="onPageChange($event)">
+  </app-paginator>
+
+  <!-- Yeni Confirmation Modal Bileşeni -->
+  <app-confirmation-modal (confirmed)="handleDeleteConfirmation($event)"></app-confirmation-modal>
+</div>

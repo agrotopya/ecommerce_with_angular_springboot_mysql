@@ -1,0 +1,83 @@
+<div class="user-list-container">
+  <mat-card>
+    <mat-card-title>User Management</mat-card-title>
+    <mat-card-content>
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Filter Users</mat-label>
+        <input matInput (keyup)="applyFilter($event)" placeholder="Search by username, email...">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+
+      <div class="table-container">
+        <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
+
+          <!-- ID Column -->
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
+            <td mat-cell *matCellDef="let user"> {{user.id}} </td>
+          </ng-container>
+
+          <!-- Username Column -->
+          <ng-container matColumnDef="username">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Username </th>
+            <td mat-cell *matCellDef="let user"> {{user.username}} </td>
+          </ng-container>
+
+          <!-- Email Column -->
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Email </th>
+            <td mat-cell *matCellDef="let user"> {{user.email}} </td>
+          </ng-container>
+
+          <!-- Roles Column -->
+          <ng-container matColumnDef="roles">
+            <th mat-header-cell *matHeaderCellDef> Roles </th>
+            <td mat-cell *matCellDef="let user">
+              <mat-form-field appearance="outline" class="role-select-form-field">
+                <mat-label>Roles</mat-label>
+                <mat-select [value]="user.roles" multiple (selectionChange)="updateUserRoles(user, $event.value)" [disabled]="isLoading">
+                  <mat-option *ngFor="let role of availableRoles" [value]="role">
+                    {{role.replace('ROLE_', '')}}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </td>
+          </ng-container>
+
+          <!-- IsActive Column -->
+          <ng-container matColumnDef="isActive">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Active </th>
+            <td mat-cell *matCellDef="let user">
+              <mat-slide-toggle [checked]="user.isActive" (change)="toggleUserStatus(user)" [disabled]="isLoading" color="primary"></mat-slide-toggle>
+            </td>
+          </ng-container>
+
+          <!-- Actions Column (Optional - for view details, edit, delete if needed later) -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef> Actions </th>
+            <td mat-cell *matCellDef="let user">
+              <!-- <button mat-icon-button matTooltip="View Details" (click)="viewUserDetails(user)" [disabled]="isLoading"><mat-icon>visibility</mat-icon></button> -->
+              <!-- <button mat-icon-button matTooltip="Edit User" (click)="editUser(user)" [disabled]="isLoading"><mat-icon>edit</mat-icon></button> -->
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+              No data matching the filter or no users found.
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div *ngIf="isLoading" class="spinner-container">
+        <mat-progress-spinner color="primary" mode="indeterminate" [diameter]="50"></mat-progress-spinner>
+      </div>
+
+      <mat-paginator [length]="totalElements" [pageSizeOptions]="[5, 10, 20, 50]" showFirstLastButtons aria-label="Select page of users">
+      </mat-paginator>
+    </mat-card-content>
+  </mat-card>
+</div>

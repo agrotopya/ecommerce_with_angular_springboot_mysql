@@ -1,0 +1,148 @@
+// src/app/features/checkout/payment-method/payment-method.component.scss
+
+.payment-method-container {
+  margin-bottom: 2rem;
+
+  h3 {
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    color: #333;
+  }
+}
+
+.payment-form {
+  .form-group {
+    margin-bottom: 1.5rem;
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #555;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+
+      &:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+      }
+
+      &.is-invalid {
+        border-color: #dc3545;
+      }
+    }
+
+    .error-message {
+      color: #dc3545;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+  }
+
+  .payment-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+
+    .payment-option {
+      display: flex;
+      align-items: center;
+      margin-right: 1.5rem;
+
+      input[type="radio"] {
+        width: auto;
+        margin-right: 0.5rem;
+      }
+    }
+  }
+
+  .form-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+
+    .form-group {
+      flex: 1;
+      min-width: 120px;
+    }
+  }
+
+  .card-details {
+    background-color: #f9f9f9;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+  }
+
+  .info-box {
+    background-color: #f9f9f9;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+
+    h4 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+      color: #333;
+    }
+
+    ul {
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+
+      li {
+        margin-bottom: 0.5rem;
+      }
+    }
+
+    .note {
+      font-style: italic;
+      color: #666;
+      margin-top: 1rem;
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+
+    button {
+      padding: 0.75rem 1.5rem;
+      border-radius: 4px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &.btn-back {
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+        color: #555;
+
+        &:hover {
+          background-color: #e9ecef;
+        }
+      }
+
+      &.btn-continue {
+        background-color: #007bff;
+        border: 1px solid #007bff;
+        color: white;
+
+        &:hover {
+          background-color: #0069d9;
+          border-color: #0062cc;
+        }
+      }
+    }
+  }
+}

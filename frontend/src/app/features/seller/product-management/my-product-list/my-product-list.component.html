@@ -1,0 +1,69 @@
+<!-- src/app/features/seller/product-management/my-product-list/my-product-list.component.html -->
+<div class="my-product-list-container">
+  <div class="list-header">
+    <h2>My Products</h2>
+    <a routerLink="/seller/products/new" class="btn btn-primary">Add New Product</a>
+  </div>
+
+  <div *ngIf="isLoading()" class="loading-indicator">Loading your products...</div>
+  <div *ngIf="errorMessage()" class="error-message">{{ errorMessage() }}</div>
+
+  <div *ngIf="!isLoading() && productsResponse() as response">
+    <div *ngIf="response.content && response.content.length > 0; else noProducts" class="products-table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Name</th>
+            <th>SKU</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Status</th>
+            <th>Approved</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let product of response.content">
+            <td>
+              <img [src]="product.mainImageUrl || (product.productImages && product.productImages.length > 0 ? product.productImages[0].imageUrl : 'assets/images/placeholder.png')" [alt]="product.name" class="product-thumbnail">
+            </td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.sku || 'N/A' }}</td>
+            <td>{{ product.price | currency:'TRY':'symbol':'1.2-2' }}</td>
+            <td>{{ product.stock }}</td>
+            <td>
+              <span [ngClass]="{'status-active': product.active, 'status-inactive': !product.active}">
+                {{ product.active ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td>
+              <span [ngClass]="{'status-approved': product.approved, 'status-pending': !product.approved && product.approved !== undefined, 'status-rejected': product.approved === false}">
+                {{ product.approved ? 'Approved' : (product.approved === false ? 'Rejected' : 'Pending') }}
+              </span>
+            </td>
+            <td class="actions">
+              <button (click)="editProduct(product.id)" class="btn btn-sm btn-secondary">Edit</button>
+              <button (click)="deleteProduct(product.id)" class="btn btn-sm btn-danger">Delete</button>
+              <!-- Aktif/Pasif yapma butonu eklenebilir -->
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ng-template #noProducts>
+      <p class="no-products-message">You haven't added any products yet. <a routerLink="/seller/products/new">Add your first product!</a></p>
+    </ng-template>
+
+    <!-- Sayfalama -->
+    <div *ngIf="response.totalPages > 1" class="pagination">
+      <button (click)="onPageChange(response.number - 1)" [disabled]="response.first">Previous</button>
+      <span *ngFor="let pageNum of pageNumbers">
+        <button (click)="onPageChange(pageNum)" [class.active]="pageNum === response.number">
+          {{ pageNum + 1 }}
+        </button>
+      </span>
+      <button (click)="onPageChange(response.number + 1)" [disabled]="response.last">Next</button>
+    </div>
+  </div>
+</div>

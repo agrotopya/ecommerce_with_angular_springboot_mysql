@@ -1,0 +1,73 @@
+<!-- src/app/features/auth/register/register.component.html -->
+<div class="register-container">
+  <h2>Register</h2>
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    <div>
+      <label for="firstName">First Name:</label>
+      <input id="firstName" type="text" formControlName="firstName" />
+      <div *ngIf="registerForm.get('firstName')?.invalid && (registerForm.get('firstName')?.dirty || registerForm.get('firstName')?.touched)" class="error-message">
+        <small *ngIf="registerForm.get('firstName')?.errors?.['required']">First Name is required.</small>
+      </div>
+    </div>
+
+    <div>
+      <label for="lastName">Last Name:</label>
+      <input id="lastName" type="text" formControlName="lastName" />
+      <div *ngIf="registerForm.get('lastName')?.invalid && (registerForm.get('lastName')?.dirty || registerForm.get('lastName')?.touched)" class="error-message">
+        <small *ngIf="registerForm.get('lastName')?.errors?.['required']">Last Name is required.</small>
+      </div>
+    </div>
+
+    <div>
+      <label for="username">Username:</label>
+      <input id="username" type="text" formControlName="username" />
+      <div *ngIf="registerForm.get('username')?.invalid && (registerForm.get('username')?.dirty || registerForm.get('username')?.touched)" class="error-message">
+        <small *ngIf="registerForm.get('username')?.errors?.['required']">Username is required.</small>
+        <small *ngIf="registerForm.get('username')?.errors?.['minlength']">Username must be at least 3 characters.</small>
+      </div>
+    </div>
+
+    <div>
+      <label for="email">Email:</label>
+      <input id="email" type="email" formControlName="email" />
+      <div *ngIf="registerForm.get('email')?.invalid && (registerForm.get('email')?.dirty || registerForm.get('email')?.touched)" class="error-message">
+        <small *ngIf="registerForm.get('email')?.errors?.['required']">Email is required.</small>
+        <small *ngIf="registerForm.get('email')?.errors?.['email']">Invalid email format.</small>
+      </div>
+    </div>
+
+    <div>
+      <label for="password">Password:</label>
+      <input id="password" type="password" formControlName="password" />
+      <div *ngIf="registerForm.get('password')?.invalid && (registerForm.get('password')?.dirty || registerForm.get('password')?.touched)" class="error-message">
+        <small *ngIf="registerForm.get('password')?.errors?.['required']">Password is required.</small>
+        <small *ngIf="registerForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters.</small>
+      </div>
+    </div>
+
+    <div>
+      <label for="role">Register as:</label>
+      <select id="role" formControlName="role">
+        <option [value]="RoleEnum.CUSTOMER">Customer</option>
+        <option [value]="RoleEnum.SELLER">Seller</option>
+      </select>
+      <div *ngIf="registerForm.get('role')?.invalid && (registerForm.get('role')?.dirty || registerForm.get('role')?.touched)" class="error-message">
+        <small *ngIf="registerForm.get('role')?.errors?.['required']">Role is required.</small>
+      </div>
+    </div>
+
+    <button type="submit" [disabled]="registerForm.invalid || isLoading()">
+      {{ isLoading() ? 'Registering...' : 'Register' }}
+    </button>
+  </form>
+
+  <div *ngIf="successMessage()" class="success-message global-success">
+    {{ successMessage() }} Please <a routerLink="/auth/login">login</a>.
+  </div>
+  <div *ngIf="errorMessage()" class="error-message global-error">
+    {{ errorMessage() }}
+  </div>
+  <p>
+    Already have an account? <a routerLink="/auth/login">Login here</a>
+  </p>
+</div>

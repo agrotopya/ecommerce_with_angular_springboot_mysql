@@ -1,0 +1,66 @@
+.user-list-container {
+  margin: 2rem;
+}
+
+mat-card-title {
+  margin-bottom: 1.5rem;
+}
+
+.filter-field {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.table-container {
+  overflow: auto;
+  margin-bottom: 1rem;
+}
+
+table {
+  width: 100%;
+}
+
+.mat-column-roles {
+  min-width: 200px; // Allow space for the select component
+}
+
+.role-select-form-field .mat-form-field-wrapper {
+    padding-bottom: 0; /* Reduce extra space below select in table cell */
+}
+
+.mat-column-isActive {
+  text-align: center;
+}
+
+.mat-column-actions {
+  text-align: center;
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  background-color: rgba(255, 255, 255, 0.8);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+}
+
+.mat-row .mat-cell {
+  border-bottom: 1px solid transparent;
+  border-top: 1px solid transparent;
+  cursor: pointer;
+}
+
+.mat-row:hover .mat-cell {
+  border-color: currentColor;
+}
+
+.mat-column-id {
+  max-width: 70px;
+}
+

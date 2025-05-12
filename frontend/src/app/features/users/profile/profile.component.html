@@ -1,0 +1,71 @@
+<div class="profile-container">
+  <mat-card>
+    <mat-card-title>User Profile</mat-card-title>
+    <mat-card-content>
+      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+        <div class="profile-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>First Name</mat-label>
+            <input matInput formControlName="firstName" required>
+            <mat-error *ngIf="profileForm.get(\'firstName\')?.hasError(\'required\')">First name is required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Last Name</mat-label>
+            <input matInput formControlName="lastName" required>
+            <mat-error *ngIf="profileForm.get(\'lastName\')?.hasError(\'required\')">Last name is required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Username</mat-label>
+            <input matInput formControlName="username" readonly>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="email" readonly>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Roles</mat-label>
+            <input matInput formControlName="roles" readonly>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Status</mat-label>
+            <input matInput [value]="profileForm.get(\'isActive\')?.value ? \'Active\' : \'Inactive\'" readonly>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" *ngIf="currentUser?.subscriptionType">
+            <mat-label>Subscription Type</mat-label>
+            <input matInput formControlName="subscriptionType" readonly>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" *ngIf="currentUser?.loyaltyPoints !== undefined">
+            <mat-label>Loyalty Points</mat-label>
+            <input matInput type="number" formControlName="loyaltyPoints" readonly>
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline" *ngIf="currentUser?.imageGenQuota !== undefined && currentUser?.imageGenQuota !== null">
+            <mat-label>Image Generation Quota</mat-label>
+            <input matInput formControlName="imageGenQuota" readonly>
+          </mat-form-field>
+        </div>
+
+        <div class="profile-actions">
+          <button mat-stroked-button type="button" (click)="toggleEdit()" *ngIf="!isEditing">
+            <mat-icon>edit</mat-icon> Edit Profile
+          </button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="profileForm.invalid || isLoading" *ngIf="isEditing">
+            <mat-icon>save</mat-icon> Save Changes
+          </button>
+          <button mat-stroked-button type="button" (click)="toggleEdit()" *ngIf="isEditing" [disabled]="isLoading">
+            <mat-icon>cancel</mat-icon> Cancel
+          </button>
+          <mat-progress-spinner [diameter]="30" mode="indeterminate" *ngIf="isLoading"></mat-progress-spinner>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
+

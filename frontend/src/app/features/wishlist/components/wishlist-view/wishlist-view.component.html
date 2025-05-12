@@ -1,0 +1,34 @@
+<div class="wishlist-container">
+  <h2>My Wishlist</h2>
+
+  <app-loading-spinner *ngIf="isLoading()" [message]="'Loading your wishlist...'"></app-loading-spinner>
+  <!-- <div *ngIf="isLoading()" class="loading-indicator">Loading wishlist...</div> -->
+
+  <div *ngIf="errorMessage()" class="error-message">
+    {{ errorMessage() }}
+  </div>
+
+  <div *ngIf="!isLoading() && !errorMessage() && products().length === 0" class="empty-wishlist">
+    <p>Your wishlist is currently empty.</p>
+    <a routerLink="/products" class="btn btn-primary">Discover Products</a>
+  </div>
+
+  <div *ngIf="!isLoading() && products().length > 0" class="products-grid">
+    <app-product-card
+      *ngFor="let product of products()"
+      [product]="product"
+      (addToCart)="onAddToCart(product)"
+      (toggleWishlist)="onRemoveFromWishlist(product.id)"
+      [isWishlistedInput]="true"
+    ></app-product-card>
+  </div>
+
+  <app-paginator
+    *ngIf="!isLoading() && totalPages() > 1"
+    [currentPage]="currentPage()"
+    [totalPages]="totalPages()"
+    [totalItems]="totalElements()"
+    (pageChange)="onPageChange($event)"
+  ></app-paginator>
+  <!-- Eski manuel paginator yorum satırı kaldırıldı -->
+</div>

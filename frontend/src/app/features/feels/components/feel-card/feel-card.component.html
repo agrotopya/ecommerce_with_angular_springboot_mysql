@@ -1,0 +1,47 @@
+<div class="feel-card" *ngIf="feel">
+  <a [routerLink]="['/feels', feel.id]" class="feel-link">
+    <div class="feel-thumbnail-container">
+      <img *ngIf="feel.thumbnailUrl"
+           [ngSrc]="feel.thumbnailUrl"
+           [alt]="feel.title"
+           width="320"
+           height="180"
+           priority="false"
+           loading="lazy"
+           class="feel-thumbnail"/>
+      <div *ngIf="!feel.thumbnailUrl" class="thumbnail-placeholder">
+        <span class="material-icons">videocam</span>
+      </div>
+      <div class="play-icon-overlay">
+        <span class="material-icons">play_circle_filled</span>
+      </div>
+      <div class="duration-badge" *ngIf="feel.videoUrl">
+        <!-- Video süresi backend'den gelmiyorsa, burada gösterilemez veya client'ta hesaplanması gerekir. Şimdilik boş. -->
+      </div>
+    </div>
+    <div class="feel-info">
+      <h3 class="feel-title">{{ feel.title }}</h3>
+      <div class="feel-meta">
+        <span class="seller-info" *ngIf="feel.sellerUsername">
+          <img *ngIf="feel.sellerProfileImageUrl" [ngSrc]="feel.sellerProfileImageUrl" alt="{{ feel.sellerUsername }}" class="seller-avatar" width="24" height="24">
+          <span *ngIf="!feel.sellerProfileImageUrl" class="material-icons seller-avatar-placeholder">account_circle</span>
+          {{ feel.sellerUsername }}
+        </span>
+        <span class="view-count"><span class="material-icons">visibility</span> {{ feel.viewCount | number }}</span>
+      </div>
+    </div>
+  </a>
+  <div class="feel-actions">
+    <!-- Beğenme butonu (işlevsellik yorum satırında) -->
+    <!--
+    <button class="btn btn-icon btn-like" (click)="onLikeToggle()" [disabled]="isLiking()" [class.liked]="isLiked()">
+      <span class="material-icons">{{ isLiked() ? 'favorite' : 'favorite_border' }}</span>
+      <span class="like-count">{{ feel.likeCount | number }}</span>
+    </button>
+    -->
+     <span class="like-count-display"><span class="material-icons">favorite_border</span> {{ feel.likeCount | number }}</span>
+    <a *ngIf="feel.productId && feel.productSlug" [routerLink]="['/products', feel.productSlug]" class="btn btn-sm btn-view-product">
+      View Product
+    </a>
+  </div>
+</div>

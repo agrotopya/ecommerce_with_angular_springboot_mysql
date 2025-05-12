@@ -1,0 +1,247 @@
+/* src/styles.scss */
+/* You can add global styles to this file, and also import other style files */
+
+// Google Fonts'tan Nunito fontunu import et
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap');
+
+// Renk Paleti CSS Değişkenleri
+:root {
+  --deep-purple: #3E1E68;
+  --vibrant-orange: #F7931E;
+  --bright-green: #75C043;
+  --soft-yellow: #FFD166;
+  --white: #FFFFFF;
+  --black: #1a1a1a; // Koyu metinler için
+  --light-gray: #f8f9fa; // Açık arka planlar için
+  --medium-gray: #e9ecef; // Kenarlıklar, ayırıcılar için
+  --dark-gray: #495057;  // İkincil metinler için
+
+  // Tema Renkleri
+  --primary-color: var(--deep-purple);
+  --secondary-color: var(--vibrant-orange);
+  --vibrant-orange-darker: #e08010; // Turuncunun %10 koyusu eklendi
+  --accent-color: var(--bright-green);
+  --bright-green-darker: #68ad3b; // Yeşilin %10 koyusu eklendi
+
+  // Notification renkleri için ek değişkenler
+  --info-color: #17a2b8; // Mavi tonu
+  --warning-color: #ffc107; // Sarı/Turuncu tonu
+
+  --bright-green-darker-5: #6cb63c; // Yeşilin %5 koyusu (scrollbar için)
+  --soft-yellow-darker: #f2c052; // Yumuşak sarının %10 koyusu (login-prompt border için)
+
+  --background-color: var(--white);
+  --surface-color: var(--white); // Kartlar, modal arka planları
+  --text-color: var(--black);
+  --text-color-secondary: var(--dark-gray);
+  --border-color: var(--medium-gray);
+
+  // Font
+  --font-family-sans-serif: 'Nunito', sans-serif;
+
+  // Diğer UI elementleri
+  --border-radius: 8px;
+  --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --button-padding: 0.75rem 1.5rem;
+  --input-padding: 0.75rem 1rem;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: var(--font-family-sans-serif);
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-size: 16px; // Temel font boyutu
+  line-height: 1.6; // Okunabilirlik için satır yüksekliği
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
+// Ana uygulama konteyneri için (app-main-layout bunu zaten yönetiyor olabilir)
+// app-root {
+//   display: flex;
+//   flex-direction: column;
+//   min-height: 100vh;
+// }
+
+// Temel Başlık Stilleri
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  font-weight: 700; // Daha belirgin başlıklar
+  color: var(--primary-color); // Başlıklar ana renkte
+}
+
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.75rem; }
+h4 { font-size: 1.5rem; }
+
+p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+a {
+  color: var(--secondary-color); // Linkler ikincil renkte
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+
+a:hover {
+  color: var(--deep-purple); // Hover'da ana renge dönsün
+  text-decoration: underline;
+}
+
+// Temel Buton Stilleri
+button, .btn {
+  display: inline-block;
+  font-weight: 600;
+  color: var(--white);
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+  user-select: none;
+  background-color: var(--secondary-color); // Varsayılan buton rengi
+  border: 1px solid transparent;
+  padding: var(--button-padding);
+  font-size: 1rem;
+  border-radius: var(--border-radius);
+  transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, transform 0.1s ease-in-out;
+  text-transform: uppercase; // Buton metinleri büyük harf
+  letter-spacing: 0.5px;
+}
+
+button:hover, .btn:hover {
+  background-color: var(--vibrant-orange-darker, #e08010); // Turuncunun biraz koyusu
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+button:active, .btn:active {
+  transform: translateY(1px); // Tıklama efekti
+}
+
+button:disabled, .btn:disabled {
+  background-color: var(--medium-gray);
+  color: var(--dark-gray);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+// Ana Buton (Primary)
+.btn-primary {
+  background-color: var(--primary-color);
+  color: var(--white);
+}
+.btn-primary:hover {
+  background-color: var(--deep-purple-darker, #2d154f); // Morun biraz koyusu
+}
+
+// Turuncu Buton (Secondary) - Hover için
+.btn-secondary:hover { // Eğer .btn-secondary var(--vibrant-orange) kullanıyorsa
+  background-color: var(--vibrant-orange-darker);
+}
+
+
+// Yeşil Buton (Accent)
+.btn-accent {
+  background-color: var(--bright-green);
+  color: var(--white);
+}
+.btn-accent:hover {
+  background-color: var(--bright-green-darker); // Önceden tanımlı değişkeni kullan
+}
+
+
+// Form Elemanları
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea,
+select {
+  display: block;
+  width: 100%;
+  padding: var(--input-padding);
+  font-size: 1rem;
+  font-family: var(--font-family-sans-serif);
+  color: var(--text-color);
+  background-color: var(--white);
+  background-clip: padding-box;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  margin-bottom: 1rem; // Form elemanları arası boşluk
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--secondary-color);
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(247, 147, 30, 0.25); // Turuncu focus glow
+}
+
+// Genel Konteyner Sınıfı (Merkezleme ve padding için)
+.container {
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+@media (min-width: 576px) {
+  .container { max-width: 540px; }
+}
+@media (min-width: 768px) {
+  .container { max-width: 720px; }
+}
+@media (min-width: 992px) {
+  .container { max-width: 960px; }
+}
+@media (min-width: 1200px) {
+  .container { max-width: 1140px; }
+}
+
+// Yardımcı Sınıflar
+.text-center { text-align: center; }
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-3 { margin-top: 1rem; }
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 1rem; }
+
+// Hata ve Başarı Mesajları için Temel Stiller
+.error-message {
+  color: #dc3545; // Kırmızı
+  font-size: 0.875em;
+  margin-top: 0.25rem;
+}
+
+.success-message {
+  color: var(--bright-green); // Parlak Yeşil
+  font-size: 0.875em;
+  margin-top: 0.25rem;
+}
+
+// Yükleme göstergesi için basit bir stil
+.loading-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+  color: var(--primary-color);
+}
+// Daha gelişmiş bir spinner eklenebilir.

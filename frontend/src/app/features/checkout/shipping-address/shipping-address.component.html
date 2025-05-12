@@ -1,0 +1,119 @@
+<!-- src/app/features/checkout/shipping-address/shipping-address.component.html -->
+<div class="shipping-address-container">
+  <h3>Shipping Address</h3>
+
+  <form [formGroup]="addressForm" (ngSubmit)="onSubmit()" class="address-form">
+    <div class="form-group">
+      <label for="fullName">Full Name *</label>
+      <input
+        type="text"
+        id="fullName"
+        formControlName="fullName"
+        [class.is-invalid]="isFieldInvalid('fullName')"
+      >
+      <div *ngIf="isFieldInvalid('fullName')" class="error-message">
+        {{ getErrorMessage('fullName') }}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="addressLine1">Address Line 1 *</label>
+      <input
+        type="text"
+        id="addressLine1"
+        formControlName="addressLine1"
+        [class.is-invalid]="isFieldInvalid('addressLine1')"
+      >
+      <div *ngIf="isFieldInvalid('addressLine1')" class="error-message">
+        {{ getErrorMessage('addressLine1') }}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="addressLine2">Address Line 2</label>
+      <input
+        type="text"
+        id="addressLine2"
+        formControlName="addressLine2"
+      >
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="city">City *</label>
+        <input
+          type="text"
+          id="city"
+          formControlName="city"
+          [class.is-invalid]="isFieldInvalid('city')"
+        >
+        <div *ngIf="isFieldInvalid('city')" class="error-message">
+          {{ getErrorMessage('city') }}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="state">State/Province *</label>
+        <input
+          type="text"
+          id="state"
+          formControlName="state"
+          [class.is-invalid]="isFieldInvalid('state')"
+        >
+        <div *ngIf="isFieldInvalid('state')" class="error-message">
+          {{ getErrorMessage('state') }}
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="postalCode">Postal Code *</label>
+        <input
+          type="text"
+          id="postalCode"
+          formControlName="postalCode"
+          [class.is-invalid]="isFieldInvalid('postalCode')"
+        >
+        <div *ngIf="isFieldInvalid('postalCode')" class="error-message">
+          {{ getErrorMessage('postalCode') }}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="country">Country *</label>
+        <select
+          id="country"
+          formControlName="country"
+          [class.is-invalid]="isFieldInvalid('country')"
+        >
+          <option *ngFor="let country of countries" [value]="country.code">
+            {{ country.name }}
+          </option>
+        </select>
+        <div *ngIf="isFieldInvalid('country')" class="error-message">
+          {{ getErrorMessage('country') }}
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="phone">Phone Number *</label>
+      <input
+        type="tel"
+        id="phone"
+        formControlName="phone"
+        [class.is-invalid]="isFieldInvalid('phone')"
+        placeholder="+90 555 123 4567"
+      >
+      <div *ngIf="isFieldInvalid('phone')" class="error-message">
+        {{ getErrorMessage('phone') }}
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn-cancel" (click)="onCancel()">Cancel</button>
+      <button type="submit" class="btn-submit">Save & Continue</button>
+    </div>
+  </form>
+</div>

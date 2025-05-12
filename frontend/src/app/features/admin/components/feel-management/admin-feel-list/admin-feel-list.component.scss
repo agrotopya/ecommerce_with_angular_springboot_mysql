@@ -1,0 +1,116 @@
+/* frontend/src/app/features/admin/components/feel-management/admin-feel-list/admin-feel-list.component.scss */
+.admin-feels-container {
+  padding: 1.5rem;
+  background-color: var(--background-color-light); // Admin paneli için farklı bir arka plan olabilir
+
+  .page-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--text-color-dark);
+    margin-bottom: 1.5rem;
+  }
+
+  .filters {
+    background-color: var(--white);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    label {
+      font-weight: 500;
+    }
+
+    .form-select-sm {
+      min-width: 150px;
+    }
+  }
+
+  .loading-indicator,
+  .error-message,
+  .empty-list-message {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.1rem;
+    color: var(--text-color-secondary);
+  }
+
+  .error-message {
+    color: var(--danger-color);
+    background-color: var(--danger-light-color);
+    border: 1px solid var(--danger-color-lighter);
+  }
+
+  .feels-table-container {
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    overflow-x: auto; // Küçük ekranlarda tablo kaydırılabilir
+  }
+
+  .admin-feels-table {
+    width: 100%;
+    margin-bottom: 1rem; // Paginator için boşluk
+
+    th {
+      background-color: var(--light-gray-background);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    td {
+      vertical-align: middle;
+    }
+
+    .feel-thumbnail-admin {
+      width: 80px;
+      height: 45px;
+      object-fit: cover;
+      border-radius: var(--border-radius-sm);
+      border: 1px solid var(--border-color-light);
+    }
+    .no-thumbnail-admin {
+      font-size: 2rem;
+      color: var(--medium-gray);
+    }
+
+    .feel-title-link {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 500;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    .status-badge {
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 0.25rem 0.6rem;
+      border-radius: var(--border-radius-pill);
+      text-transform: capitalize;
+
+      &.active {
+        background-color: var(--success-light-color);
+        color: var(--success-color-darker);
+      }
+      &.inactive {
+        background-color: var(--medium-gray);
+        color: var(--text-color-secondary);
+      }
+    }
+
+    .btn-sm {
+      // Genel .btn-sm stilleri kullanılabilir
+      padding: 0.3rem 0.6rem;
+      font-size: 0.8rem;
+    }
+  }
+
+  app-paginator {
+    margin-top: 1rem;
+  }
+}

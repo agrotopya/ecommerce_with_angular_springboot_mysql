@@ -1,0 +1,34 @@
+<div class="order-success-container">
+  <div class="success-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="64px" height="64px">
+      <path d="M0 0h24v24H0z" fill="none"/>
+      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+    </svg>
+  </div>
+
+  <h2>Payment Successful!</h2>
+
+  <p class="message">Thank you for your order. Your payment has been processed successfully.</p>
+
+  <div *ngIf="orderId()" class="order-info">
+    <p>Your Order ID is: <strong>#{{ orderId() }}</strong></p>
+    <p>A confirmation email has been sent to you.</p>
+  </div>
+
+  <div *ngIf="sessionId()" class="session-info">
+    <p><small>(Stripe Session ID: {{ sessionId() }})</small></p>
+  </div>
+
+  <!-- Opsiyonel: Sipariş detayları yükleniyorsa göster
+  <div *ngIf="isLoading()">Loading order details...</div>
+  <div *ngIf="errorMessage()">{{ errorMessage() }}</div>
+  <div *ngIf="orderDetails()">
+     Show some order details here
+  </div>
+  -->
+
+  <div class="actions">
+    <a *ngIf="orderId()" [routerLink]="['/profile/orders', orderId()]" class="btn btn-primary">View Order Details</a>
+    <a routerLink="/products" class="btn btn-secondary">Continue Shopping</a>
+  </div>
+</div>

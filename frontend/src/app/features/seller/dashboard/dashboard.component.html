@@ -1,0 +1,21 @@
+<!-- src/app/features/seller/dashboard/dashboard.component.html -->
+<div class="seller-dashboard-container">
+  <h2>Seller Dashboard</h2>
+  <p>Welcome to your seller dashboard. Here you can manage your products, orders, and more.</p>
+  <!-- Dashboard içeriği buraya eklenecek -->
+
+  <div class="dashboard-widgets">
+    <div class="widget">
+      <h3>My Products</h3>
+      <p>View and manage your product listings.</p>
+      <button (click)="navigateToMyProducts()" class="btn btn-primary">Manage Products</button>
+    </div>
+    <div class="widget">
+      <h3>My Orders</h3>
+      <p>View and process incoming orders.</p>
+      <button (click)="navigateToMyOrders()" class="btn btn-primary">Manage Orders</button>
+      <!-- <a routerLink="orders" class="btn btn-primary">Manage Orders</a> -->
+    </div>
+    <!-- Diğer widget'lar (örn: AI Features, Feels Management) buraya eklenebilir -->
+  </div>
+</div>

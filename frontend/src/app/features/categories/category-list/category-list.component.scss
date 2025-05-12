@@ -1,0 +1,68 @@
+.category-list-container {
+  margin: 2rem;
+}
+
+.page-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.filter-field {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.table-container {
+  overflow: auto;
+  margin-bottom: 1rem;
+}
+
+table {
+  width: 100%;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mat-column-id {
+  max-width: 70px;
+}
+
+.mat-column-isActive,
+.mat-column-displayOrder,
+.mat-column-actions {
+  text-align: center;
+  max-width: 120px; // Adjust as needed
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  background-color: rgba(255, 255, 255, 0.8);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+}
+
+.mat-row .mat-cell {
+  border-bottom: 1px solid transparent;
+  border-top: 1px solid transparent;
+}
+
+.mat-row:hover .mat-cell {
+  border-color: currentColor;
+}
+
+// Ensure action buttons have some spacing
+.mat-column-actions button {
+  margin: 0 4px;
+}
+

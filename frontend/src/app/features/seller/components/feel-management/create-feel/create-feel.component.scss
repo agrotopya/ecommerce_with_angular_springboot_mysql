@@ -1,0 +1,117 @@
+/* frontend/src/app/features/seller/components/feel-management/create-feel/create-feel.component.scss */
+.create-feel-container {
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: var(--white);
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+
+  .page-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--text-color-dark);
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .create-feel-form {
+    .form-group {
+      margin-bottom: 1.5rem;
+
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--text-color);
+
+        .required-asterisk {
+          color: var(--danger-color);
+          margin-left: 0.2rem;
+        }
+      }
+
+      .form-control,
+      .form-control-file {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: var(--text-color);
+        background-color: var(--white);
+        background-clip: padding-box;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+
+        &:focus {
+          border-color: var(--primary-color);
+          outline: 0;
+          box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.25);
+        }
+      }
+
+      .form-control-file {
+        padding: 0.5rem 1rem; // Dosya inputları için farklı padding
+      }
+
+      textarea.form-control {
+        min-height: 100px;
+        resize: vertical;
+      }
+
+      .invalid-feedback {
+        display: block; // Hata mesajlarını her zaman göster
+        width: 100%;
+        margin-top: 0.25rem;
+        font-size: 0.875em;
+        color: var(--danger-color);
+      }
+    }
+
+    .preview-container {
+      margin-top: 0.75rem;
+      border: 1px dashed var(--border-color-light);
+      padding: 1rem;
+      border-radius: var(--border-radius-sm);
+      background-color: var(--light-gray-background);
+
+      p {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: var(--text-color-secondary);
+      }
+
+      video, img {
+        max-width: 100%;
+        height: auto;
+        border-radius: var(--border-radius-sm);
+        border: 1px solid var(--border-color);
+      }
+    }
+
+    .form-actions {
+      margin-top: 2rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+
+      .btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 500;
+      }
+
+      .btn-submit {
+        // Genel .btn-primary stilleri kullanılabilir
+        .spinner-border-sm {
+          width: 1em;
+          height: 1em;
+          border-width: .2em;
+          vertical-align: -0.125em;
+          margin-right: 0.5em;
+        }
+      }
+    }
+  }
+}

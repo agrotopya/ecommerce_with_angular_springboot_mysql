@@ -1,0 +1,66 @@
+<!-- src/app/features/seller/components/create-feel/create-feel.component.html -->
+<div class="create-feel-container">
+  <h2>Create New Feel</h2>
+
+  <form [formGroup]="feelForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="title">Title*</label>
+      <input type="text" id="title" formControlName="title" placeholder="Enter feel title (e.g., My Awesome Product Demo)">
+      <div *ngIf="feelForm.get('title')?.invalid && (feelForm.get('title')?.dirty || feelForm.get('title')?.touched)" class="error-message">
+        <span *ngIf="feelForm.get('title')?.errors?.['required']">Title is required.</span>
+        <span *ngIf="feelForm.get('title')?.errors?.['minlength']">Title must be at least 5 characters long.</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea id="description" formControlName="description" placeholder="Tell us more about your feel... (optional)"></textarea>
+      <div *ngIf="feelForm.get('description')?.invalid && (feelForm.get('description')?.dirty || feelForm.get('description')?.touched)" class="error-message">
+        <span *ngIf="feelForm.get('description')?.errors?.['maxlength']">Description cannot exceed 1000 characters.</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="productId">Related Product (Optional)</label>
+      <select id="productId" formControlName="productId">
+        <option [ngValue]="null">-- Select a Product --</option>
+        <option *ngFor="let product of sellerProducts()" [value]="product.id">
+          {{ product.name }} (ID: {{product.id}})
+        </option>
+      </select>
+    </div>
+
+    <div class="form-group file-input-group">
+      <label for="videoFile">Video File*</label>
+      <input type="file" id="videoFile" (change)="onVideoFileSelected($event)" accept="video/*">
+      <div *ngIf="videoPreviewUrl" class="video-preview-container">
+        <video [src]="videoPreviewUrl" controls></video>
+      </div>
+      <div *ngIf="!selectedVideoFile && formSubmitted()" class="error-message">
+        Video file is required.
+      </div>
+    </div>
+
+    <div class="form-group file-input-group">
+      <label for="thumbnailFile">Thumbnail Image (Optional)</label>
+      <input type="file" id="thumbnailFile" (change)="onThumbnailFileSelected($event)" accept="image/*">
+      <div *ngIf="thumbnailPreviewUrl" class="image-preview-container">
+        <img [src]="thumbnailPreviewUrl" alt="Thumbnail Preview">
+      </div>
+    </div>
+
+    <div *ngIf="errorMessage()" class="error-message global-error">
+      {{ errorMessage() }}
+    </div>
+    <div *ngIf="successMessage()" class="success-message global-success">
+      {{ successMessage() }}
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="navigateToDashboard()">Cancel</button>
+      <button type="submit" class="btn btn-primary" [disabled]="isLoading()">
+        {{ isLoading() ? 'Creating Feel...' : 'Create Feel' }}
+      </button>
+    </div>
+  </form>
+</div>

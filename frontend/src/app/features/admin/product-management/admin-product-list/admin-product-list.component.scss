@@ -1,0 +1,140 @@
+// src/app/features/admin/product-management/admin-product-list/admin-product-list.component.scss
+.admin-product-list-container {
+  padding: 2rem;
+
+  .list-header { // Bu sınıf HTML'de kullanılmıyor, h2 direkt container altında.
+    // display: flex;
+    // justify-content: space-between;
+    // align-items: center;
+    margin-bottom: 1.5rem; // h2'nin altına alınabilir
+
+    h2 { // Bu stil doğrudan .admin-product-list-container > h2 için geçerli olacak
+      color: var(--primary-color);
+      margin: 0 0 1.5rem 0; // Alt boşluk eklendi
+      border-bottom: 2px solid var(--primary-color);
+      padding-bottom: 0.5rem;
+    }
+  }
+
+  .filters-card { // Yeni filtre kartı için stiller
+    background-color: var(--light-gray);
+    padding: 1rem 1.5rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--box-shadow);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-end;
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      flex-grow: 1;
+      min-width: 200px;
+
+      label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-color-secondary);
+      }
+
+      select { // Global stilleri kullanır
+        font-size: 0.9rem;
+      }
+    }
+
+    .filter-actions {
+      display: flex;
+      gap: 0.5rem;
+      padding-top: 1.25rem; // label ile aynı hizaya gelmesi için
+    }
+  }
+
+  .products-table-container {
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    background-color: var(--surface-color);
+    box-shadow: var(--box-shadow);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+
+    th, td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: middle; // İçeriklerin dikeyde ortalanması
+    }
+
+    thead { // thead için stil eklendi
+      background-color: var(--light-gray);
+      th {
+        font-weight: 700;
+        color: var(--primary-color);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+      }
+    }
+
+    tbody tr:hover {
+      background-color: var(--light-gray);
+    }
+
+    .product-thumbnail {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+    }
+
+    .status-badge { // Genel durum rozeti stili (UserManagement ve OrderList'teki gibi)
+      padding: 0.25em 0.6em;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border-radius: 10px;
+      color: var(--white);
+      text-transform: capitalize; // İlk harfi büyük yapar
+
+      &.approved { background-color: var(--bright-green); }
+      &.pending { background-color: var(--vibrant-orange); }
+      &.rejected { background-color: #dc3545; } // Kırmızı
+      // product.active için buton kullanılıyor, bu rozetler onay durumu için.
+    }
+    // .status-active, .status-inactive kaldırıldı, buton kullanılacak.
+
+
+    .action-buttons { // .actions -> .action-buttons (HTML'deki gibi)
+      display: flex;
+      gap: 0.3rem; // Butonlar arası boşluk
+      button { // Global .btn ve .btn-sm stillerini kullanmalı
+        // margin-right: 0.5rem; // gap ile değiştirildi
+        // &:last-child {
+        //   margin-right: 0;
+        // }
+      }
+      // .btn-sm, .btn-success, .btn-warning, .btn-danger global stillerden gelmeli.
+      // Eğer globalde yoksa, burada tanımlanabilir:
+      // .btn-success { background-color: var(--bright-green); ... }
+      // .btn-warning { background-color: var(--soft-yellow); color: var(--text-color); ... }
+      // .btn-danger { background-color: #dc3545; ... }
+    }
+  }
+
+  .no-results-message, .loading-indicator, .error-message {
+    // Global stilleri kullanabilir
+    text-align: center;
+    padding: 2rem;
+  }
+
+  .pagination {
+    // Global pagination stilini kullanabilir
+    margin-top: 1.5rem;
+  }
+}

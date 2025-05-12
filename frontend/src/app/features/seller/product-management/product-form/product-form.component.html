@@ -1,0 +1,97 @@
+<!-- src/app/features/seller/product-management/product-form/product-form.component.html -->
+<div class="product-form-container">
+  <h2>{{ isEditMode() ? 'Edit Product' : 'Add New Product' }}</h2>
+
+  <div *ngIf="isLoading()" class="loading-indicator">
+    {{ isEditMode() ? 'Loading product details...' : 'Processing...' }}
+  </div>
+  <div *ngIf="errorMessage()" class="error-message global-error">{{ errorMessage() }}</div>
+  <div *ngIf="successMessage()" class="success-message global-success">{{ successMessage() }}</div>
+
+  <form [formGroup]="productForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading() || isEditMode()">
+    <div class="form-grid">
+      <!-- Sol Sütun -->
+      <div class="form-column">
+        <div class="form-group">
+          <label for="name">Product Name:</label>
+          <input id="name" type="text" formControlName="name" />
+          <div *ngIf="productForm.get('name')?.invalid && productForm.get('name')?.touched" class="error-message">
+            <small *ngIf="productForm.get('name')?.errors?.['required']">Product name is required.</small>
+            <small *ngIf="productForm.get('name')?.errors?.['minlength']">Name must be at least 3 characters.</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description:</label>
+          <textarea id="description" formControlName="description" rows="5"></textarea>
+          <div *ngIf="productForm.get('description')?.invalid && productForm.get('description')?.touched" class="error-message">
+            <small *ngIf="productForm.get('description')?.errors?.['required']">Description is required.</small>
+            <small *ngIf="productForm.get('description')?.errors?.['minlength']">Description must be at least 10 characters.</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="categoryId">Category:</label>
+          <select id="categoryId" formControlName="categoryId">
+            <option [ngValue]="null" disabled>Select a category</option>
+            <option *ngFor="let category of categories()" [value]="category.id">{{ category.name }}</option>
+            <!-- Örnek statik option'lar kaldırıldı -->
+          </select>
+          <div *ngIf="productForm.get('categoryId')?.invalid && productForm.get('categoryId')?.touched" class="error-message">
+            <small *ngIf="productForm.get('categoryId')?.errors?.['required']">Category is required.</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sağ Sütun -->
+      <div class="form-column">
+        <div class="form-group">
+          <label for="price">Price (TRY):</label>
+          <input id="price" type="number" formControlName="price" step="0.01" />
+          <div *ngIf="productForm.get('price')?.invalid && productForm.get('price')?.touched" class="error-message">
+            <small *ngIf="productForm.get('price')?.errors?.['required']">Price is required.</small>
+            <small *ngIf="productForm.get('price')?.errors?.['min']">Price must be greater than 0.</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="stock">Stock Quantity:</label>
+          <input id="stock" type="number" formControlName="stock" />
+          <div *ngIf="productForm.get('stock')?.invalid && productForm.get('stock')?.touched" class="error-message">
+            <small *ngIf="productForm.get('stock')?.errors?.['required']">Stock quantity is required.</small>
+            <small *ngIf="productForm.get('stock')?.errors?.['min']">Stock cannot be negative.</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="sku">SKU (Optional):</label>
+          <input id="sku" type="text" formControlName="sku" />
+        </div>
+
+        <div class="form-group form-check">
+          <input id="active" type="checkbox" formControlName="active" class="form-check-input"/>
+          <label for="active" class="form-check-label">Product is Active</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group image-upload-section">
+      <label for="productImage">Product Image:</label>
+      <input id="productImage" type="file" (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/webp" />
+      <div *ngIf="imagePreviewUrl && imagePreviewUrl !== ''" class="image-preview-container">
+        <p>Selected Image Preview:</p>
+        <img [src]="imagePreviewUrl" alt="Product Image Preview" class="image-preview" />
+      </div>
+      <!-- Yükleme butonu ayrı olabilir veya form submit ile birlikte gönderilebilir -->
+      <!-- <button type="button" (click)="uploadImage()" [disabled]="!selectedFile" class="btn btn-accent mt-1">Upload Image</button> -->
+      <small>Max file size: 2MB. Allowed types: PNG, JPG, WEBP.</small>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" (click)="router.navigate(['/seller/products'])" class="btn btn-secondary">Cancel</button>
+      <button type="submit" [disabled]="productForm.invalid || isLoading()" class="btn btn-primary">
+        {{ isLoading() ? (isEditMode() ? 'Saving Changes...' : 'Creating Product...') : (isEditMode() ? 'Save Changes' : 'Create Product') }}
+      </button>
+    </div>
+  </form>
+</div>

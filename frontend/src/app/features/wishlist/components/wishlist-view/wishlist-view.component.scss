@@ -1,0 +1,73 @@
+/* frontend/src/app/features/wishlist/components/wishlist-view/wishlist-view.component.scss */
+.wishlist-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 1rem;
+
+  h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--text-color);
+    font-size: 2.2rem;
+    font-weight: 600;
+  }
+
+  .loading-indicator,
+  .error-message,
+  .empty-wishlist {
+    text-align: center;
+    padding: 3rem 1rem;
+    font-size: 1.2rem;
+    color: var(--text-color-secondary);
+  }
+
+  .error-message {
+    color: var(--danger-color);
+    background-color: var(--danger-light-color);
+    border: 1px solid var(--danger-color);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+  }
+
+  .empty-wishlist {
+    p {
+      margin-bottom: 1.5rem;
+    }
+    .btn-primary {
+      // Genel .btn ve .btn-primary stilleri kullanılacak
+    }
+  }
+
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem; // Kartlar arası boşluk
+  }
+
+  // app-product-card içindeki remove butonu için özel bir stil gerekirse buraya eklenebilir
+  // Ancak genellikle product-card kendi içindeki butonları yönetir.
+  // Wishlist view'e özel bir "Tümünü Kaldır" gibi bir buton eklenecekse stilleri buraya gelebilir.
+
+  .pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2.5rem;
+    gap: 0.75rem;
+
+    button {
+      // .btn ve .btn-secondary stilleri genelden gelecek
+      &.active { // Eğer aktif sayfa butonu farklı görünecekse
+        background-color: var(--primary-color);
+        color: var(--white);
+        border-color: var(--primary-color);
+      }
+      &:disabled {
+        // .btn:disabled stilleri genelden gelecek
+      }
+    }
+    span {
+      color: var(--text-color);
+    }
+  }
+}

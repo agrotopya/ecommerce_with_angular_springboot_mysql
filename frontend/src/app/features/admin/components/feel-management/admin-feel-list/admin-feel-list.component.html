@@ -1,0 +1,85 @@
+<div class="admin-feels-container">
+  <h2 class="page-title">Feels Management (Admin)</h2>
+
+  <div class="filters mb-3">
+    <label for="statusFilter">Filter by status:</label>
+    <select id="statusFilter" (change)="applyFilter($any($event.target).value)" class="form-select form-select-sm" style="width: auto; display: inline-block; margin-left: 10px;">
+      <option value="">All</option>
+      <option value="active">Active</option>
+      <option value="inactive">Inactive</option>
+    </select>
+  </div>
+
+  <app-loading-spinner *ngIf="isLoading()" [message]="'Loading feels...'"></app-loading-spinner>
+
+  <div *ngIf="errorMessage()" class="error-message">
+    {{ errorMessage() }}
+  </div>
+
+  <div *ngIf="!isLoading() && !errorMessage() && (!feelsResponse()?.content || feelsResponse()!.content!.length === 0)" class="empty-list-message">
+    <p>No feels found matching the criteria.</p>
+  </div>
+
+  <div *ngIf="feelsResponse()?.content && feelsResponse()!.content!.length > 0" class="feels-table-container">
+    <table class="table table-striped table-hover admin-feels-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Thumbnail</th>
+          <th>Title</th>
+          <th>Seller</th>
+          <th>Views</th>
+          <th>Likes</th>
+          <th>Created At</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let feel of feelsResponse()?.content">
+          <td>{{ feel.id }}</td>
+          <td>
+            <a [routerLink]="['/feels', feel.id]" target="_blank">
+              <img *ngIf="feel.thumbnailUrl" [src]="feel.thumbnailUrl" [alt]="feel.title" class="feel-thumbnail-admin" width="80" height="45">
+              <span *ngIf="!feel.thumbnailUrl" class="material-icons no-thumbnail-admin">videocam</span>
+            </a>
+          </td>
+          <td>
+            <a [routerLink]="['/feels', feel.id]" target="_blank" class="feel-title-link">{{ feel.title }}</a>
+          </td>
+          <td>{{ feel.sellerUsername }} (ID: {{ feel.sellerId }})</td>
+          <td>{{ feel.viewCount | number }}</td>
+          <td>{{ feel.likeCount | number }}</td>
+          <td>{{ feel.createdAt | date:'short' }}</td>
+          <td>
+            <span class="status-badge" [class.active]="feel.active" [class.inactive]="!feel.active">
+              {{ feel.active ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+          <td>
+            <button
+              class="btn btn-sm"
+              [ngClass]="feel.active ? 'btn-warning' : 'btn-success'"
+              (click)="toggleFeelStatus(feel)">
+              {{ feel.active ? 'Deactivate' : 'Activate' }}
+            </button>
+            <button class="btn btn-sm btn-danger ms-2" (click)="promptDeleteFeel(feel.id)">
+              <span class="material-icons-outlined">delete_outline</span> Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <app-paginator
+    *ngIf="!isLoading() && feelsResponse() && feelsResponse()!.totalPages > 1"
+    [currentPage]="currentPage()"
+    [totalPages]="feelsResponse()!.totalPages"
+    [totalItems]="feelsResponse()!.totalElements"
+    [itemsPerPage]="pageSize()"
+    (pageChange)="onPageChange($event)">
+  </app-paginator>
+
+  <app-confirmation-modal (confirmed)="handleDeleteConfirmation($event)"></app-confirmation-modal>
+</div>

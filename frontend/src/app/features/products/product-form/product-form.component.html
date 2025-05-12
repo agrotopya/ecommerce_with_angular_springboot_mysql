@@ -1,0 +1,167 @@
+<div class="product-form-container">
+  <mat-card>
+    <mat-card-title>{{ pageTitle }}</mat-card-title>
+    <mat-card-content>
+      <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+
+        <!-- Basic Info Section -->
+        <h3 class="section-title">Basic Information</h3>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field-half">
+            <mat-label>Product Name</mat-label>
+            <input matInput formControlName="name" required>
+            <mat-error *ngIf="productForm.get('name')?.hasError('required')">Name is required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field-half">
+            <mat-label>Category</mat-label>
+            <mat-select formControlName="categoryId" required>
+              <mat-option *ngFor="let category of categories" [value]="category.id">
+                {{ category.name }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="productForm.get('categoryId')?.hasError('required')">Category is required</mat-error>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="form-field-full">
+          <mat-label>Description</mat-label>
+          <textarea matInput formControlName="description" rows="5" required></textarea>
+          <mat-error *ngIf="productForm.get('description')?.hasError('required')">Description is required</mat-error>
+        </mat-form-field>
+
+        <!-- Pricing and Stock Section -->
+        <h3 class="section-title">Pricing & Stock</h3>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field-third">
+            <mat-label>Price</mat-label>
+            <input matInput type="number" formControlName="price" required min="0.01" step="0.01">
+            <mat-error *ngIf="productForm.get('price')?.hasError('required')">Price is required</mat-error>
+            <mat-error *ngIf="productForm.get('price')?.hasError('min')">Price must be positive</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field-third">
+            <mat-label>Stock Quantity</mat-label>
+            <input matInput type="number" formControlName="stockQuantity" required min="0" step="1">
+            <mat-error *ngIf="productForm.get('stockQuantity')?.hasError('required')">Stock is required</mat-error>
+            <mat-error *ngIf="productForm.get('stockQuantity')?.hasError('min')">Stock cannot be negative</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field-third">
+            <mat-label>SKU (Optional)</mat-label>
+            <input matInput formControlName="sku">
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="form-field-full">
+          <mat-label>Brand (Optional)</mat-label>
+          <input matInput formControlName="brand">
+        </mat-form-field>
+
+        <!-- Tags Section -->
+        <h3 class="section-title">Tags</h3>
+        <mat-form-field appearance="outline" class="form-field-full">
+          <mat-label>Product Tags (Press Enter or Comma to add)</mat-label>
+          <mat-chip-grid #chipGrid aria-label="Enter tags">
+            <mat-chip-row *ngFor="let tag of tags" (removed)="removeTag(tag)">
+              {{tag}}
+              <button matChipRemove [attr.aria-label]="'remove ' + tag">
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip-row>
+          </mat-chip-grid>
+          <input placeholder="New tag..." #tagInput [matChipInputFor]="chipGrid" [matChipInputSeparatorKeyCodes]="separatorKeysCodes" (matChipInputTokenEnd)="addTag($event)"/>
+        </mat-form-field>
+
+        <!-- Attributes Section -->
+        <h3 class="section-title">Attributes</h3>
+        <div formArrayName="attributes">
+          <div *ngFor="let attribute of attributes.controls; let i=index" [formGroupName]="i" class="attribute-row">
+            <mat-form-field appearance="outline" class="attribute-name-field">
+              <mat-label>Attribute Name</mat-label>
+              <input matInput formControlName="name" required>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="attribute-value-field">
+              <mat-label>Attribute Value</mat-label>
+              <input matInput formControlName="value" required>
+            </mat-form-field>
+            <button mat-icon-button color="warn" (click)="removeAttribute(i)" type="button" matTooltip="Remove Attribute">
+              <mat-icon>remove_circle_outline</mat-icon>
+            </button>
+          </div>
+        </div>
+        <button mat-stroked-button type="button" (click)="addAttribute()" class="add-attribute-button">
+          <mat-icon>add_circle_outline</mat-icon> Add Attribute
+        </button>
+
+        <!-- Image Upload Section -->
+        <h3 class="section-title">Images</h3>
+        <div class="image-upload-container">
+            <button mat-stroked-button type="button" (click)="imageUpload.click()">
+                <mat-icon>cloud_upload</mat-icon> Upload Images
+            </button>
+            <input hidden type="file" multiple #imageUpload (change)="onFileSelected($event)" accept="image/*">
+        </div>
+        <div class="image-previews-container" *ngIf="imagePreviews.length > 0">
+            <div *ngFor="let preview of imagePreviews; let i=index" class="image-preview-item">
+                <img [src]="preview.url" alt="Image preview {{i+1}}">
+                <div class="image-actions">
+                    <button mat-icon-button (click)="setPrimaryImage(i)" type="button" [color]="preview.isPrimary ? 'primary' : ''">
+                        <mat-icon>{{ preview.isPrimary ? 'star' : 'star_border' }}</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="removeImage(i)" type="button">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Section -->
+        <h3 class="section-title">Status</h3>
+        <div class="form-row toggle-row">
+          <mat-slide-toggle formControlName="isActive" color="primary">Is Active</mat-slide-toggle>
+          <mat-slide-toggle formControlName="isFeatured" color="primary">Is Featured</mat-slide-toggle>
+        </div>
+
+        <!-- Feels Management Section -->
+        <div *ngIf="isEditMode && productId">
+          <h3 class="section-title">Product Feels</h3>
+          <div *ngIf="isLoadingFeels()" class="loading-spinner-small">
+            <mat-progress-spinner [diameter]="24" mode="indeterminate"></mat-progress-spinner> Loading Feels...
+          </div>
+          <div *ngIf="!isLoadingFeels() && productFeels().length === 0" class="no-feels-message">
+            This product currently has no feels.
+          </div>
+          <div *ngIf="!isLoadingFeels() && productFeels().length > 0" class="product-feels-list">
+            <div *ngFor="let feel of productFeels()" class="feel-item">
+              <span>{{ feel.title }}</span>
+              <!-- TODO: Add edit/delete feel buttons or link to feel management -->
+              <button mat-icon-button matTooltip="Edit Feel (Not Implemented Yet)" disabled>
+                <mat-icon>edit</mat-icon>
+              </button>
+            </div>
+          </div>
+          <div class="feel-actions">
+            <button mat-stroked-button type="button" (click)="navigateToAddFeel()">
+              <mat-icon>add_circle_outline</mat-icon> Add New Feel
+            </button>
+            <!-- <button mat-stroked-button type="button" (click)="manageProductFeels()" [disabled]="productFeels().length === 0">
+              <mat-icon>video_library</mat-icon> Manage All Feels for this Product
+            </button> -->
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="productForm.invalid || isLoading">
+            <mat-icon>save</mat-icon> {{ isEditMode ? 'Update' : 'Create' }} Product
+          </button>
+          <button mat-stroked-button type="button" (click)="router.navigate([authService.hasRole(Role.ADMIN) ? '/admin/products' : '/seller/products'])" [disabled]="isLoading">
+            <mat-icon>cancel</mat-icon> Cancel
+          </button>
+          <mat-progress-spinner [diameter]="30" mode="indeterminate" *ngIf="isLoading"></mat-progress-spinner>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

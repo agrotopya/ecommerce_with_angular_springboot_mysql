@@ -1,0 +1,61 @@
+/* frontend/src/app/shared/components/loading-spinner/loading-spinner.component.scss */
+.loading-spinner-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%; // Eğer parent'ı doldurması isteniyorsa
+
+  &.overlay {
+    position: fixed; // Veya absolute, parent'a göre
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.7); // Hafif transparan arka plan
+    z-index: 9999; // Diğer elemanların üzerinde olması için
+  }
+
+  .spinner {
+    border-radius: 50%;
+    border-style: solid;
+    animation: spin 1s linear infinite;
+  }
+
+  .spinner-small {
+    width: 24px;
+    height: 24px;
+    border-width: 3px;
+    border-color: var(--primary-color) var(--primary-color) transparent transparent;
+  }
+
+  .spinner-medium {
+    width: 48px;
+    height: 48px;
+    border-width: 5px;
+    border-color: var(--primary-color) var(--primary-color) transparent transparent;
+  }
+
+  .spinner-large {
+    width: 72px;
+    height: 72px;
+    border-width: 7px;
+    border-color: var(--primary-color) var(--primary-color) transparent transparent;
+  }
+
+  .loading-message {
+    margin-top: 1rem;
+    font-size: 1rem;
+    color: var(--text-color-secondary);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
