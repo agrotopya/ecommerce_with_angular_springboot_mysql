@@ -6,6 +6,7 @@ import com.fibiyo.ecommerce.application.dto.AddressDto;
 // import com.fibiyo.ecommerce.application.dto.CartResponse; // createOrder içinde artık kullanılmıyor
 import com.fibiyo.ecommerce.application.dto.OrderRequest;
 import com.fibiyo.ecommerce.application.dto.OrderResponse;
+import com.fibiyo.ecommerce.application.dto.MonthlySalesDto; // MonthlySalesDto import edildi
 import com.fibiyo.ecommerce.application.exception.BadRequestException;
 import com.fibiyo.ecommerce.application.exception.ForbiddenException;
 import com.fibiyo.ecommerce.application.exception.ResourceNotFoundException;
@@ -433,8 +434,8 @@ public class OrderServiceImpl implements OrderService {
          }
 
          // Basit Örnek Geçişler:
-          // Seller sadece işleniyor veya kargolandı yapabilir (eğer ödeme tamamsa)
-          if (!isAdmin && !(newStatus == OrderStatus.PROCESSING || newStatus == OrderStatus.SHIPPED)) {
+          // Seller işleniyor, kargolandı veya teslim edildi yapabilir (eğer ödeme tamamsa)
+          if (!isAdmin && !(newStatus == OrderStatus.PROCESSING || newStatus == OrderStatus.SHIPPED || newStatus == OrderStatus.DELIVERED)) {
                throw new ForbiddenException("Satıcı olarak bu duruma güncelleme yetkiniz yok: " + newStatus);
           }
            if (currentStatus == OrderStatus.DELIVERED || currentStatus.name().startsWith("CANCELLED")) {
@@ -534,5 +535,32 @@ public class OrderServiceImpl implements OrderService {
         Order updatedOrder = orderRepository.save(order);
         logger.info("Tracking number '{}' added successfully to Order ID: {}.", trackingNumber, orderId);
         return orderMapper.toOrderResponse(updatedOrder);
+    }
+
+    // --- Seller Specific Analytics Implementation ---
+    @Override
+    @Transactional(readOnly = true)
+    public List<MonthlySalesDto> getMonthlySalesForSeller(Long sellerId) { // FQCN kaldırıldı, import yukarıda eklendi
+        User seller = userRepository.findById(sellerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Seller not found with id: " + sellerId));
+        if (seller.getRole() != Role.SELLER) {
+            throw new ForbiddenException("User with id " + sellerId + " is not a seller.");
+        }
+        User currentUser = getCurrentUser();
+        if (!(currentUser.getRole() == Role.ADMIN || currentUser.getId().equals(sellerId))) {
+            throw new ForbiddenException("You are not authorized to view sales data for seller id: " + sellerId);
+        }
+
+        logger.debug("Fetching monthly sales data for seller ID: {}", sellerId);
+        List<Object[]> results = orderItemRepository.findMonthlySalesDataBySellerId(sellerId); // Metod adı değişti
+        List<MonthlySalesDto> salesSummary = new ArrayList<>();
+        for (Object[] result : results) {
+            String monthYear = (String) result[0];
+            // SUM sonucu BigDecimal, Double veya Long olabilir, Number'a cast edip BigDecimal'e çevirelim
+            Number totalSalesNumber = (Number) result[1];
+            BigDecimal totalSales = (totalSalesNumber != null) ? BigDecimal.valueOf(totalSalesNumber.doubleValue()) : BigDecimal.ZERO;
+            salesSummary.add(new MonthlySalesDto(monthYear, totalSales));
+        }
+        return salesSummary;
     }
 }

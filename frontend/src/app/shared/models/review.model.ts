@@ -10,7 +10,7 @@ export interface ReviewResponseDto {
   rating: number;
   comment?: string;
   createdAt: string; // ISO Date string
-  isApproved: boolean;
+  approved: boolean; // isApproved -> approved olarak değiştirildi
   productId: number;
   productName?: string; // Optional, as it might not always be returned or needed
   customerId: number;

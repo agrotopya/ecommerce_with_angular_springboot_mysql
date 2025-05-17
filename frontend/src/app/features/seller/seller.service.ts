@@ -6,10 +6,11 @@ import { ApiService } from '../../core/services/api.service';
 // Tipler Product ve ProductRequest olarak güncellendi. PaginatedProducts yerine Page<Product> kullanıldı.
 import { Product, ProductRequest } from '../../shared/models/product.model';
 import { Page } from '../../shared/models/page.model';
-import { ApiResponse } from '../../shared/models/api-response.model'; // user.model -> api-response.model olarak düzeltildi
-import { OrderResponseDto } from '../../shared/models/order.model'; // OrderResponseDto import edildi
-import { OrderStatus } from '../../shared/enums/order-status.enum'; // OrderStatus enum import edildi
-import { SELLER_ENDPOINTS } from '../../core/constants/api-endpoints'; // SELLER_ENDPOINTS import edildi
+import { ApiResponse } from '../../shared/models/api-response.model';
+import { OrderResponseDto } from '../../shared/models/order.model';
+import { OrderStatus } from '../../shared/enums/order-status.enum';
+import { SELLER_ENDPOINTS, ORDERS_ENDPOINTS, PRODUCT_ENDPOINTS } from '../../core/constants/api-endpoints';
+import { AiImageGenerationRequest, AiImageGenerationResponse, SetAiImageAsProductRequest } from '../../shared/models/ai.model'; // AI DTO'ları eklendi
 
 // const SELLER_API_PATH = '/seller'; // SELLER_ENDPOINTS kullanıldığı için bu satır kaldırıldı
 
@@ -53,14 +54,14 @@ export class SellerService {
     return this.apiService.post<Product>(SELLER_ENDPOINTS.UPLOAD_IMAGE(productId), formData);
   }
 
-  // AI Özellikleri (Eğer bu serviste olacaksa)
-  // generateAiImage(request: AiImageGenerationRequest): Observable<AiImageGenerationResponse> {
-  //   return this.apiService.post<AiImageGenerationResponse>(`${SELLER_API_PATH}/products/generate-image`, request);
-  // }
+  // AI Özellikleri
+  generateAiImage(request: AiImageGenerationRequest): Observable<AiImageGenerationResponse> {
+    return this.apiService.post<AiImageGenerationResponse>(SELLER_ENDPOINTS.GENERATE_IMAGE, request);
+  }
 
-  // setAiImageAsProduct(request: SetAiImageAsProductRequest): Observable<Product> {
-  //   return this.apiService.post<Product>(`${SELLER_API_PATH}/products/set-ai-image`, request);
-  // }
+  setAiImageAsProduct(request: SetAiImageAsProductRequest): Observable<Product> {
+    return this.apiService.post<Product>(SELLER_ENDPOINTS.SET_AI_IMAGE, request);
+  }
 
   // Sipariş Yönetimi
   getMySellerOrders(page: number = 0, size: number = 10, sort: string = 'orderDate,desc', status?: OrderStatus): Observable<Page<OrderResponseDto>> {
@@ -75,23 +76,41 @@ export class SellerService {
   }
 
   getMySellerOrderDetail(orderId: number): Observable<OrderResponseDto> {
-    return this.apiService.get<OrderResponseDto>(SELLER_ENDPOINTS.ORDER_DETAIL(orderId));
+    // Genel /api/orders/{orderId} endpoint'ini kullan, backend @orderSecurity ile yetkilendirme yapacak.
+    return this.apiService.get<OrderResponseDto>(ORDERS_ENDPOINTS.ORDER_DETAIL(orderId));
   }
 
   updateMySellerOrderStatus(orderId: number, status: OrderStatus): Observable<OrderResponseDto> {
-    // Backend bu endpoint için request body bekliyorsa, { status } şeklinde gönderilebilir.
-    // Şimdilik query param veya path variable ile çözülmediği varsayılarak boş body gönderiliyor.
-    // Backend'in /api/seller/orders/{orderId}/status endpoint'i PATCH ve RequestBody olarak OrderStatusUpdateRequestDto bekliyor olabilir.
-    // Bu durumda { status: status } veya backend'in beklediği DTO formatında gönderilmeli.
-    // Şimdilik basit bir PATCH varsayımı yapıyoruz, backend'e göre düzenlenmeli.
-    // Eğer backend sadece status'u query param olarak alıyorsa:
-    // const params = new HttpParams().set('status', status);
-    // return this.apiService.patch<OrderResponseDto>(SELLER_ENDPOINTS.UPDATE_ORDER_STATUS(orderId), {}, { params });
-    // Eğer backend request body'de { "status": "SHIPPED" } gibi bir şey bekliyorsa:
-    return this.apiService.patch<OrderResponseDto>(SELLER_ENDPOINTS.UPDATE_ORDER_STATUS(orderId), { status });
+    // Backend /api/orders/{orderId}/status endpoint'ini kullanıyor ve status'u query param olarak alıyor.
+    // SELLER_ENDPOINTS.UPDATE_ORDER_STATUS(orderId) doğru endpoint'i işaret etmeli.
+    // Eğer SELLER_ENDPOINTS.UPDATE_ORDER_STATUS farklı bir yapıdaysa (örn: body bekliyorsa), ona göre düzenlenmeli.
+    // OrderController'daki @PatchMapping("/{orderId}/status") @RequestParam OrderStatus status alıyor.
+    // Bu endpoint genel ve @orderSecurity ile korunuyor.
+    const params = new HttpParams().set('status', status.toString());
+    return this.apiService.patch<OrderResponseDto>(ORDERS_ENDPOINTS.ORDER_STATUS_UPDATE(orderId), {}, { params });
+  }
+
+  addMySellerTrackingNumber(orderId: number, trackingNumber: string): Observable<OrderResponseDto> {
+    // OrderController'daki @PatchMapping("/{orderId}/tracking") @RequestParam String trackingNumber alıyor.
+    // Bu endpoint genel ve @orderSecurity ile korunuyor.
+    const params = new HttpParams().set('trackingNumber', trackingNumber);
+    return this.apiService.patch<OrderResponseDto>(ORDERS_ENDPOINTS.ORDER_TRACKING_UPDATE(orderId), {}, { params });
   }
 
   // Feel Yönetimi (FeelService'e taşındı veya burada da kalabilir, proje yapısına göre)
   // getMyFeels(...)
   // createFeel(...)
+
+  uploadProductImages(productId: number, files: File[]): Observable<string[]> { // Dönen tip ProductResponse yerine string[] (URL listesi) olmalı
+    const formData = new FormData();
+    files.forEach((file, index) => {
+      formData.append('files', file, file.name); // Backend @RequestParam("files") List<MultipartFile> files bekliyor
+    });
+
+    // PRODUCT_ENDPOINTS.DETAIL(productId) -> /products/{productId}
+    // Buna /images ekleyerek /products/{productId}/images yolunu oluşturuyoruz.
+    // Bu endpoint ProductController altında tanımlanmıştı.
+    const endpoint = `${PRODUCT_ENDPOINTS.DETAIL(productId)}/images`;
+    return this.apiService.post<string[]>(endpoint, formData); // Backend List<String> (imageUrls) dönecek
+  }
 }

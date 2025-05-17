@@ -31,15 +31,35 @@
         </div>
 
         <div class="form-group">
-          <label for="categoryId">Category:</label>
-          <select id="categoryId" formControlName="categoryId">
-            <option [ngValue]="null" disabled>Select a category</option>
-            <option *ngFor="let category of categories()" [value]="category.id">{{ category.name }}</option>
-            <!-- Örnek statik option'lar kaldırıldı -->
+          <label for="rootCategory">Main Category:</label>
+          <select id="rootCategory" class="form-select"
+                  (change)="onRootCategoryChange($event)"
+                  [ngModel]="selectedRootCategoryId()"
+                  [ngModelOptions]="{standalone: true}">
+            <option [ngValue]="null">Select main category</option>
+            <option *ngFor="let category of rootCategories()" [value]="category.id">
+              {{ category.name }}
+            </option>
           </select>
-          <div *ngIf="productForm.get('categoryId')?.invalid && productForm.get('categoryId')?.touched" class="error-message">
-            <small *ngIf="productForm.get('categoryId')?.errors?.['required']">Category is required.</small>
-          </div>
+        </div>
+
+        <div class="form-group" *ngIf="selectedRootCategoryId() && childCategories().length > 0">
+          <label for="childCategory">Sub Category:</label>
+          <select id="childCategory" class="form-select"
+                  formControlName="categoryId"
+                  (change)="onChildCategoryChange($event)">
+            <option [ngValue]="selectedRootCategoryId()">-- Select sub-category (or use main) --</option>
+            <option *ngFor="let category of childCategories()" [value]="category.id">
+              {{ category.name }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Orijinal categoryId form kontrolü gizli tutulabilir veya yukarıdaki childCategory'ye bağlanabilir.
+             Şu an childCategory seçildiğinde categoryId form kontrolünü güncelliyoruz.
+             Eğer sadece root kategori seçilirse, categoryId root'un ID'si olur. -->
+        <div *ngIf="productForm.get('categoryId')?.invalid && productForm.get('categoryId')?.touched && !productForm.get('categoryId')?.value" class="error-message">
+            <small *ngIf="productForm.get('categoryId')?.errors?.['required']">Category selection is required.</small>
         </div>
       </div>
 
@@ -76,16 +96,102 @@
     </div>
 
     <div class="form-group image-upload-section">
-      <label for="productImage">Product Image:</label>
-      <input id="productImage" type="file" (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/webp" />
-      <div *ngIf="imagePreviewUrl && imagePreviewUrl !== ''" class="image-preview-container">
-        <p>Selected Image Preview:</p>
-        <img [src]="imagePreviewUrl" alt="Product Image Preview" class="image-preview" />
+      <label for="productImages">Product Images:</label>
+      <input id="productImages" type="file" multiple (change)="onFilesSelected($event)" accept="image/png, image/jpeg, image/webp" class="form-control" />
+      <small class="form-text text-muted">You can select multiple images. Max file size: 2MB each. Allowed types: PNG, JPG, WEBP.</small>
+
+      <div *ngIf="newImagePreviews.length > 0" class="image-previews-container mt-3">
+        <h5>New Images to Upload:</h5>
+        <div class="row">
+          <div *ngFor="let preview of newImagePreviews; let i = index" class="col-md-3 col-sm-4 col-6 mb-3">
+            <div class="image-preview-item">
+              <img [src]="preview.url" [alt]="preview.file.name" class="img-fluid rounded image-preview-thumb" />
+              <p class="image-name mt-1" [title]="preview.file.name">{{ preview.file.name | slice:0:20 }}{{ preview.file.name.length > 20 ? '...' : '' }}</p>
+              <button type="button" (click)="removeNewImage(i)" class="btn btn-sm btn-danger btn-remove-image" title="Remove this image">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-      <!-- Yükleme butonu ayrı olabilir veya form submit ile birlikte gönderilebilir -->
-      <!-- <button type="button" (click)="uploadImage()" [disabled]="!selectedFile" class="btn btn-accent mt-1">Upload Image</button> -->
-      <small>Max file size: 2MB. Allowed types: PNG, JPG, WEBP.</small>
+
+      <!-- Mevcut görselleri gösterme (düzenleme modunda) - Bu kısım daha sonra detaylandırılacak -->
+      <div *ngIf="isEditMode() && existingProductImages().length > 0" class="existing-images-container mt-4">
+        <h5>Current Product Images:</h5>
+        <div class="row">
+          <div *ngFor="let img of existingProductImages(); let i = index" class="col-md-3 col-sm-4 col-6 mb-3">
+            <div class="image-preview-item existing">
+              <img [src]="img.imageUrl" [alt]="img.altText || 'Product Image'" class="img-fluid rounded image-preview-thumb"
+                   [class.is-primary]="img.isPrimary" />
+              <p class="image-name mt-1" [title]="img.altText || 'Image ' + (i+1)">{{ img.altText || ('Image ' + (i+1)) | slice:0:20 }}</p>
+              <span *ngIf="img.isPrimary" class="badge bg-success primary-badge">Primary</span>
+              <!-- TODO: Silme ve Ana Görsel Yapma Butonları -->
+              <!--
+              <button type="button" (click)="deleteExistingImage(img.id)" class="btn btn-sm btn-danger btn-remove-image" title="Delete this image">
+                <i class="fas fa-trash"></i>
+              </button>
+              <button type="button" *ngIf="!img.isPrimary" (click)="setAsPrimaryImage(img.id)" class="btn btn-sm btn-info btn-set-primary" title="Set as primary">
+                <i class="fas fa-star"></i>
+              </button>
+              -->
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- AI Image Generation Section -->
+    <div class="form-group ai-image-generation-section mt-4 p-3 border rounded">
+      <h5><i class="fas fa-magic"></i> AI Image Generation (using gpt-image-1)</h5>
+      <p><small>Generate a new image based on a prompt. You can optionally select one of your uploaded images above as a reference for style or content (image edit functionality may vary based on AI model).</small></p>
+
+      <div class="form-group">
+        <label for="aiPrompt">Prompt:</label>
+        <textarea id="aiPrompt" [(ngModel)]="aiPrompt" name="aiPrompt" [ngModelOptions]="{standalone: true}" rows="3" class="form-control" placeholder="e.g., A futuristic red sports car on a neon-lit street"></textarea>
+      </div>
+
+      <div class="form-group mt-2">
+        <label for="aiReferenceImage">Reference Image (Optional - select from above):</label>
+        <select id="aiReferenceImage" [(ngModel)]="selectedReferenceImageForAI" name="selectedReferenceImageForAI" [ngModelOptions]="{standalone: true}" class="form-select form-select-sm">
+          <option [ngValue]="null">No reference image</option>
+          <optgroup label="New Images">
+            <option *ngFor="let preview of newImagePreviews; let i = index" [ngValue]="preview.file">
+              {{ preview.file.name | slice:0:30 }}... (New)
+            </option>
+          </optgroup>
+          <optgroup label="Existing Images" *ngIf="isEditMode() && existingProductImages().length > 0">
+            <option *ngFor="let existingImg of existingProductImages()" [ngValue]="existingImg.imageUrl"> <!-- Veya ID'si backend'e gönderilecekse existingImg.id -->
+              {{ existingImg.altText || existingImg.imageUrl | slice:0:30 }}... (Existing)
+            </option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div class="form-group mt-2">
+        <label for="aiNumImages">Number of Images (1-4):</label>
+        <input type="number" id="aiNumImages" [(ngModel)]="aiNumImagesToGenerate" name="aiNumImagesToGenerate" [ngModelOptions]="{standalone: true}" class="form-control form-control-sm" min="1" max="4">
+      </div>
+
+      <button type="button" (click)="generateAiImagesHandler()" class="btn btn-info mt-3" [disabled]="!aiPrompt.trim() || isGeneratingAiImage()">
+        <i class="fas fa-cogs"></i> {{ isGeneratingAiImage() ? 'Generating...' : 'Generate AI Images' }}
+      </button>
+
+      <div *ngIf="aiGeneratedImageUrls().length > 0" class="ai-generated-images-container mt-3">
+        <h5>Generated AI Images:</h5>
+        <div class="row">
+          <div *ngFor="let url of aiGeneratedImageUrls(); let i = index" class="col-md-3 col-sm-4 col-6 mb-3">
+            <div class="image-preview-item ai-generated">
+              <img [src]="url" alt="AI Generated Image {{i+1}}" class="img-fluid rounded image-preview-thumb" />
+              <button type="button" (click)="setAiImageAsProductImage(url)" class="btn btn-sm btn-success mt-1 w-100" title="Use this image for the product">
+                <i class="fas fa-check"></i> Use This
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="aiGenerationError()" class="error-message mt-2">{{ aiGenerationError() }}</div>
+    </div>
+
 
     <div class="form-actions">
       <button type="button" (click)="router.navigate(['/seller/products'])" class="btn btn-secondary">Cancel</button>

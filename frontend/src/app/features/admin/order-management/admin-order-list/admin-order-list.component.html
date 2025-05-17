@@ -42,7 +42,7 @@
             <th>Total</th>
             <th>Status</th>
             <th>Payment Status</th>
-            <th>Actions</th>
+            <th style="min-width: 220px;">Actions</th> <!-- Sütun genişliği ayarlandı -->
           </tr>
         </thead>
         <tbody>
@@ -61,9 +61,41 @@
                 {{ (order.paymentStatus || 'Pending') | titlecase }}
               </span>
             </td>
-            <td>
-              <button class="btn btn-sm btn-info" (click)="navigateToOrderDetail(order.id)">View Details</button>
-              <!-- İleride hızlı durum güncelleme butonları eklenebilir -->
+            <td class="actions-cell">
+              <button class="btn btn-sm btn-info mb-1 d-block w-100" (click)="navigateToOrderDetail(order.id)">View Details</button>
+
+              <!-- Status Update -->
+              <div class="action-group my-1">
+                <label for="status-{{order.id}}" class="form-label-sm visually-hidden">Status for {{order.id}}</label>
+                <select id="status-{{order.id}}"
+                        [(ngModel)]="getOrderEditData(order.id).selectedStatus"
+                        class="form-select form-select-sm">
+                  <option *ngFor="let statusKey of orderStatusOptions" [value]="statusKey">
+                    {{ statusKey }} <!-- Pipe'lar test için geçici olarak kaldırıldı -->
+                  </option>
+                </select>
+                <button class="btn btn-sm btn-primary mt-1 w-100"
+                        (click)="updateOrderStatusHandler(order, getOrderEditData(order.id).selectedStatus)"
+                        [disabled]="getOrderEditData(order.id).selectedStatus === order.status || isLoading()">
+                  Update Status
+                </button>
+              </div>
+
+              <!-- Tracking Number -->
+              <div class="action-group my-1" *ngIf="isAdmin() || order.status === OrderStatus.PROCESSING || order.status === OrderStatus.SHIPPED">
+                <label for="tracking-{{order.id}}" class="form-label-sm visually-hidden">Tracking for {{order.id}}</label>
+                <input type="text" id="tracking-{{order.id}}"
+                       [(ngModel)]="getOrderEditData(order.id).trackingNumberInput"
+                       placeholder="Tracking No" class="form-control form-control-sm mb-1">
+                <button class="btn btn-sm btn-secondary w-100"
+                        (click)="addTrackingNumberHandler(order, getOrderEditData(order.id).trackingNumberInput)"
+                        [disabled]="!getOrderEditData(order.id).trackingNumberInput?.trim() || isLoading()">
+                  Save Track#
+                </button>
+              </div>
+              <div *ngIf="order.trackingNumber" class="tracking-info mt-1">
+                <small>Track#: {{ order.trackingNumber }}</small>
+              </div>
             </td>
           </tr>
         </tbody>

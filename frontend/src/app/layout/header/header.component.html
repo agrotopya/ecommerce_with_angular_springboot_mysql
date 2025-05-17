@@ -13,6 +13,16 @@
       </div>
 
       <div class="actions">
+        <a routerLink="/feels" class="action-link feels-action" title="Discover Feels">
+          <!-- Feels Video İkonu -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24px" height="24px"><path d="M0 0h24v24H0z" fill="none"/><path d="M10 16.5l6-4.5-6-4.5v9zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+          <span class="action-text">Feels</span> <!-- Opsiyonel: İkon yeterli değilse metin -->
+        </a>
+        <a routerLink="/wishlist" class="action-link wishlist-action" *ngIf="isAuthenticated()" title="My Wishlist">
+          <!-- Kalp İkonu -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24px" height="24px"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          <span class="action-text"></span> <!-- Opsiyonel -->
+        </a>
         <a routerLink="/cart" class="action-link cart-action" *ngIf="isAuthenticated()">
           <!-- Sepet ikonu -->
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24px" height="24px"><path d="M0 0h24v24H0z" fill="none"/><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zm-1.45-5c.59 0 1.08-.36 1.32-.88L21.71 4H7.21l-.94-2H3.01v2h2.1l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h10v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45zM6 4.05V4h1.71l.97 2.05H18.3l-3.28 6.39H8.53L6 4.05z"/></svg>
@@ -50,6 +60,50 @@
     </div>
   </nav>
 
+  <!-- Yeni N11 Tarzı Kategori Navigasyon Barı -->
+  <nav class="category-navigation-bar" *ngIf="categoriesForMegaMenu().length > 0">
+    <div class="container">
+      <ul class="main-category-list">
+        <li *ngFor="let category of categoriesForMegaMenu()"
+            class="main-category-item"
+            (mouseenter)="openMegaMenu(category)"
+            (mouseleave)="scheduleCloseMegaMenu()">
+          <a [routerLink]="['/products']" [queryParams]="{ category: category.slug, categoryId: category.id, page: 0, size: 12, sort: 'name,asc' }">
+            <!-- <img *ngIf="category.iconUrl" [src]="category.iconUrl" alt="" class="category-icon"> -->
+            <!-- <i *ngIf="category.iconCssClass" [class]="category.iconCssClass"></i> -->
+            <span>{{ category.name }}</span>
+          </a>
+          <!-- Mega Menü İçeriği Buraya Gelecek (category.id === activeMegaMenuCategoryId() durumuna göre) -->
+          <div class="mega-menu-container"
+               [class.open]="activeMegaMenuCategoryId() === category.id"
+               (mouseenter)="cancelCloseMegaMenu()"
+               (mouseleave)="scheduleCloseMegaMenu()">
+            <div class="mega-menu-content">
+              <h4>{{ category.name }} Alt Kategorileri</h4>
+              <div class="subcategory-columns" *ngIf="category.children && category.children.length > 0">
+                <!-- Alt kategoriler sütunlar halinde listelenecek -->
+                <div class="column" *ngFor="let column of getSubCategoryColumns(category.children)">
+                  <ul>
+                    <li *ngFor="let subCat of column">
+                      <a [routerLink]="['/products']" [queryParams]="{ category: subCat.slug, categoryId: subCat.id, page: 0, size: 12, sort: 'name,asc' }">{{ subCat.name }}</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div *ngIf="!category.children || category.children.length === 0">
+                <p>Bu kategoride alt kategori bulunmamaktadır.</p>
+              </div>
+              <!-- Buraya kategoriyle ilgili görseller veya özel linkler de eklenebilir -->
+            </div>
+          </div>
+        </li>
+        <li class="main-category-item all-categories-item">
+          <a routerLink="/products">Tüm Ürünler</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
   <!-- Mobil Navigasyon Menüsü -->
   <div class="mobile-nav-menu" [class.open]="isMobileMenuOpen()" id="mobileNavMenu">
     <div class="mobile-menu-header">
@@ -61,6 +115,7 @@
     <ul class="mobile-nav-links">
       <li><a routerLink="/" (click)="closeMobileMenu()">Home</a></li>
       <li><a routerLink="/products" (click)="closeMobileMenu()">Products</a></li>
+      <li><a routerLink="/feels" (click)="closeMobileMenu()">Feels</a></li> <!-- Mobil menüye Feels linki eklendi -->
       <ng-container *ngIf="isAuthenticated()">
         <li><a routerLink="/profile" (click)="closeMobileMenu()">Profile</a></li>
         <li><a routerLink="/profile/orders" (click)="closeMobileMenu()">My Orders</a></li>
@@ -78,18 +133,5 @@
   </div>
   <div class="mobile-menu-overlay" [class.open]="isMobileMenuOpen()" (click)="closeMobileMenu()"></div>
 
-  <!-- Kategori Navigasyon Barı -->
-  <nav class="category-navbar" *ngIf="categories().length > 0">
-    <div class="container category-navbar-content">
-      <ul>
-        <li *ngFor="let category of categories()">
-          <a [routerLink]="['/products']" [queryParams]="{ category: category.slug }">
-            {{ category.name }}
-          </a>
-        </li>
-        <!-- Opsiyonel: Daha fazla kategori varsa "Tüm Kategoriler" linki -->
-        <!-- <li><a routerLink="/categories">Tüm Kategoriler</a></li> -->
-      </ul>
-    </div>
-  </nav>
+  <!-- Kategori Navigasyon Barı TEMİZLENDİ -->
 </header>

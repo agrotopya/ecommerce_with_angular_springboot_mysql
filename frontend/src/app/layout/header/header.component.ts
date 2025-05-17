@@ -1,14 +1,16 @@
 // src/app/layout/header/header.component.ts
 import { Component, inject, WritableSignal, Signal, signal } from '@angular/core'; // signal eklendi
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router'; // Router import edildi
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../features/cart/cart.service';
-import { User } from '../../shared/models/user.model'; // UserResponse -> User
+import { User } from '../../shared/models/user.model';
 import { Role } from '../../shared/enums/role.enum';
-import { CategoryService } from '../../features/categories/category.service'; // CategoryService eklendi
-import { CategoryResponseDto } from '../../shared/models/category.model'; // Import yolu ve tipi düzeltildi
-import { OnInit } from '@angular/core'; // OnInit eklendi
+import { CategoryService } from '../../features/categories/category.service';
+import { CategoryTreeNodeDto } from '../../shared/models/category.model';
+import { OnInit } from '@angular/core';
+import { forkJoin, of } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-header',
@@ -17,10 +19,10 @@ import { OnInit } from '@angular/core'; // OnInit eklendi
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
 })
-export class HeaderComponent implements OnInit { // OnInit implement edildi
+export class HeaderComponent implements OnInit {
   authService = inject(AuthService);
   cartService = inject(CartService);
-  private categoryService = inject(CategoryService); // CategoryService inject edildi
+  private categoryService = inject(CategoryService); // Geri eklendi
   private router = inject(Router);
 
   isAuthenticated: WritableSignal<boolean> = this.authService.isAuthenticated;
@@ -30,25 +32,86 @@ export class HeaderComponent implements OnInit { // OnInit implement edildi
   isUserDropdownOpen = signal<boolean>(false);
   isMobileMenuOpen = signal<boolean>(false);
 
-  categories = signal<CategoryResponseDto[]>([]); // Tip CategoryResponseDto[] olarak düzeltildi
+  // Yeni kategori/mega menü için sinyaller ve özellikler
+  categoriesForMegaMenu = signal<CategoryTreeNodeDto[]>([]);
+  activeMegaMenuCategoryId = signal<number | null>(null);
+  private megaMenuCloseTimer: any = null;
+  private readonly MEGA_MENU_CLOSE_DELAY = 200; // ms cinsinden gecikme
 
   ngOnInit(): void {
-    this.loadTopCategories();
+    this.loadCategoriesForMegaMenu();
   }
 
-  loadTopCategories(): void {
-    // Şimdilik aktif kök kategorileri veya en çok kullanılanları alabiliriz.
-    // Örnek olarak findRootCategories kullanılıyor, findActiveCategories de olabilir.
-    // Ya da özel bir "topNavCategories" endpoint'i de olabilir backend'de.
-    this.categoryService.findRootCategories().subscribe({ // Veya getActiveCategories()
-      next: (cats: CategoryResponseDto[]) => { // Tip eklendi
-        // Belki ilk 6-7 kategoriyi göstermek isteyebiliriz.
-        this.categories.set(cats.slice(0, 7)); // Örnek: İlk 7 kategori
+  loadCategoriesForMegaMenu(): void {
+    this.categoryService.findRootCategories().pipe(
+      switchMap(rootCategories => {
+        if (!rootCategories || rootCategories.length === 0) {
+          return of([]);
+        }
+        const observables = rootCategories.map(rootCat =>
+          this.categoryService.getSubCategories(rootCat.id).pipe(
+            map(subCategories => ({
+              ...rootCat,
+              children: subCategories || [], // Alt kategori yoksa boş dizi
+              // expanded özelliği artık kullanılmıyor, activeMegaMenuCategoryId kullanılacak
+            } as CategoryTreeNodeDto))
+          )
+        );
+        return forkJoin(observables);
+      })
+    ).subscribe({
+      next: (categoriesWithData: CategoryTreeNodeDto[]) => {
+        this.categoriesForMegaMenu.set(categoriesWithData);
       },
-      error: (err: any) => { // Tip eklendi
-        console.error('Error loading categories for header navigation:', err);
+      error: (err: any) => {
+        console.error('Error loading categories for mega menu:', err);
       }
     });
+  }
+
+  openMegaMenu(category: CategoryTreeNodeDto): void {
+    console.log('openMegaMenu for:', category.name, 'ID:', category.id);
+    if (this.megaMenuCloseTimer) {
+      clearTimeout(this.megaMenuCloseTimer);
+      this.megaMenuCloseTimer = null;
+      console.log('Mega menu close timer cancelled.');
+    }
+    this.activeMegaMenuCategoryId.set(category.id);
+    console.log('activeMegaMenuCategoryId set to:', category.id);
+  }
+
+  scheduleCloseMegaMenu(): void {
+    console.log('scheduleCloseMegaMenu called. Timer will fire in', this.MEGA_MENU_CLOSE_DELAY, 'ms to set activeMegaMenuCategoryId to null.');
+    this.megaMenuCloseTimer = setTimeout(() => {
+      console.log('Mega menu close timer fired. Setting activeMegaMenuCategoryId to null.');
+      this.activeMegaMenuCategoryId.set(null);
+    }, this.MEGA_MENU_CLOSE_DELAY);
+  }
+
+  cancelCloseMegaMenu(): void {
+    console.log('cancelCloseMegaMenu called.');
+    if (this.megaMenuCloseTimer) {
+      clearTimeout(this.megaMenuCloseTimer);
+      this.megaMenuCloseTimer = null;
+      console.log('Mega menu close timer cancelled by cancelCloseMegaMenu.');
+    }
+  }
+
+  // Alt kategorileri sütunlara bölmek için yardımcı metod
+  getSubCategoryColumns(children: CategoryTreeNodeDto[] | undefined, columns: number = 3): CategoryTreeNodeDto[][] {
+    if (!children || children.length === 0) {
+      return [];
+    }
+    const itemsPerColumn = Math.ceil(children.length / columns);
+    const result: CategoryTreeNodeDto[][] = [];
+    for (let i = 0; i < columns; i++) {
+      const start = i * itemsPerColumn;
+      const end = start + itemsPerColumn;
+      if (start < children.length) {
+        result.push(children.slice(start, end));
+      }
+    }
+    return result.filter(col => col.length > 0); // Boş sütunları filtrele
   }
 
   logout(): void {

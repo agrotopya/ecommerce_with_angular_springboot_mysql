@@ -30,8 +30,15 @@ export class DashboardComponent {
 
   // Manage Orders için de benzer bir metod eklenebilir (şimdilik alert ile bırakılmıştı)
   navigateToMyOrders(): void {
-    // Şimdilik alert, ileride gerçek yönlendirme
-    alert('Order management coming soon!');
-    // this.router.navigate(['/seller/orders']);
+console.log('Attempting to navigate to /seller/products');
+    this.router.navigate(['/seller/orders']).then(success => {
+      if (success) {
+        console.log('Navigation to /seller/orders successful');
+      } else {
+        console.error('Navigation to /seller/orders failed');
+      }
+    }).catch(err => {
+      console.error('Error during navigation to /seller/orders:', err);
+    });
   }
 }

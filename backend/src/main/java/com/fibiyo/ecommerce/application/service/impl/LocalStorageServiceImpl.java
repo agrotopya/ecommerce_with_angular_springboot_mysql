@@ -364,4 +364,14 @@ public class LocalStorageServiceImpl implements StorageService {
     public Path getRootLocation() {
         return this.rootLocation;
     }
+
+    @Override
+    public String getDefaultImagePlaceholder() {
+        // Eğer projenizde assets altında veya uploads altında sabit bir placeholder.png gibi
+        // bir dosya varsa, onun adını (veya göreli yolunu) dönebilirsiniz.
+        // Örneğin: return "placeholders/default-image.png";
+        // Şimdilik, özel bir placeholder olmadığını varsayarak null dönelim.
+        // Bu durumda, CategoryServiceImpl'deki kontrol, null olmayan her imageUrl'u silmeye çalışacaktır.
+        return null; 
+    }
 }

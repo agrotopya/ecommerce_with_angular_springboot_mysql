@@ -5,7 +5,9 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter; // Eklendi
 import lombok.NoArgsConstructor;
+import lombok.Setter; // Eklendi
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SQLDelete; // Eklendi
@@ -188,6 +190,13 @@ public class Product {
     // Ortalama rating güncellemek için bir metod da eklenebilir (Servis katmanında da yapılabilir)
     // public void updateAverageRating(BigDecimal newRatingSum, int totalReviews) { ... }
 
+    public String getAiReviewSummary() {
+        return this.reviewSummaryAi;
+    }
+
+    public void setAiReviewSummary(String aiReviewSummary) {
+        this.reviewSummaryAi = aiReviewSummary;
+    }
 
     // --- HashCode ve Equals ---
     // Yine, ilişkiler nedeniyle dikkatli olunmalı. Lombok @Data nın ürettikleri yeterli olabilir,

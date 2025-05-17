@@ -1,5 +1,5 @@
 // src/app/features/products/product-list/product-list.component.ts
-import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, inject, OnInit, signal, WritableSignal, computed } from '@angular/core'; // computed eklendi
 import { CommonModule } from '@angular/common';
 import { HttpParams } from '@angular/common/http'; // HttpParams importu eklendi
 import { ProductService } from '../product.service';
@@ -38,16 +38,26 @@ export class ProductListComponent implements OnInit {
   // Kategori filtresi, arama terimi vb. için ngModel değişkenleri
   searchTerm: string = '';
   selectedCategoryId: string = ''; // Kategori ID'si string olarak alınıp number'a çevrilecek
+  selectedSort: string = 'name,asc'; // Sıralama için ngModel
 
   categories = signal<CategoryResponseDto[]>([]); // Kategori listesi için sinyal
   isLoadingCategories = signal(false); // Kategori yükleme durumu
 
+  sortOptions = [
+    { value: 'name,asc', label: 'Name (A-Z)' },
+    { value: 'name,desc', label: 'Name (Z-A)' },
+    { value: 'price,asc', label: 'Price (Low to High)' },
+    { value: 'price,desc', label: 'Price (High to Low)' },
+    { value: 'createdAt,desc', label: 'Newest First' },
+    { value: 'createdAt,asc', label: 'Oldest First' }
+  ];
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       this.currentPage.set(params['page'] ? +params['page'] : 0);
       this.pageSize.set(params['size'] ? +params['size'] : 12);
-      this.currentSort.set(params['sort'] || 'name,asc');
+      this.selectedSort = params['sort'] || 'name,asc';
+      this.currentSort.set(this.selectedSort);
       this.searchTerm = params['search'] || '';
       this.currentSearchTerm.set(this.searchTerm);
       this.selectedCategoryId = params['categoryId'] || '';
@@ -123,6 +133,12 @@ export class ProductListComponent implements OnInit {
     this.updateUrlAndLoadProducts();
   }
 
+  onSortChange(): void {
+    this.currentPage.set(0); // Sıralama değiştiğinde ilk sayfaya dön
+    this.currentSort.set(this.selectedSort);
+    this.updateUrlAndLoadProducts();
+  }
+
   private updateUrlAndLoadProducts(): void {
     this.router.navigate([], {
       relativeTo: this.route,
@@ -145,4 +161,19 @@ export class ProductListComponent implements OnInit {
     const totalPages = this.productsResponse()?.totalPages ?? 0;
     return Array(totalPages).fill(0).map((x, i) => i);
   }
+
+  pageTitle = computed(() => {
+    const categoryId = this.currentCategoryId();
+    const searchTerm = this.currentSearchTerm();
+    const categories = this.categories();
+
+    if (searchTerm) {
+      return `Search Results for "${searchTerm}"`;
+    }
+    if (categoryId && categories.length > 0) {
+      const selectedCat = categories.find(cat => cat.id === categoryId);
+      return selectedCat ? selectedCat.name : 'Products';
+    }
+    return 'All Products';
+  });
 }

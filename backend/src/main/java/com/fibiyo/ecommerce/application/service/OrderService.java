@@ -5,6 +5,7 @@ import com.fibiyo.ecommerce.application.dto.OrderResponse;
 import com.fibiyo.ecommerce.domain.enums.OrderStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import java.util.List; // List importu eklendi
 
 public interface OrderService {
 
@@ -20,6 +21,9 @@ public interface OrderService {
     OrderResponse findOrderById(Long orderId); // ID ile herhangi bir siparişi görme (Admin/Seller)
     OrderResponse updateOrderStatus(Long orderId, OrderStatus newStatus); // Sipariş durumunu güncelle (Admin/Seller)
     OrderResponse addTrackingNumber(Long orderId, String trackingNumber); // Kargo takip no ekle (Admin/Seller)
+
+    // --- Seller Specific Analytics ---
+    List<com.fibiyo.ecommerce.application.dto.MonthlySalesDto> getMonthlySalesForSeller(Long sellerId);
 
     // TODO: Refund/Return işlemleri için metodlar eklenecek
 

@@ -16,7 +16,15 @@ export class ApiService {
     console.log(`ApiService: GET request to ${url} with params:`, params.toString());
     return this.http.get<T>(url, { params }).pipe(
       tap({
-        next: (response) => console.log(`ApiService: GET response from ${url}:`, response),
+        next: (response) => {
+          console.log(`ApiService: GET response from ${url}:`, response);
+          // Gelen yanıtın string halini de loglayalım, alan adlarını ve değerlerini net görmek için
+          try {
+            console.log(`ApiService: GET response (stringified) from ${url}:`, JSON.stringify(response, null, 2));
+          } catch (e) {
+            console.warn(`ApiService: Could not stringify GET response from ${url}`, e);
+          }
+        },
         error: (error) => console.error(`ApiService: GET error from ${url}:`, error)
       })
     );

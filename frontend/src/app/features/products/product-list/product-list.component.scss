@@ -1,135 +1,121 @@
-// src/app/features/products/product-list/product-list.component.scss
-.product-list-container {
-  padding: 2rem 1rem; // Genel sayfa içi boşluk
-  max-width: 1200px; // Sayfa içeriğini sınrla
-  margin: 0 auto; // Ortala
+/* src/app/features/products/product-list/product-list.component.scss */
+// @import '../../../../styles/variables'; // Bu dosya bulunamadığı için kaldırıldı. CSS değişkenleri global scope'ta olmalı.
 
-  h2 {
-    text-align: center;
-    margin-bottom: 2rem; // Başlık altı boşluk
-    font-size: 2.2rem; // Başlık boyutu
-    color: var(--primary-color);
+.product-list-page-container {
+  // .container ve .mt-4 Bootstrap'ten geliyor.
+}
+
+.filter-sidebar {
+  // Varsayılan olarak Bootstrap sütun yapısı kullanılacak.
+  // Gerekirse ek stiller buraya eklenebilir.
+  // Örneğin, küçük ekranlarda filtrelerin görünümü için.
+
+  h4 {
+    font-size: 1.2rem; // Bootstrap h4'ten biraz daha küçük
+    color: var(--text-color, #333); // Temel metin rengi
+    margin-bottom: 0.75rem;
   }
 
-  .filters {
-    display: flex;
-    gap: 1rem; // Elemanlar arası boşluk
-    margin-bottom: 2rem;
-    align-items: center;
-    flex-wrap: wrap;
-    padding: 1rem;
-    background-color: var(--light-gray); // Filtre alanı arka planı
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
+  hr {
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+    border-top: 1px solid var(--border-color, #dee2e6);
+  }
 
-    input[type='text'], select {
-      padding: var(--input-padding); // Global input padding'ini kullan
-      border: 1px solid var(--border-color); // Global border rengi
-      border-radius: var(--border-radius); // Global border radius
-      font-size: 0.95rem;
-      background-color: var(--white);
-      color: var(--text-color);
-      &:focus {
-        border-color: var(--secondary-color); // Turuncu focus
-        outline: 0;
-        box-shadow: 0 0 0 0.2rem rgba(247, 147, 30, 0.25);
-      }
+  .filter-group {
+    margin-bottom: 1.5rem; // Filtre grupları arası boşluk
+
+    .form-label {
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      font-size: 0.9rem;
     }
 
-    input[type='text'] {
-      flex-grow: 1; // Arama input'u esnesin
-      min-width: 200px; // Minimum genişlik
+    .form-select-sm {
+      // Bootstrap .form-select-sm zaten padding ve font boyutu ayarlar.
+      // Gerekirse üzerine yazılabilir.
+      // Örneğin:
+      // padding: 0.5rem 0.75rem;
+      // font-size: 0.875rem;
     }
 
-    select {
-      min-width: 180px; // Kategori dropdown genişliği
-      cursor: pointer;
+    .form-text {
+      font-size: 0.8rem;
+      color: var(--text-color-secondary, #6c757d);
     }
+  }
+}
 
-    button {
-      // Global .btn stilini kullanıyor, renkleri burada özelleştirebiliriz
-      // veya HTML'de .btn-primary gibi class'lar eklenebilir.
-      // Şimdilik global .btn stilini varsayalım.
-      // Eğer özel bir stil gerekirse:
+.product-main-content {
+  h2 {
+    font-size: 1.75rem; // Bootstrap h2'den biraz daha küçük
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--secondary-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem !important; // Bootstrap mb-3'ü ezmek için
+  }
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); // Duyarlı grid
+  gap: 20px; // Kartlar arası boşluk
+
+  .product-card-wrapper {
+    // app-product-card component'inin sarmalayıcısı için gerekirse stil
+  }
+}
+
+.loading-indicator {
+  text-align: center;
+  padding: 3rem 1rem;
+  font-size: 1.1rem;
+  color: var(--text-color-secondary);
+}
+
+.alert-danger { // Bootstrap alert-danger üzerine yazılabilir veya özel class kullanılabilir
+  // margin-top: 1rem;
+}
+
+.no-products-message {
+  font-size: 1.1rem;
+  color: var(--text-color-secondary);
+  padding: 2rem 0;
+}
+
+.pagination-controls {
+  // Bootstrap .pagination stilleri zaten uygulanıyor.
+  // Gerekirse ek özelleştirmeler buraya.
+  .page-item {
+    &.disabled .page-link {
+      // color: #6c757d;
+      // pointer-events: none;
+      // background-color: #fff;
+      // border-color: #dee2e6;
+    }
+    &.active .page-link {
+      // z-index: 3;
+      // color: #fff;
       // background-color: var(--primary-color);
-      // color: var(--white);
-      // padding: var(--input-padding); // Inputlarla aynı yükseklik için
+      // border-color: var(--primary-color);
+    }
+    .page-link {
+      // color: var(--primary-color);
       // &:hover {
-      //   background-color: var(--deep-purple-darker);
+      //   color: var(--secondary-color);
+      //   background-color: #e9ecef;
+      //   border-color: #dee2e6;
       // }
     }
-    span { // "Loading categories..." mesajı için
-      font-style: italic;
-      color: var(--text-color-secondary);
-    }
   }
+}
 
-  .products-grid {
-    display: grid;
-    // Ürün kartı genişliğine göre ayarla, minmax(250px, 1fr) daha iyi olabilir
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1.5rem; // Kartlar arası boşluk
-    margin-bottom: 2rem;
-  }
-
-  .loading-indicator, .no-products-message {
-    text-align: center;
-    padding: 3rem 1rem;
-    font-size: 1.2rem;
-    color: var(--text-color-secondary);
-    min-height: 200px; // İçerik olmadığında da alan kaplasın
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .error-message { // Global .error-message stilini kullanacak
-    text-align: center;
-    padding: 1.5rem;
-    // color: #dc3545; // Zaten globalde var
-    background-color: rgba(220, 53, 69, 0.1); // Hafif kırmızı arka plan
-    border: 1px solid rgba(220, 53, 69, 0.3);
-    border-radius: var(--border-radius);
-    margin-bottom: 2rem;
-  }
-
-  .pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.5rem; // Butonlar arası boşluk
-    margin-top: 2rem;
-    padding-bottom: 2rem; // Sayfa sonu boşluk
-
-    button {
-      // Global .btn stilini kullanabilir veya özelleştirilebilir
-      padding: 0.6rem 1rem;
-      border: 1px solid var(--border-color);
-      background-color: var(--surface-color);
-      color: var(--primary-color); // Buton metni ana renk
-      cursor: pointer;
-      border-radius: var(--border-radius);
-      font-weight: 600;
-      transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-
-      &:disabled {
-        background-color: var(--light-gray);
-        color: var(--medium-gray);
-        border-color: var(--medium-gray);
-        cursor: not-allowed;
-        opacity: 0.8;
-      }
-
-      &.active {
-        background-color: var(--primary-color); // Aktif sayfa butonu ana renk
-        color: var(--white);
-        border-color: var(--primary-color);
-      }
-
-      &:hover:not(:disabled):not(.active) {
-        background-color: var(--medium-gray);
-        border-color: var(--dark-gray);
-      }
-    }
+// Küçük ekranlar için filtreleri üste alabiliriz (opsiyonel)
+@media (max-width: 767.98px) { // md breakpoint'inden küçük
+  .filter-sidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--border-color, #eee);
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem !important; // Bootstrap mb-4'ü ezmek için
   }
 }

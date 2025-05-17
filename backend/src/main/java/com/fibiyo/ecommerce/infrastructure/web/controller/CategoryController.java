@@ -10,8 +10,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize; // Yetkilendirme için
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile; // MultipartFile importu eklendi
 
 import java.util.List;
 
@@ -87,9 +88,19 @@ public class CategoryController {
     @DeleteMapping("/{id}")
     //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> deleteCategory(@PathVariable Long id) {
-         logger.warn("DELETE /api/categories/{} requested", id); // Silme işlemini Warn ile loglamak iyi olabilir
+         logger.warn("DELETE /api/categories/{} requested", id);
         categoryService.deleteCategory(id);
         return ResponseEntity.ok(new ApiResponse(true, "Kategori başarıyla silindi."));
-        // Veya ResponseEntity.noContent().build(); // İçerik dönmüyorsa
+    }
+
+    @PostMapping("/{categoryId}/image")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<CategoryResponse> uploadCategoryImage(
+            @PathVariable Long categoryId,
+            @RequestParam("file") MultipartFile file) {
+        logger.info("POST /api/categories/{}/image - Uploading image for category", categoryId);
+        // CategoryService'e yeni bir metod ekleyeceğiz: updateCategoryImage
+        CategoryResponse updatedCategory = categoryService.updateCategoryImage(categoryId, file);
+        return ResponseEntity.ok(updatedCategory);
     }
 }

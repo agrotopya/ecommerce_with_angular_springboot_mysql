@@ -71,4 +71,11 @@ public interface StorageService {
     String generateUrl(String filePath);
 
     Path getRootLocation();
+
+    /**
+     * Returns the filename of the default placeholder image.
+     * This can be used to avoid deleting a shared placeholder.
+     * @return The filename (e.g., "placeholder.png") or null if not applicable.
+     */
+    String getDefaultImagePlaceholder();
 }

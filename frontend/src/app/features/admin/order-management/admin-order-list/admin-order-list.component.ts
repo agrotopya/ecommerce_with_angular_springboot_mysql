@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http'; // HttpErrorResponse eklendi
-import { AdminService } from '../../admin.service'; // Yol düzeltildi
+import { AdminService } from '../../admin.service';
 import { OrderResponseDto } from '../../../../shared/models/order.model';
 import { Page } from '../../../../shared/models/page.model';
 import { OrderStatus } from '../../../../shared/enums/order-status.enum';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { AuthService } from '../../../../core/services/auth.service'; // AuthService eklendi
+import { Role } from '../../../../shared/enums/role.enum'; // Role eklendi
 
 @Component({
   selector: 'app-admin-order-list',
@@ -20,6 +22,7 @@ export class AdminOrderListComponent implements OnInit {
   private adminService = inject(AdminService);
   private notificationService = inject(NotificationService);
   private router = inject(Router);
+  private authService = inject(AuthService); // AuthService inject edildi
 
   ordersPage = signal<Page<OrderResponseDto> | null>(null);
   isLoading = signal(true);
@@ -35,8 +38,12 @@ export class AdminOrderListComponent implements OnInit {
 
   // Sayfalama
   currentPage = 0;
-  pageSize = 15; // Sayfa başına sipariş sayısı
-  currentSort = 'orderDate,desc'; // Varsayılan sıralama
+  pageSize = 15;
+  currentSort = 'orderDate,desc';
+
+  // Her sipariş için düzenleme verilerini tutacak Map
+  editingOrdersData = new Map<number, { selectedStatus?: OrderStatus, trackingNumberInput?: string }>();
+  public OrderStatus = OrderStatus; // HTML'de enum'a erişim için
 
   constructor() {}
 
@@ -108,4 +115,89 @@ export class AdminOrderListComponent implements OnInit {
 
   // Sipariş durumunu hızlı güncelleme (ileride eklenebilir)
   // quickUpdateStatus(orderId: number, newStatus: OrderStatus): void { ... }
+
+  isAdmin(): boolean {
+    return this.authService.hasRole(Role.ADMIN);
+  }
+
+  getOrderEditData(orderId: number): { selectedStatus?: OrderStatus, trackingNumberInput?: string } {
+    if (!this.editingOrdersData.has(orderId)) {
+      // İlgili siparişin mevcut durumunu ve takip numarasını başlangıç değeri olarak ata
+      const order = this.ordersPage()?.content?.find(o => o.id === orderId);
+      this.editingOrdersData.set(orderId, {
+        selectedStatus: order?.status,
+        trackingNumberInput: order?.trackingNumber || ''
+      });
+    }
+    return this.editingOrdersData.get(orderId)!;
+  }
+
+  updateOrderStatusHandler(order: OrderResponseDto, newStatus?: OrderStatus): void {
+    if (!newStatus || !order.id) {
+      this.notificationService.showWarning('Please select a new status.');
+      return;
+    }
+    if (newStatus === order.status) {
+      this.notificationService.showInfo('Order is already in the selected status.');
+      return;
+    }
+
+    this.isLoading.set(true); // Yükleme göstergesini başlat
+    this.adminService.updateOrderStatusForAdmin(order.id, newStatus).subscribe({
+      next: (updatedOrder) => {
+        this.notificationService.showSuccess(`Order #${order.id} status updated to ${newStatus}.`);
+        // Listeyi yenilemek yerine sadece güncellenen siparişi değiştirebiliriz
+        const currentOrders = this.ordersPage()?.content || [];
+        const index = currentOrders.findIndex(o => o.id === order.id);
+        if (index > -1) {
+          currentOrders[index] = updatedOrder;
+          this.ordersPage.set({ ...this.ordersPage()!, content: [...currentOrders] });
+        } else {
+          this.loadOrders(this.currentPage); // Veya tüm listeyi yenile
+        }
+        this.isLoading.set(false);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.isLoading.set(false);
+        this.notificationService.showError(err.error?.message || `Failed to update status for order #${order.id}`);
+        console.error('Error updating order status:', err);
+        // Başarısız olursa, seçili durumu eski haline getirebiliriz
+        const editData = this.getOrderEditData(order.id);
+        editData.selectedStatus = order.status;
+      }
+    });
+  }
+
+  addTrackingNumberHandler(order: OrderResponseDto, trackingNumber?: string): void {
+    const trackNum = trackingNumber?.trim();
+    if (!trackNum || !order.id) {
+      this.notificationService.showWarning('Please enter a tracking number.');
+      return;
+    }
+
+    this.isLoading.set(true); // Yükleme göstergesini başlat
+    this.adminService.addTrackingNumberForAdmin(order.id, trackNum).subscribe({
+      next: (updatedOrder) => {
+        this.notificationService.showSuccess(`Tracking number updated for order #${order.id}.`);
+        const currentOrders = this.ordersPage()?.content || [];
+        const index = currentOrders.findIndex(o => o.id === order.id);
+        if (index > -1) {
+          currentOrders[index] = updatedOrder; // Hem trackingNumber hem de status güncellenmiş olabilir
+          this.ordersPage.set({ ...this.ordersPage()!, content: [...currentOrders] });
+           // Input alanını da güncelle (eğer DTO'dan farklıysa)
+          const editData = this.getOrderEditData(order.id);
+          editData.trackingNumberInput = updatedOrder.trackingNumber || '';
+          editData.selectedStatus = updatedOrder.status; // Durum da değişmiş olabilir
+        } else {
+          this.loadOrders(this.currentPage);
+        }
+        this.isLoading.set(false);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.isLoading.set(false);
+        this.notificationService.showError(err.error?.message || `Failed to add tracking number for order #${order.id}`);
+        console.error('Error adding tracking number:', err);
+      }
+    });
+  }
 }

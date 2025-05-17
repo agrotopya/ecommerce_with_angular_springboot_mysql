@@ -160,7 +160,13 @@ public class CouponServiceImpl implements CouponService {
         Page<Coupon> couponPage = couponRepository.findAll(spec, pageable);
         logger.debug("ADMIN: Found {} coupons matching criteria.", couponPage.getTotalElements());
 
-        return couponPage.map(this::mapToResponseWithStatus); // mapToResponseWithStatus'u kullan
+        Page<CouponResponse> responsePage = couponPage.map(this::mapToResponseWithStatus);
+        if (responsePage.hasContent()) {
+            responsePage.getContent().stream().limit(5).forEach(dto -> 
+                logger.info("CouponServiceImpl: Mapped CouponResponse DTO - ID: {}, Code: {}, isActive: {}", dto.getId(), dto.getCode(), dto.isActive())
+            );
+        }
+        return responsePage;
     }
 
     @Override

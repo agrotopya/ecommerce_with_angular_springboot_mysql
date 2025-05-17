@@ -1,1 +1,36 @@
-<p>seller-dashboard works!</p>
+<div class="seller-dashboard-container">
+  <h2>Seller Dashboard</h2>
+  <p>Welcome to your seller panel. Here you can manage your products, orders, and view sales statistics.</p>
+
+  <div class="chart-container" style="margin-top: 20px; margin-bottom: 20px;">
+    <h3>My Monthly Sales Overview</h3>
+    <div *ngIf="isLoadingChart()" class="loading-indicator" style="text-align: center; padding: 20px;">
+      Loading chart data...
+    </div>
+    <ngx-charts-bar-vertical
+      *ngIf="!isLoadingChart() && salesData.length > 0"
+      [view]="view"
+      [scheme]="colorScheme"
+      [results]="salesData"
+      [gradient]="gradient"
+      [xAxis]="showXAxis"
+      [yAxis]="showYAxis"
+      [legend]="showLegend"
+      [showXAxisLabel]="showXAxisLabel"
+      [showYAxisLabel]="showYAxisLabel"
+      [xAxisLabel]="xAxisLabel"
+      [yAxisLabel]="yAxisLabel"
+      (select)="onSelect($event)">
+    </ngx-charts-bar-vertical>
+    <div *ngIf="!isLoadingChart() && salesData.length === 0" style="text-align: center; padding: 20px;">
+      No sales data available to display for your products.
+    </div>
+  </div>
+
+  <div class="dashboard-links">
+    <a routerLink="/seller/products" class="dashboard-link">My Products</a>
+    <a routerLink="/seller/orders" class="dashboard-link">My Orders</a>
+    <a routerLink="/seller/feels" class="dashboard-link">My Feels</a>
+    <!-- Diğer satıcı linkleri buraya eklenebilir -->
+  </div>
+</div>

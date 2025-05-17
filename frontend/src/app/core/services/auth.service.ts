@@ -263,8 +263,11 @@ export class AuthService {
 
   getToken(): string | null {
     if (isPlatformBrowser(this.platformId)) {
-        return this.storageService.getItem<string>(TOKEN_KEY);
+        const tokenFromStorage = this.storageService.getItem<string>(TOKEN_KEY);
+        console.log('AuthService getToken (Browser): Token from StorageService:', tokenFromStorage); // YENİ LOG
+        return tokenFromStorage;
     }
+    console.log('AuthService getToken (Server): Returning null as not in browser.'); // YENİ LOG
     return null;
   }
 

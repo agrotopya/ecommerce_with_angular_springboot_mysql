@@ -1,1 +1,112 @@
-<p>admin-coupon-form works!</p>
+<div class="admin-coupon-form-container container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>{{ pageTitle() }}</h2>
+    <button class="btn btn-outline-secondary btn-sm" routerLink="/admin/coupon-management">
+      <i class="fas fa-arrow-left"></i> Back to Coupon List
+    </button>
+  </div>
+
+  <div *ngIf="isLoading()" class="loading-indicator">
+    <p>Loading coupon data...</p>
+  </div>
+
+  <form [formGroup]="couponForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading()">
+    <div class="card">
+      <div class="card-body">
+        <!-- Coupon Code -->
+        <div class="form-group mb-3">
+          <label for="code" class="form-label">Coupon Code <span class="text-danger">*</span></label>
+          <input type="text" id="code" class="form-control form-control-sm" formControlName="code"
+                 [ngClass]="{ 'is-invalid': f['code'].touched && f['code'].errors }">
+          <div *ngIf="f['code'].touched && f['code'].errors" class="invalid-feedback">
+            <div *ngIf="f['code'].errors['required']">Coupon code is required.</div>
+            <div *ngIf="f['code'].errors['minlength']">Code must be at least 3 characters.</div>
+            <div *ngIf="f['code'].errors['maxlength']">Code cannot exceed 50 characters.</div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group mb-3">
+          <label for="description" class="form-label">Description</label>
+          <textarea id="description" class="form-control form-control-sm" formControlName="description" rows="3"></textarea>
+        </div>
+
+        <div class="row">
+          <!-- Discount Type -->
+          <div class="col-md-6 form-group mb-3">
+            <label for="discountType" class="form-label">Discount Type <span class="text-danger">*</span></label>
+            <select id="discountType" class="form-select form-select-sm" formControlName="discountType"
+                    [ngClass]="{ 'is-invalid': f['discountType'].touched && f['discountType'].errors }">
+              <option *ngFor="let type of discountTypeValues" [value]="type">{{ type }}</option>
+            </select>
+            <div *ngIf="f['discountType'].touched && f['discountType'].errors" class="invalid-feedback">
+              <div *ngIf="f['discountType'].errors['required']">Discount type is required.</div>
+            </div>
+          </div>
+
+          <!-- Discount Value -->
+          <div class="col-md-6 form-group mb-3">
+            <label for="discountValue" class="form-label">Discount Value <span class="text-danger">*</span></label>
+            <input type="number" id="discountValue" class="form-control form-control-sm" formControlName="discountValue"
+                   [ngClass]="{ 'is-invalid': f['discountValue'].touched && f['discountValue'].errors }" step="0.01">
+            <div *ngIf="f['discountValue'].touched && f['discountValue'].errors" class="invalid-feedback">
+              <div *ngIf="f['discountValue'].errors['required']">Discount value is required.</div>
+              <div *ngIf="f['discountValue'].errors['min']">Value must be greater than 0.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <!-- Expiry Date -->
+          <div class="col-md-6 form-group mb-3">
+            <label for="expiryDate" class="form-label">Expiry Date <span class="text-danger">*</span></label>
+            <input type="datetime-local" id="expiryDate" class="form-control form-control-sm" formControlName="expiryDate"
+                   [ngClass]="{ 'is-invalid': f['expiryDate'].touched && f['expiryDate'].errors }">
+            <div *ngIf="f['expiryDate'].touched && f['expiryDate'].errors" class="invalid-feedback">
+              <div *ngIf="f['expiryDate'].errors['required']">Expiry date is required.</div>
+            </div>
+          </div>
+
+          <!-- Minimum Purchase Amount -->
+          <div class="col-md-6 form-group mb-3">
+            <label for="minPurchaseAmount" class="form-label">Minimum Purchase Amount</label>
+            <input type="number" id="minPurchaseAmount" class="form-control form-control-sm" formControlName="minPurchaseAmount"
+                   [ngClass]="{ 'is-invalid': f['minPurchaseAmount'].touched && f['minPurchaseAmount'].errors }" step="0.01">
+            <div *ngIf="f['minPurchaseAmount'].touched && f['minPurchaseAmount'].errors" class="invalid-feedback">
+              <div *ngIf="f['minPurchaseAmount'].errors['min']">Minimum purchase must be 0 or greater.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <!-- Usage Limit -->
+          <div class="col-md-6 form-group mb-3">
+            <label for="usageLimit" class="form-label">Usage Limit (leave blank for unlimited)</label>
+            <input type="number" id="usageLimit" class="form-control form-control-sm" formControlName="usageLimit"
+                   [ngClass]="{ 'is-invalid': f['usageLimit'].touched && f['usageLimit'].errors }">
+            <div *ngIf="f['usageLimit'].touched && f['usageLimit'].errors" class="invalid-feedback">
+              <div *ngIf="f['usageLimit'].errors['min']">Usage limit must be 0 or greater.</div>
+            </div>
+          </div>
+
+          <!-- Is Active -->
+          <div class="col-md-6 form-group mb-3 d-flex align-items-center">
+            <div class="form-check form-switch mt-3">
+              <input class="form-check-input" type="checkbox" id="isActive" formControlName="isActive">
+              <label class="form-check-label" for="isActive">Active</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-3">
+          <button type="submit" class="btn btn-primary btn-sm" [disabled]="couponForm.invalid || isLoading()">
+            <i class="fas fa-save"></i> {{ isEditMode() ? 'Update Coupon' : 'Create Coupon' }}
+          </button>
+          <button type="button" class="btn btn-outline-secondary btn-sm ms-2" routerLink="/admin/coupon-management">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

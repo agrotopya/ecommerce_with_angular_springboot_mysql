@@ -1,0 +1,70 @@
+<div class="category-form-container">
+  <h2>{{ isEditMode() ? 'Edit Category' : 'Add New Category' }}</h2>
+
+  <div *ngIf="isLoading()" class="loading-indicator">
+    {{ isEditMode() ? 'Loading category details...' : 'Processing...' }}
+  </div>
+  <div *ngIf="errorMessage()" class="error-message global-error">{{ errorMessage() }}</div>
+  <div *ngIf="successMessage()" class="success-message global-success">{{ successMessage() }}</div>
+
+  <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading() || isEditMode()">
+    <div class="form-group">
+      <label for="name">Category Name:</label>
+      <input id="name" type="text" formControlName="name" class="form-control" />
+      <div *ngIf="categoryForm.get('name')?.invalid && categoryForm.get('name')?.touched" class="text-danger mt-1">
+        <small *ngIf="categoryForm.get('name')?.errors?.['required']">Category name is required.</small>
+        <small *ngIf="categoryForm.get('name')?.errors?.['minlength']">Name must be at least 2 characters.</small>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description (Optional):</label>
+      <textarea id="description" formControlName="description" rows="3" class="form-control"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="parentId">Parent Category (Optional):</label>
+      <select id="parentId" formControlName="parentId" class="form-select">
+        <option [ngValue]="null">-- No Parent (Root Category) --</option>
+        <ng-container *ngFor="let category of allCategories()">
+          <option [value]="category.id" [disabled]="isEditMode() && categoryId() === category.id">
+            {{ category.name }}
+          </option>
+          <!-- TODO: Alt kategorileri hiyerarşik gösterme (opsiyonel iyileştirme) -->
+          <!--
+          <ng-container *ngIf="category.subCategories && category.subCategories.length > 0">
+            <option *ngFor="let subCategory of category.subCategories" [value]="subCategory.id" [disabled]="isEditMode() && categoryId() === subCategory.id">
+              &nbsp;&nbsp;&nbsp;&nbsp;{{ subCategory.name }}
+            </option>
+          </ng-container>
+          -->
+        </ng-container>
+      </select>
+      <small class="form-text text-muted">Select a parent if this is a sub-category.</small>
+    </div>
+
+    <div class="form-group">
+      <label for="categoryImageFile">Category Image (Optional):</label>
+      <input id="categoryImageFile" type="file" (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/webp" class="form-control" />
+      <div *ngIf="imagePreviewUrl && imagePreviewUrl !== ''" class="image-preview-container mt-2">
+        <p>Selected Image Preview:</p>
+        <img [src]="imagePreviewUrl" alt="Category Image Preview" class="img-thumbnail" style="max-width: 200px; max-height: 200px;" />
+      </div>
+      <small class="form-text text-muted">Max file size: 2MB. Allowed types: PNG, JPG, WEBP.</small>
+      <!-- Mevcut imageUrl alanı formdan kaldırılabilir veya sadece gösterim amaçlı tutulabilir -->
+      <!-- <input type="hidden" formControlName="imageUrl" /> -->
+    </div>
+
+    <div class="form-group form-check">
+      <input id="isActive" type="checkbox" formControlName="isActive" class="form-check-input"/>
+      <label for="isActive" class="form-check-label">Category is Active</label>
+    </div>
+
+    <div class="form-actions mt-3">
+      <button type="button" (click)="router.navigate(['/admin/categories'])" class="btn btn-secondary me-2">Cancel</button>
+      <button type="submit" [disabled]="categoryForm.invalid || isLoading()" class="btn btn-primary">
+        {{ isLoading() ? (isEditMode() ? 'Saving Changes...' : 'Creating Category...') : (isEditMode() ? 'Save Changes' : 'Create Category') }}
+      </button>
+    </div>
+  </form>
+</div>

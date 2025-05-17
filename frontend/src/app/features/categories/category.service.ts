@@ -55,4 +55,11 @@ export class CategoryService {
   deleteCategory(id: number): Observable<ApiResponse> {
     return this.apiService.delete<ApiResponse>(CATEGORY_ENDPOINTS.DETAIL(id));
   }
+
+  uploadCategoryImage(categoryId: number, file: File): Observable<CategoryResponseDto> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+    // Endpoint: /api/categories/{categoryId}/image
+    return this.apiService.post<CategoryResponseDto>(CATEGORY_ENDPOINTS.UPLOAD_IMAGE(categoryId), formData);
+  }
 }

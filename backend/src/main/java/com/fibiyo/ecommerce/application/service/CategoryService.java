@@ -14,4 +14,5 @@ public interface CategoryService {
     void deleteCategory(Long id); // Silme işlemi bir şey döndürmez genelde
     List<CategoryResponse> findSubCategories(Long parentId); // Alt kategorileri bulma
     List<CategoryResponse> findRootCategories(); // Ana kategorileri bulma
+    CategoryResponse updateCategoryImage(Long categoryId, org.springframework.web.multipart.MultipartFile file); // Yeni metod eklendi
 }

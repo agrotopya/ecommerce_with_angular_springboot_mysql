@@ -1,22 +1,23 @@
 // src/app/features/products/product-detail/product-detail.component.ts
-import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
-import { CommonModule, CurrencyPipe } from '@angular/common'; // CurrencyPipe eklendi
+import { Component, inject, OnInit, signal, WritableSignal, effect } from '@angular/core';
+import { CommonModule, CurrencyPipe, NgOptimizedImage } from '@angular/common'; // NgOptimizedImage eklendi
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProductService } from '../product.service';
-import { Product, isProductActive, isProductApproved } from '../../../shared/models/product.model';
-import { NgOptimizedImage } from '@angular/common';
-import { EMPTY, Observable, switchMap, tap } from 'rxjs'; // tap eklendi
+import { CategoryService } from '../../categories/category.service'; // CategoryService eklendi
+import { CategoryResponseDto } from '../../../shared/models/category.model'; // CategoryResponseDto eklendi
+import { Product, isProductActive, isProductApproved, ProductImage } from '../../../shared/models/product.model';
+import { EMPTY, switchMap, tap, forkJoin, of } from 'rxjs'; // forkJoin ve of eklendi
 import { Nl2brPipe } from '../../../shared/pipes/nl2br.pipe';
 import { CartService } from '../../cart/cart.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { WishlistService } from '../../wishlist/services/wishlist.service'; // WishlistService eklendi
-import { NotificationService } from '../../../core/services/notification.service'; // NotificationService eklendi
-import { ProductReviewsComponent } from '../../reviews/components/product-reviews/product-reviews.component'; // Eklendi
+import { WishlistService } from '../../wishlist/services/wishlist.service';
+import { NotificationService } from '../../../core/services/notification.service';
+import { ProductReviewsComponent } from '../../reviews/components/product-reviews/product-reviews.component';
 
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, NgOptimizedImage, CurrencyPipe, Nl2brPipe, ProductReviewsComponent], // ProductReviewsComponent eklendi
+  imports: [CommonModule, RouterLink, NgOptimizedImage, CurrencyPipe, Nl2brPipe, ProductReviewsComponent],
   templateUrl: './product-detail.component.html',
   styleUrls: ['./product-detail.component.scss'],
 })
@@ -25,8 +26,8 @@ export class ProductDetailComponent implements OnInit {
   private productService = inject(ProductService);
   private cartService = inject(CartService);
   public authService = inject(AuthService);
-  private wishlistService = inject(WishlistService); // WishlistService inject edildi
-  private notificationService = inject(NotificationService); // NotificationService inject edildi
+  private wishlistService = inject(WishlistService);
+  private notificationService = inject(NotificationService);
   private router = inject(Router);
 
   product: WritableSignal<Product | null> = signal(null);
@@ -34,10 +35,29 @@ export class ProductDetailComponent implements OnInit {
   errorMessage = signal<string | null>(null);
   isWishlisted = signal(false);
   isTogglingWishlist = signal(false);
+  currentDisplayImageUrl = signal<string | null>(null);
+  breadcrumbs: WritableSignal<Array<{ name: string; slug: string | null; isLink: boolean }>> = signal([]); // Breadcrumb sinyali
 
+  private categoryService = inject(CategoryService); // CategoryService inject edildi
 
-  // Alternatif: Observable ve async pipe ile
-  // product$: Observable<Product | null> | undefined;
+  constructor() {
+    // product sinyali değiştiğinde ana görseli ayarla
+    effect(() => {
+      const p = this.product();
+      if (p) {
+        if (p.mainImageUrl) {
+          this.currentDisplayImageUrl.set(p.mainImageUrl);
+        } else if (p.productImages && p.productImages.length > 0) {
+          const primaryImage = p.productImages.find(img => img.isPrimary);
+          this.currentDisplayImageUrl.set(primaryImage ? primaryImage.imageUrl : p.productImages[0].imageUrl);
+        } else {
+          this.currentDisplayImageUrl.set(null); // Veya placeholder
+        }
+      } else {
+        this.currentDisplayImageUrl.set(null); // Ürün null ise gösterilecek görsel de null
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.route.paramMap.pipe(
@@ -45,8 +65,10 @@ export class ProductDetailComponent implements OnInit {
         const slug = params.get('slug');
         if (slug) {
           this.isLoading.set(true);
-          this.isWishlisted.set(false); // Reset on new product load
-          console.log(`ProductDetail: Loading product with slug: ${slug}`); // LOG
+          this.isWishlisted.set(false);
+          this.product.set(null);
+          this.currentDisplayImageUrl.set(null);
+          console.log(`ProductDetail: Loading product with slug: ${slug}`);
           return this.productService.getPublicProductBySlug(slug);
         }
         return EMPTY;
@@ -62,38 +84,30 @@ export class ProductDetailComponent implements OnInit {
       next: (productDetails) => {
         this.product.set(productDetails);
         this.isLoading.set(false);
-        console.log('ProductDetail: Product Loaded:', JSON.stringify(productDetails)); // DETAYLI LOG
-        console.log('ProductDetail: Product active:', productDetails.active);
-        console.log('ProductDetail: Product approved:', productDetails.approved);
-        console.log('ProductDetail: Product stock:', productDetails.stock);
+        console.log('ProductDetail: Product Loaded:', productDetails ? productDetails.name : 'null');
+        if (productDetails) {
+          this.buildBreadcrumbs(productDetails);
+          if (productDetails.reviewSummaryAi) {
+            console.log('ProductDetail: reviewSummaryAi RAW:', productDetails.reviewSummaryAi);
+          } else {
+            console.log('ProductDetail: reviewSummaryAi is missing or null/undefined in productDetails.');
+          }
+        }
       },
-      error: (err: any) => { // err tip eklendi
+      error: (err: any) => {
         console.error('ProductDetail: Error loading product details:', err);
         this.isLoading.set(false);
         this.product.set(null);
+        this.errorMessage.set(err.error?.message || 'Failed to load product details.');
       }
     });
   }
 
-  loadProductDetails(slug: string): void {
-    this.isLoading.set(true);
-    this.errorMessage.set(null);
-    this.productService.getPublicProductBySlug(slug).subscribe({
-      next: (data) => {
-        this.product.set(data);
-        this.isLoading.set(false);
-      },
-      error: (err) => {
-        this.errorMessage.set('Failed to load product details. The product may not exist or there was a network issue.');
-        this.isLoading.set(false);
-        console.error(`Error loading product with slug ${slug}:`, err);
-        // Opsiyonel: Kullanıcıyı ürünler listesine veya 404 sayfasına yönlendir
-        // this.router.navigate(['/products']);
-      }
-    });
-  }
+  // loadProductDetails metodu ngOnInit içindeki akışla birleşti.
+  // Eğer ayrı bir 'Try Again' butonu için gerekirse tekrar eklenebilir.
+  // loadProductDetails(slug: string): void { ... }
 
-  // Yardımcı fonksiyonları component içinde kullanılabilir hale getir
+
   isProductActive(product: Product): boolean {
     return isProductActive(product);
   }
@@ -101,9 +115,6 @@ export class ProductDetailComponent implements OnInit {
   isProductApproved(product: Product): boolean {
     return isProductApproved(product);
   }
-
-
-  // Sepete ekleme fonksiyonu (ileride eklenecek)
 
   addToCartHandler(): void {
     const currentProduct = this.product();
@@ -121,7 +132,7 @@ export class ProductDetailComponent implements OnInit {
         this.notificationService.showSuccess(`${currentProduct.name} added to cart!`);
         console.log(`Product ${currentProduct.id} added to cart from detail.`);
       },
-      error: (err: any) => { // err tip eklendi
+      error: (err: any) => {
         this.notificationService.showError('Failed to add product to cart.');
         console.error('Failed to add product from detail:', err);
       }
@@ -146,7 +157,6 @@ export class ProductDetailComponent implements OnInit {
         next: () => {
           this.isWishlisted.set(false);
           this.isTogglingWishlist.set(false);
-          // NotificationService zaten WishlistService içinde çağrılıyor.
         },
         error: (err: any) => {
           this.isTogglingWishlist.set(false);
@@ -155,10 +165,9 @@ export class ProductDetailComponent implements OnInit {
       });
     } else {
       this.wishlistService.addProductToWishlist(currentProduct.id).subscribe({
-        next: (product: Product | null) => {
+        next: () => { // Product | null parametresi kaldırıldı, backend void dönebilir veya sadece başarı mesajı
           this.isWishlisted.set(true);
           this.isTogglingWishlist.set(false);
-          // NotificationService zaten WishlistService içinde çağrılıyor.
         },
         error: (err: any) => {
           this.isTogglingWishlist.set(false);
@@ -166,5 +175,53 @@ export class ProductDetailComponent implements OnInit {
         }
       });
     }
+  }
+
+  selectImage(imageUrl: string): void {
+    this.currentDisplayImageUrl.set(imageUrl);
+  }
+
+  async buildBreadcrumbs(product: Product): Promise<void> {
+    const crumbs: Array<{ name: string; slug: string | null; isLink: boolean }> = [];
+    if (!product || !product.categoryId) {
+      this.breadcrumbs.set([]);
+      return;
+    }
+
+    // Add current product name (not a link)
+    crumbs.push({ name: product.name, slug: null, isLink: false });
+
+    // Add current product's category (as a link)
+    crumbs.push({ name: product.categoryName, slug: `/category/${product.categorySlug}`, isLink: true });
+
+    let currentCategoryId: number | null | undefined = product.categoryId;
+    let categoryDetails: CategoryResponseDto | null = null;
+
+    // Fetch parent categories iteratively
+    // To avoid too many sequential calls, we can limit the depth or fetch all parents if API supports it
+    // For now, let's assume a reasonable depth and fetch one by one.
+    // We need to get the parentId from the product's category first.
+    try {
+      const currentCategory = await this.categoryService.getCategoryById(product.categoryId).toPromise() ?? null;
+
+      if (currentCategory && currentCategory.parentId) {
+        // Eğer bir üst kategorisi varsa, onu da çekelim
+        const parentCategory = await this.categoryService.getCategoryById(currentCategory.parentId).toPromise() ?? null;
+        if (parentCategory) {
+          crumbs.push({ name: parentCategory.name, slug: `/category/${parentCategory.slug}`, isLink: true });
+        }
+      }
+      // Ürünün kendi kategorisi zaten product.categoryName ve product.categorySlug ile eklenmişti.
+      // Bu yüzden burada tekrar eklemeye gerek yok, yukarıdaki push yeterli.
+      // Eğer product nesnesinde parentId ve parentSlug gibi bilgiler olsaydı, daha az API çağrısı yapabilirdik.
+      // Mevcut yapıda, ürünün kategorisinin parentId'sini almak için ilk bir çağrı, sonra parent'ı almak için ikinci bir çağrı yapılıyor.
+
+    } catch (error) {
+      console.error('Error building breadcrumbs:', error);
+    }
+
+    // Add "Products" as the root link
+    crumbs.push({ name: 'Products', slug: '/products', isLink: true });
+    this.breadcrumbs.set(crumbs.reverse()); // Products > Parent (varsa) > Current Category > Product Name
   }
 }

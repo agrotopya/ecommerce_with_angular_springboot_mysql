@@ -1,1 +1,103 @@
-<p>admin-review-management works!</p>
+<div class="admin-review-management-container container mt-4">
+  <h2>Review Management</h2>
+
+  <!-- Filtreleme -->
+  <div class="filters mb-3">
+    <label for="statusFilter" class="mr-2">Filter by status:</label>
+    <select id="statusFilter" class="form-control form-control-sm d-inline-block w-auto"
+            [(ngModel)]="selectedFilter" (ngModelChange)="onFilterChange()">
+      <option *ngFor="let option of filterOptions" [value]="option.value">{{ option.label }}</option>
+    </select>
+  </div>
+
+  <div *ngIf="isLoading()" class="loading-indicator">
+    <p>Loading reviews...</p>
+    <!-- Spinner eklenebilir -->
+  </div>
+
+  <div *ngIf="errorMessage() && !isLoading()" class="alert alert-danger">
+    {{ errorMessage() }}
+  </div>
+
+  <div *ngIf="!isLoading() && reviewsResponse() as response">
+    <div *ngIf="response.content && response.content.length > 0; else noReviews" class="table-responsive">
+      <table class="table table-striped table-hover table-sm">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Product</th>
+            <th>Customer</th>
+            <th>Rating</th>
+            <th>Comment</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let review of response.content">
+            <td>{{ review.id }}</td>
+            <td>
+              <a [routerLink]="['/products', review.productId]" target="_blank" title="{{ review.productName }}">
+                {{ review.productName ? (review.productName.length > 30 ? review.productName.substring(0, 30) + '...' : review.productName) : ('Product ID: ' + review.productId) }}
+              </a>
+            </td>
+            <td>{{ review.customerUsername || 'N/A' }}</td>
+            <td>
+              <span *ngFor="let i of [1,2,3,4,5]" class="star">
+                <i class="fas fa-star" [class.filled]="i <= review.rating"></i>
+              </span>
+              ({{ review.rating }})
+            </td>
+            <td class="comment-cell" title="{{ review.comment }}">
+              {{ review.comment ? (review.comment.length > 70 ? review.comment.substring(0, 70) + '...' : review.comment) : '-' }}
+            </td>
+            <td>{{ review.createdAt | date:'MMM d, y, h:mm a' }} <br> ({{ review.createdAt | timeAgo }})</td>
+            <td>
+              <span class="badge" [ngClass]="review.approved ? 'badge-success' : 'badge-warning'">
+                {{ review.approved ? 'Approved' : 'Pending' }}
+              </span>
+            </td>
+            <td>
+              <div class="btn-group btn-group-sm" role="group">
+                <button *ngIf="!review.approved" class="btn btn-outline-success" (click)="approveReview(review.id)" title="Approve">
+                  <i class="fas fa-check"></i> Approve
+                </button>
+                <button *ngIf="review.approved" class="btn btn-outline-warning" (click)="rejectReview(review.id)" title="Reject (Mark as Pending)">
+                  <i class="fas fa-times"></i> Reject
+                </button>
+                <button class="btn btn-outline-danger" (click)="deleteReview(review.id)" title="Delete">
+                  <i class="fas fa-trash"></i> Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ng-template #noReviews>
+      <p class="text-center mt-3">No reviews found matching your criteria.</p>
+    </ng-template>
+
+    <!-- Sayfalama -->
+    <div *ngIf="response.totalPages > 1" class="pagination-controls d-flex justify-content-center mt-3">
+      <nav aria-label="Page navigation">
+        <ul class="pagination pagination-sm">
+          <li class="page-item" [class.disabled]="response.first">
+            <a class="page-link" href="javascript:void(0)" (click)="onPageChange(response.number - 1)" aria-label="Previous">
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+          <li class="page-item" *ngFor="let pageNum of pageNumbers" [class.active]="pageNum === response.number">
+            <a class="page-link" href="javascript:void(0)" (click)="onPageChange(pageNum)">{{ pageNum + 1 }}</a>
+          </li>
+          <li class="page-item" [class.disabled]="response.last">
+            <a class="page-link" href="javascript:void(0)" (click)="onPageChange(response.number + 1)" aria-label="Next">
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>

@@ -1,176 +1,254 @@
-/* frontend/src/app/features/feels/components/feel-card/feel-card.component.scss */
 :host {
-  display: block; // Kartın blok seviyesinde davranmasını sağlar
-  height: 100%; // Eğer grid içinde yüksekliği eşitlemek istenirse
+  display: block;
+  width: 100%;
+  height: 100%; // Genellikle parent component (FeelListComponent) tarafından yönetilir
+  background-color: #000; // Tam ekran video için arka plan
+  position: relative; // Overlay ve diğer mutlak konumlandırılmış elemanlar için
 }
 
-.feel-card {
-  background-color: var(--white);
-  border-radius: var(--border-radius-lg);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
+.feel-player-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden; // Kenarlardan taşan video kısımlarını gizle
+  background-color: #000; // Video yüklenene kadar siyah arka plan
+
+  .feel-video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translate(-50%, -50%);
+    object-fit: cover; // Videonun kapsayıcıyı doldurmasını sağlar, gerekirse kırpar
+    cursor: pointer; // Ürüne gitmek için
+  }
+}
+
+.feel-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  height: 100%; // Parent'a göre tüm yüksekliği kapla
-  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  justify-content: space-between;
+  padding: 1rem; // Kenarlardan boşluk
+  box-sizing: border-box;
+  pointer-events: none; // Overlay tıklamaları engellemesin, altındaki video tıklanabilsin
 
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
-
-    .play-icon-overlay {
-      opacity: 1;
-      transform: scale(1.1);
-    }
+  // Overlay içindeki tıklanabilir elemanlar için pointer-events'i tekrar aktif et
+  & > * {
+    pointer-events: auto;
   }
 
-  .feel-link {
-    text-decoration: none;
-    color: inherit;
+  .feel-header {
     display: flex;
-    flex-direction: column;
-    flex-grow: 1; // İçeriğin kartı doldurmasını sağlar
-  }
+    justify-content: space-between;
+    align-items: center;
+    color: #fff;
+    z-index: 10;
 
-  .feel-thumbnail-container {
-    position: relative;
-    width: 100%;
-    padding-top: 56.25%; // 16:9 aspect ratio
-    background-color: var(--light-gray); // Placeholder için arka plan
-
-    .feel-thumbnail,
-    .thumbnail-placeholder {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover; // Resmi kapla ve orantılı tut
-    }
-
-    .thumbnail-placeholder {
+    .seller-info {
       display: flex;
       align-items: center;
-      justify-content: center;
-      .material-icons {
-        font-size: 3rem;
-        color: var(--medium-gray);
+      gap: 0.5rem;
+      cursor: pointer;
+      background-color: rgba(0,0,0,0.3);
+      padding: 0.3rem 0.6rem;
+      border-radius: var(--border-radius-md);
+
+      .seller-avatar,
+      .seller-avatar-placeholder {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
       }
-    }
-
-    .play-icon-overlay {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(1);
-      color: rgba(255, 255, 255, 0.9);
-      font-size: 3.5rem;
-      opacity: 0.8;
-      transition: opacity 0.2s ease, transform 0.2s ease;
-      pointer-events: none; // Tıklamayı engellemez
-    }
-
-    .duration-badge {
-      position: absolute;
-      bottom: 8px;
-      right: 8px;
-      background-color: rgba(0, 0, 0, 0.7);
-      color: var(--white);
-      padding: 0.2rem 0.5rem;
-      border-radius: var(--border-radius-sm);
-      font-size: 0.75rem;
-      font-weight: 500;
+      .seller-avatar-placeholder {
+        font-size: 32px;
+      }
+      .seller-username {
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
     }
   }
 
-  .feel-info {
-    padding: 0.8rem 1rem;
-    flex-grow: 1; // Bilgi alanının büyümesini sağlar
-    display: flex;
-    flex-direction: column;
+  .feel-content-left {
+    position: absolute;
+    bottom: 70px; // Eylem butonlarının üzerinde
+    left: 1rem;
+    right: 5rem; // Sağdaki eylem butonlarına yer bırak
+    color: #fff;
+    z-index: 10;
 
     .feel-title {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text-color);
-      margin: 0 0 0.4rem 0;
-      line-height: 1.3;
-      // İki satırda kesme
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+    }
+
+    .feel-description {
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+      // Çok uzun açıklamalar için kesme
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
-      min-height: 2.6em; // İki satır için yükseklik
     }
 
-    .feel-meta {
-      display: flex;
+    .btn-view-product {
+      // Genel .btn stilleri kullanılabilir
+      background-color: var(--primary-color, #7e3af2);
+      color: var(--white, #fff);
+      padding: 0.6rem 1rem;
+      border-radius: var(--border-radius-md);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: inline-flex;
       align-items: center;
-      justify-content: space-between;
-      font-size: 0.8rem;
-      color: var(--text-color-secondary);
-      margin-top: auto; // Başlığı yukarı iter, metayı aşağıya sabitler
+      gap: 0.5rem;
+      border: none;
+      cursor: pointer;
 
-      .seller-info {
-        display: flex;
-        align-items: center;
-        gap: 0.3rem;
-
-        .seller-avatar, .seller-avatar-placeholder {
-          width: 20px;
-          height: 20px;
-          border-radius: 50%;
-          object-fit: cover;
-        }
-        .seller-avatar-placeholder {
-          font-size: 20px; // material icon boyutu
-          color: var(--medium-gray);
-        }
+      .material-icons {
+        font-size: 1.2rem;
       }
 
-      .view-count {
-        display: flex;
-        align-items: center;
-        gap: 0.2rem;
-        .material-icons {
-          font-size: 1rem;
-        }
+      &:hover {
+        background-color: var(--primary-color-dark, #6c2bd9);
       }
     }
   }
 
-  .feel-actions {
-    padding: 0.5rem 1rem 0.8rem 1rem;
-    border-top: 1px solid var(--border-color-light);
+  .feel-actions-right {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    gap: 1rem; // Butonlar arası boşluk
+    z-index: 10;
 
-    .like-count-display {
+    .btn-action {
+      background-color: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: #fff;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 0.3rem;
-      font-size: 0.9rem;
-      color: var(--text-color-secondary);
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+
       .material-icons {
-        font-size: 1.1rem;
-        color: var(--danger-color); // Beğeni ikonu her zaman kırmızı olabilir
+        font-size: 24px; // İkon boyutu
+      }
+
+      .action-count {
+        font-size: 0.7rem;
+        margin-top: 2px;
+      }
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+      }
+
+      .icon-action.active { // Favori ikonu için
+        color: var(--danger-color, #e91e63);
       }
     }
+  }
+}
 
-    .btn-view-product {
-      // .btn, .btn-sm, .btn-outline-primary gibi genel stiller kullanılabilir
-      font-size: 0.8rem;
-      padding: 0.3rem 0.7rem;
-      // Örnek:
-      // background-color: transparent;
-      // border: 1px solid var(--primary-color);
-      // color: var(--primary-color);
-      // border-radius: var(--border-radius);
-      // &:hover {
-      //   background-color: var(--primary-color-lighter);
-      // }
+.feel-comments-section {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  max-height: 40%; // Ekranın %40'ını kaplasın
+  background-color: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 1rem;
+  box-sizing: border-box;
+  overflow-y: auto;
+  z-index: 20; // Diğer overlay elemanlarının üzerinde
+  transform: translateY(100%); // Başlangıçta gizli
+  transition: transform 0.3s ease-in-out;
+
+  &.active { // showComments true olduğunda bu class eklenecek
+    transform: translateY(0);
+  }
+
+  h4 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    padding-bottom: 0.5rem;
+  }
+
+  .loading-spinner p {
+    text-align: center;
+    padding: 1rem;
+  }
+
+  .comment-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    .comment-item {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .comment-author {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.3rem;
+        font-size: 0.9rem;
+
+        strong {
+          font-weight: 600;
+        }
+        .comment-rating {
+          margin-left: 0.5rem;
+          font-size: 0.8rem;
+          color: var(--warning-color, #ffc107); // Yıldız rengi
+        }
+      }
+      .comment-text {
+        font-size: 0.85rem;
+        line-height: 1.4;
+        margin-bottom: 0.25rem;
+        white-space: pre-wrap; // Yorumlardaki satır sonlarını koru
+      }
+      .comment-date {
+        font-size: 0.75rem;
+        color: var(--text-color-secondary-light, #aaa);
+      }
     }
+  }
+
+  p { // Yorum yok mesajı için
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 1rem;
   }
 }

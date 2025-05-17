@@ -1,61 +1,119 @@
-/* frontend/src/app/features/feels/components/feel-list/feel-list.component.scss */
-.feel-list-container {
-  max-width: 1200px; // Sayfa genişliği
-  margin: 2rem auto;
-  padding: 1rem;
+:host {
+  display: block;
+  // Header ve varsa diğer UI elemanlarının yüksekliğini dışarıdan bir CSS değişkeni ile almak daha iyi olur.
+  // Örnek: --main-content-height: calc(100vh - var(--header-height, 60px));
+  // Şimdilik doğrudan 100vh varsayıyoruz, çünkü FeelCardComponent tam ekran olacak.
+  // Eğer header/footer görünür kalacaksa, bu yükseklik ayarlanmalı.
+  // Bu component bir route'a bağlıysa ve header/footer layout dışındaysa 100vh uygun olabilir.
+  height: 100vh; // Veya calc(100vh - var(--header-height, 0px) - var(--footer-height, 0px))
+  overflow: hidden;
+  background-color: #000; // Ana arka plan
+}
 
-  .page-title {
-    font-size: 2rem;
-    font-weight: 600;
-    color: var(--text-color-dark);
-    margin-bottom: 1.5rem;
-    text-align: center;
-    border-bottom: 2px solid var(--primary-color-lighter);
-    padding-bottom: 0.5rem;
-  }
+.feels-list-container {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
 
-  .loading-indicator,
-  .error-message,
-  .empty-list-message {
-    text-align: center;
-    padding: 3rem 1rem;
+.loading-spinner, // app-loading-spinner kendi stillerine sahip olabilir
+.error-message-fullscreen,
+.no-feels-message {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: #fff; // Koyu tema için
+  padding: 2rem;
+  text-align: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1; // Diğer içeriklerin üzerinde ama navigasyon butonlarının altında
+
+  p {
+    margin-bottom: 1rem; // Butonla arasında boşluk
     font-size: 1.1rem;
-    color: var(--text-color-secondary);
   }
 
-  .error-message {
-    color: var(--danger-color);
-    background-color: var(--danger-light-color);
-    border: 1px solid var(--danger-color-lighter);
-    border-radius: var(--border-radius);
-    padding: 1rem;
+  .btn { // Genel buton stilleri projenizde olmalı
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+  }
+}
+
+.feels-scroll-snap-wrapper {
+  height: 100%;
+  width: 100%;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory; // Dikey eksende zorunlu yapışma
+
+  // Kaydırma çubuğunu gizle (isteğe bağlı, estetik amaçlı)
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.feel-item-wrapper {
+  height: 100%; // Her bir feel kartının tam ekran yüksekliğinde olmasını sağlar
+  width: 100%;
+  scroll-snap-align: start; // Kaydırma bu elemanın başlangıcına yapışsın
+  position: relative; // İçindeki app-feel-card mutlak konumlandırma kullanıyorsa
+  display: flex; // app-feel-card'ı ortalamak veya germek için
+  align-items: center;
+  justify-content: center;
+
+  // app-feel-card zaten :host { height: 100%; width: 100%; } alacak
+}
+
+.loading-more-spinner {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5; // Navigasyon butonlarının altında, içeriğin üzerinde
+  // app-loading-spinner kendi stillerine sahip olmalı
+}
+
+.nav-button {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10; // En üstte
+  transition: background-color 0.2s ease;
+
+  .material-icons {
+    font-size: 28px;
   }
 
-  .empty-list-message {
-    p {
-      margin-bottom: 1rem;
-    }
-    .btn { // Genel buton stilleri kullanılabilir
-      padding: 0.8rem 1.5rem;
-    }
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.3);
   }
 
-  .feels-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); // Duyarlı grid
-    gap: 1.5rem; // Kartlar arası boşluk
-    margin-bottom: 2rem;
-
-    @media (min-width: 576px) { // Small devices
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    }
-    @media (min-width: 992px) { // Large devices
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 2rem;
-    }
+  &.prev {
+    top: 1rem;
   }
 
-  app-paginator {
-    margin-top: 2rem;
+  &.next {
+    bottom: 1rem;
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
   }
 }

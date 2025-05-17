@@ -5,6 +5,8 @@ import { HttpParams } from '@angular/common/http'; // HttpParams import edildi
 import { ApiService } from '../../core/services/api.service';
 import { ORDERS_ENDPOINTS, PAYMENTS_ENDPOINTS } from '../../core/constants/api-endpoints'; // PAYMENTS_ENDPOINTS eklendi
 import { OrderResponseDto, CreateOrderRequestDto } from '../../shared/models/order.model'; // Order -> OrderResponseDto, OrderRequest -> CreateOrderRequestDto
+import { Page } from '../../shared/models/page.model'; // Page modeli import edildi
+import { MonthlySalesDto } from '../../shared/models/monthly-sales.model'; // MonthlySalesDto import edildi
 // Payment modelleri eklendi - Bu satır zaten vardı, tekrar eklemeye gerek yok.
 // Eğer '../../shared/models/payment.model' bulunamıyorsa, dosya yolu veya adı yanlış olabilir.
 // Ya da payment.model.ts dosyası henüz oluşturulmamış olabilir.
@@ -44,4 +46,32 @@ export class OrderService {
   // Admin ve Seller için sipariş metodları da buraya eklenebilir
   // getOrderByIdForAdmin(orderId: number): Observable<OrderResponseDto> { ... }
   // updateOrderStatus(orderId: number, status: string): Observable<OrderResponseDto> { ... }
+
+  getAllOrdersForAdmin(
+    page: number = 0,
+    size: number = 10,
+    sort: string = 'orderDate,desc',
+    customerId?: number,
+    status?: string // OrderStatus enum string olarak
+  ): Observable<Page<OrderResponseDto>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sort', sort);
+    if (customerId) {
+      params = params.set('customerId', customerId.toString());
+    }
+    if (status) {
+      params = params.set('status', status);
+    }
+    // API dokümanına göre admin için tüm siparişler ORDERS_ENDPOINTS.BASE üzerinden çekiliyor.
+    // Eğer admin'e özel bir endpoint varsa (örn: ORDERS_ENDPOINTS.ADMIN_ALL_ORDERS), o kullanılmalı.
+    // Şimdilik ORDERS_ENDPOINTS.BASE kullanıyoruz, bu endpoint'in admin yetkisiyle çağrıldığında
+    // tüm siparişleri döndürdüğünü varsayıyoruz.
+    return this.apiService.get<Page<OrderResponseDto>>(ORDERS_ENDPOINTS.BASE, params);
+  }
+
+  getSellerMonthlySalesSummary(): Observable<MonthlySalesDto[]> {
+    return this.apiService.get<MonthlySalesDto[]>(ORDERS_ENDPOINTS.SELLER_MY_SALES_SUMMARY);
+  }
 }

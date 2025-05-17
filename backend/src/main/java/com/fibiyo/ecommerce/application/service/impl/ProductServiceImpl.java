@@ -13,6 +13,7 @@ import com.fibiyo.ecommerce.application.service.StorageService;
 import com.fibiyo.ecommerce.application.util.SlugUtils;
 import com.fibiyo.ecommerce.domain.entity.Category;
 import com.fibiyo.ecommerce.domain.entity.Product;
+import com.fibiyo.ecommerce.domain.entity.ProductImage; // Eklendi
 import com.fibiyo.ecommerce.domain.entity.User;
 import com.fibiyo.ecommerce.domain.enums.Role;
 import com.fibiyo.ecommerce.infrastructure.persistence.repository.CategoryRepository;
@@ -28,7 +29,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import java.nio.file.Paths; // Paths importu eklendi
+import java.nio.file.Paths;
+import java.util.ArrayList; // Eklendi
+import java.util.List; // Eklendi
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static com.fibiyo.ecommerce.infrastructure.persistence.specification.ProductSpecifications.*;
@@ -304,5 +307,67 @@ notificationService.createNotification(
                 .orElseThrow(() -> new ResourceNotFoundException("Ürün bulunamadı: " + id));
         product.setActive(isActive);
         return productMapper.toProductResponse(productRepository.save(product));
+    }
+
+    @Override
+    @Transactional
+    public List<String> addProductImages(Long productId, List<MultipartFile> files) {
+        logger.info("Adding {} images to product ID: {}", files.size(), productId);
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
+
+        // Yetki kontrolü (Admin veya ürünün sahibi olan Satıcı)
+        assertOwnerOrAdmin(product);
+
+        List<String> uploadedImageUrls = new ArrayList<>();
+        boolean isFirstImageForProduct = product.getProductImages() == null || product.getProductImages().isEmpty();
+        if (product.getProductImages() == null) {
+            product.setProductImages(new ArrayList<>()); // Null ise initialize et
+        }
+
+        int currentDisplayOrder = product.getProductImages().stream()
+                                    .mapToInt(ProductImage::getDisplayOrder)
+                                    .max().orElse(-1) + 1;
+
+        for (MultipartFile file : files) {
+            if (file.isEmpty()) {
+                logger.warn("Skipping empty file for product ID: {}", productId);
+                continue;
+            }
+
+            // Alt klasör ürün ID'sini içerebilir, örn: "products/images/{productId}"
+            // Veya genel bir "products/images" ve dosya adları benzersiz olur.
+            // Şimdilik genel bir "products/images" kullanalım.
+            String relativePath = storageService.storeImage(file, "products/images", 1200, 1200, 0.85f);
+            String imageUrl = storageService.generateUrl(relativePath);
+
+            ProductImage productImage = new ProductImage();
+            productImage.setProduct(product);
+            productImage.setImageUrl(imageUrl);
+            productImage.setAltText(product.getName() + " image " + (product.getProductImages().size() + 1)); // Basit bir alt text
+            productImage.setDisplayOrder(currentDisplayOrder++);
+
+            // Eğer ürünün ana görseli yoksa veya bu ürün için yüklenen ilk görselse, bunu ana görsel yap.
+            if (isFirstImageForProduct && uploadedImageUrls.isEmpty()) { // Sadece bu batch'teki ilk görseli ana yapar (eğer ana görsel yoksa)
+                productImage.setPrimary(true);
+                product.setMainImageUrl(imageUrl); // Product'ın ana görselini de güncelle
+                logger.info("Setting first uploaded image {} as primary for product ID: {}", imageUrl, productId);
+            } else {
+                productImage.setPrimary(false);
+            }
+            
+            product.getProductImages().add(productImage); // ProductImage'ı product'ın listesine ekle
+            uploadedImageUrls.add(imageUrl);
+            logger.info("Image {} processed for product ID: {}", imageUrl, productId);
+        }
+
+        if (!uploadedImageUrls.isEmpty()) {
+            productRepository.save(product); // Product'ı kaydet (ProductImage'lar cascade ile kaydedilmeli)
+            logger.info("{} images successfully added and product {} saved.", uploadedImageUrls.size(), productId);
+        } else {
+            logger.warn("No valid images were processed for product ID: {}", productId);
+        }
+        
+        return uploadedImageUrls;
     }
 }

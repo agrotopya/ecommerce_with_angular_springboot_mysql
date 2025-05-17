@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { FeelListComponent } from './components/feel-list/feel-list.component';
-import { FeelDetailComponent } from './components/feel-detail/feel-detail.component';
+// FeelDetailComponent kaldırıldığı için importu da kaldırıldı.
 // AuthGuard ve RoleGuard gerekirse import edilecek
 // import { AuthGuard } from '@core/guards/auth.guard';
 // import { RoleGuard } from '@core/guards/role.guard';
@@ -12,12 +12,7 @@ export const FEEL_ROUTES: Routes = [
     component: FeelListComponent,
     title: 'Discover Feels | Fibiyo'
   },
-  {
-    path: ':id', // veya :feelId
-    component: FeelDetailComponent,
-    // title: (route) => `Feel by ${route.data?.['feel']?.sellerUsername || 'User'} | Fibiyo` // Dinamik başlık için resolver gerekebilir
-    // Resolve eklenebilir: feel: FeelResolver
-  },
+  // FeelDetailComponent rotası kaldırıldı.
   // Satıcıya özel feel oluşturma ve yönetme rotaları seller.routes.ts içinde olacak.
   // Örnek:
   // {

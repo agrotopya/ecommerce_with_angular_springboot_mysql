@@ -5,6 +5,7 @@ import com.fibiyo.ecommerce.application.dto.ProductResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
+import java.util.List; // Eklendi
 
 public interface ProductService {
 
@@ -13,7 +14,8 @@ public interface ProductService {
     ProductResponse findActiveAndApprovedProductById(Long id);
     ProductResponse findActiveAndApprovedProductBySlug(String slug);
 
-    ProductResponse updateProductImage(Long productId, MultipartFile file);
+    ProductResponse updateProductImage(Long productId, MultipartFile file); // Tek ana görsel güncelleme
+    List<String> addProductImages(Long productId, List<MultipartFile> files); // Çoklu görsel ekleme
 
 
     /* ----- Seller ----- */

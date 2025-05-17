@@ -1,47 +1,71 @@
-<div class="feel-card" *ngIf="feel">
-  <a [routerLink]="['/feels', feel.id]" class="feel-link">
-    <div class="feel-thumbnail-container">
-      <img *ngIf="feel.thumbnailUrl"
-           [ngSrc]="feel.thumbnailUrl"
-           [alt]="feel.title"
-           width="320"
-           height="180"
-           priority="false"
-           loading="lazy"
-           class="feel-thumbnail"/>
-      <div *ngIf="!feel.thumbnailUrl" class="thumbnail-placeholder">
-        <span class="material-icons">videocam</span>
-      </div>
-      <div class="play-icon-overlay">
-        <span class="material-icons">play_circle_filled</span>
-      </div>
-      <div class="duration-badge" *ngIf="feel.videoUrl">
-        <!-- Video süresi backend'den gelmiyorsa, burada gösterilemez veya client'ta hesaplanması gerekir. Şimdilik boş. -->
+<div class="feel-player-container" *ngIf="feel">
+  <video
+    class="feel-video"
+    [src]="feel.videoUrl"
+    [poster]="feel.thumbnailUrl || ''"
+    autoplay
+    loop
+    muted
+    playsinline
+    (click)="navigateToProduct()"
+  ></video>
+
+  <div class="feel-overlay">
+    <div class="feel-header">
+      <!-- Geri butonu veya kapatma ikonu eklenebilir, şimdilik FeelListComponent yönetecek -->
+      <div class="seller-info" (click)="navigateToSellerProfile()"> <!-- navigateToSellerProfile() implemente edilecek -->
+        <img *ngIf="feel.sellerProfileImageUrl" [ngSrc]="feel.sellerProfileImageUrl" [alt]="feel.sellerUsername" class="seller-avatar" width="32" height="32">
+        <span *ngIf="!feel.sellerProfileImageUrl" class="material-icons seller-avatar-placeholder">account_circle</span>
+        <span class="seller-username">{{ feel.sellerUsername }}</span>
       </div>
     </div>
-    <div class="feel-info">
+
+    <div class="feel-content-left">
       <h3 class="feel-title">{{ feel.title }}</h3>
-      <div class="feel-meta">
-        <span class="seller-info" *ngIf="feel.sellerUsername">
-          <img *ngIf="feel.sellerProfileImageUrl" [ngSrc]="feel.sellerProfileImageUrl" alt="{{ feel.sellerUsername }}" class="seller-avatar" width="24" height="24">
-          <span *ngIf="!feel.sellerProfileImageUrl" class="material-icons seller-avatar-placeholder">account_circle</span>
-          {{ feel.sellerUsername }}
-        </span>
-        <span class="view-count"><span class="material-icons">visibility</span> {{ feel.viewCount | number }}</span>
-      </div>
+      <p class="feel-description" *ngIf="feel.description">{{ feel.description }}</p>
+      <button class="btn btn-primary btn-view-product" (click)="navigateToProduct()" *ngIf="feel.productId">
+        <span class="material-icons">shopping_bag</span>
+        Ürünü Gör
+      </button>
     </div>
-  </a>
-  <div class="feel-actions">
-    <!-- Beğenme butonu (işlevsellik yorum satırında) -->
-    <!--
-    <button class="btn btn-icon btn-like" (click)="onLikeToggle()" [disabled]="isLiking()" [class.liked]="isLiked()">
-      <span class="material-icons">{{ isLiked() ? 'favorite' : 'favorite_border' }}</span>
-      <span class="like-count">{{ feel.likeCount | number }}</span>
-    </button>
-    -->
-     <span class="like-count-display"><span class="material-icons">favorite_border</span> {{ feel.likeCount | number }}</span>
-    <a *ngIf="feel.productId && feel.productSlug" [routerLink]="['/products', feel.productSlug]" class="btn btn-sm btn-view-product">
-      View Product
-    </a>
+
+    <div class="feel-actions-right">
+      <button class="btn-action" (click)="toggleWishlist()" [disabled]="isTogglingWishlist()" title="Favorilere Ekle/Çıkar">
+        <span class="material-icons icon-action" [class.active]="isInWishlist()">
+          {{ isInWishlist() ? 'favorite' : 'favorite_border' }}
+        </span>
+        <!-- <span class="action-count">{{ feel.likeCount | number }}</span>  Bu artık ürünün favori sayısı değil, feel'in kendi like sayısı -->
+      </button>
+
+      <button class="btn-action" (click)="toggleComments()" title="Yorumlar"> <!-- toggleComments() implemente edilecek -->
+        <span class="material-icons icon-action">comment</span>
+        <!-- <span class="action-count">{{ productReviews().length | number }}</span> Yorum sayısı -->
+      </button>
+
+      <button class="btn-action" (click)="shareFeel()" title="Paylaş"> <!-- shareFeel() implemente edilecek -->
+        <span class="material-icons icon-action">share</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="feel-comments-section" *ngIf="showComments()"> <!-- showComments sinyali eklenecek -->
+    <h4>Ürün Yorumları</h4>
+    <div *ngIf="isLoadingReviews()" class="loading-spinner">
+      <p>Yorumlar yükleniyor...</p> <!-- Basit bir yükleme göstergesi -->
+    </div>
+    <ul *ngIf="!isLoadingReviews() && productReviews().length > 0" class="comment-list">
+      <li *ngFor="let review of productReviews()" class="comment-item">
+        <div class="comment-author">
+          <strong>{{ review.customerUsername || 'Bir kullanıcı' }}</strong>
+          <span class="comment-rating"> - {{ review.rating }}/5 ★</span>
+        </div>
+        <p class="comment-text">{{ review.comment }}</p>
+        <small class="comment-date">{{ review.createdAt | date:'short' }}</small>
+      </li>
+    </ul>
+    <p *ngIf="!isLoadingReviews() && productReviews().length === 0">
+      Bu ürün için henüz yorum yapılmamış.
+    </p>
+    <!-- Yorum ekleme formu buraya eklenebilir -->
   </div>
 </div>

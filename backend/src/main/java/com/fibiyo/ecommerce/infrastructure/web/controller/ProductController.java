@@ -5,7 +5,7 @@ import com.fibiyo.ecommerce.application.dto.ProductRequest;
 import com.fibiyo.ecommerce.application.dto.ProductResponse;
 import com.fibiyo.ecommerce.application.service.ProductService;
 import jakarta.validation.Valid;
-
+import java.util.List; // Eklendi
 
 
 import org.slf4j.Logger;
@@ -84,6 +84,26 @@ public class ProductController {
            ProductResponse updatedProduct = productService.updateProductImage(productId, file);
           return ResponseEntity.ok(updatedProduct); // Güncellenmiş ürünü dön
      }
+
+    // --- Multiple Image Management Endpoints ---
+
+    @PostMapping("/{productId}/images")
+    @PreAuthorize("hasRole('ADMIN') or @productSecurity.hasPermission(#productId, authentication)")
+    public ResponseEntity<List<String>> uploadMultipleProductImages(
+            @PathVariable Long productId,
+            @RequestParam("files") List<MultipartFile> files) { // Birden fazla dosya almak için List<MultipartFile>
+        logger.info("POST /api/products/{}/images - Uploading {} files", productId, files.size());
+        if (files.isEmpty() || files.stream().allMatch(MultipartFile::isEmpty)) {
+            throw new BadRequestException("Yüklenecek dosya bulunamadı.");
+        }
+        // ProductService'e yeni bir metod ekleyeceğiz: addProductImages
+        List<String> imageUrls = productService.addProductImages(productId, files);
+        return ResponseEntity.status(HttpStatus.CREATED).body(imageUrls);
+    }
+
+    // TODO: Add DELETE /{productId}/images/{imageId} endpoint
+    // TODO: Add PATCH /{productId}/images/{imageId}/set-primary endpoint
+
     // --- Seller Endpoints ---
 
     @PostMapping

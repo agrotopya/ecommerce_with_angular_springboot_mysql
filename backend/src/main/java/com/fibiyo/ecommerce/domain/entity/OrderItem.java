@@ -9,7 +9,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString; // ToString importunu ekledik
-import org.hibernate.annotations.Formula;    // Hesaplanan alan için (Opsiyonel, şemaya göre karar ver)
+// import org.hibernate.annotations.Formula;    // Hesaplanan alan için (Opsiyonel, şemaya göre karar ver) - Kullanılmıyor gibi
+import org.hibernate.annotations.NotFound; // Eklendi
+import org.hibernate.annotations.NotFoundAction; // Eklendi
 
 import java.math.BigDecimal;
 
@@ -60,6 +62,7 @@ public class OrderItem {
     // @NotNull KULLANILMAMALI! Şemada ON DELETE SET NULL dedik, yani ürün silinirse burası null olabilir.
     @ManyToOne(fetch = FetchType.LAZY) // Ürünü her zaman yükleme
     @JoinColumn(name = "product_id", nullable = true) // FK: product_id (NULL olabilir)
+    @NotFound(action = NotFoundAction.IGNORE) // Eğer product bulunamazsa, bu alanı null yap, hata fırlatma
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Product product;

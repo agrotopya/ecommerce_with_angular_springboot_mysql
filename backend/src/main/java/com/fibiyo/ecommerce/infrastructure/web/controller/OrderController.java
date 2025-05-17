@@ -19,7 +19,15 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import com.fibiyo.ecommerce.application.dto.MonthlySalesDto; // MonthlySalesDto import edildi
+import com.fibiyo.ecommerce.domain.entity.User; // User import edildi
+import com.fibiyo.ecommerce.application.exception.ResourceNotFoundException; // ResourceNotFoundException import edildi
+import com.fibiyo.ecommerce.infrastructure.persistence.repository.UserRepository; // UserRepository import edildi
+
+import java.util.List; // List import edildi
 
 
 @RestController
@@ -29,10 +37,25 @@ public class OrderController {
     private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
 
     private final OrderService orderService;
+    private final UserRepository userRepository; // UserRepository inject edildi
 
     @Autowired
-    public OrderController(OrderService orderService) {
+    public OrderController(OrderService orderService, UserRepository userRepository) {
         this.orderService = orderService;
+        this.userRepository = userRepository; // UserRepository inject edildi
+    }
+
+    // --- Helper method to get current authenticated user's ID ---
+    private Long getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            // Bu durum @PreAuthorize ile engellenmeli ama yine de kontrol edelim
+            throw new IllegalStateException("User not authenticated");
+        }
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
+        return user.getId();
     }
 
     // --- Customer Endpoints ---
@@ -65,6 +88,29 @@ public class OrderController {
           OrderResponse cancelledOrder = orderService.cancelMyOrder(orderId);
          return ResponseEntity.ok(cancelledOrder);
      }
+
+    // --- Seller Specific Endpoints ---
+
+    @GetMapping("/seller/my") // YENİ ENDPOINT: /api/orders/seller/my
+    @PreAuthorize("hasRole('SELLER')")
+    public ResponseEntity<Page<OrderResponse>> getMySellerOrders(
+            @PageableDefault(size = 10, sort = "orderDate", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(required = false) OrderStatus status) {
+        logger.info("GET /api/orders/seller/my requested by SELLER");
+        // OrderService'teki mevcut findSellerOrders metodu, giriş yapmış kullanıcı SELLER ise
+        // sadece kendi siparişlerini döndürecek şekilde implemente edilmiş olmalı.
+        Page<OrderResponse> orders = orderService.findSellerOrders(pageable, status);
+        return ResponseEntity.ok(orders);
+    }
+
+    @GetMapping("/seller/my-sales-summary")
+    @PreAuthorize("hasRole('SELLER')")
+    public ResponseEntity<List<MonthlySalesDto>> getMySellerSalesSummary() {
+        Long sellerId = getCurrentUserId();
+        logger.info("GET /api/orders/seller/my-sales-summary requested by SELLER ID: {}", sellerId);
+        List<MonthlySalesDto> salesSummary = orderService.getMonthlySalesForSeller(sellerId);
+        return ResponseEntity.ok(salesSummary);
+    }
 
     // --- Admin/Seller Endpoints ---
 

@@ -45,8 +45,8 @@ export const CATEGORY_ENDPOINTS = {
   ROOTS: `/categories/roots`,
   BY_SLUG: (slug: string) => `/categories/slug/${slug}`,
   DETAIL: (id: number) => `/categories/${id}`,
-  SUB_CATEGORIES: (parentId: number) => `/categories/${parentId}/subcategories`
-  // Admin category endpoints ADMIN_ENDPOINTS içinde zaten var.
+  SUB_CATEGORIES: (parentId: number) => `/categories/${parentId}/subcategories`,
+  UPLOAD_IMAGE: (categoryId: number) => `/categories/${categoryId}/image` // Kategori resmi yükleme endpoint'i
 };
 console.log('API_ENDPOINTS: CATEGORY_ENDPOINTS =', CATEGORY_ENDPOINTS);
 
@@ -58,6 +58,7 @@ export const ORDERS_ENDPOINTS = {
   CANCEL_ORDER: (orderId: number) => `/orders/my/${orderId}/cancel`, // /api/orders/my/{orderId}/cancel
   ORDER_STATUS_UPDATE: (orderId: number) => `/orders/${orderId}/status`, // PATCH /api/orders/{orderId}/status
   ORDER_TRACKING_UPDATE: (orderId: number) => `/orders/${orderId}/tracking`, // PATCH /api/orders/{orderId}/tracking
+  SELLER_MY_SALES_SUMMARY: `/orders/seller/my-sales-summary`, // GET /api/orders/seller/my-sales-summary
 };
 console.log('API_ENDPOINTS: ORDERS_ENDPOINTS =', ORDERS_ENDPOINTS);
 
@@ -160,8 +161,9 @@ export const SELLER_ENDPOINTS = {
   SET_AI_IMAGE: `/seller/products/set-ai-image`, // POST
 
   // Seller Order Management
-  MY_ORDERS: `/seller/orders/my`, // GET - Satıcının kendi siparişleri
-  ORDER_DETAIL: (orderId: number) => `/seller/orders/${orderId}`, // GET - Satıcının bir siparişinin detayı
-  UPDATE_ORDER_STATUS: (orderId: number) => `/seller/orders/${orderId}/status` // PATCH - Sipariş durumunu güncelleme
+  MY_ORDERS: `/orders/seller/my`, // GET - Satıcının kendi siparişleri (OrderController altındaki yeni path)
+  ORDER_DETAIL: (orderId: number) => `/orders/${orderId}`, // GET - Genel sipariş detayı, @orderSecurity ile korunacak
+  UPDATE_ORDER_STATUS: (orderId: number) => `/orders/${orderId}/status` // PATCH - Genel sipariş durumu güncelleme, @orderSecurity ile korunacak
+  // Kargo takip no için de genel endpoint kullanılacak: ORDERS_ENDPOINTS.ORDER_TRACKING_UPDATE(orderId)
 };
 console.log('API_ENDPOINTS: SELLER_ENDPOINTS =', SELLER_ENDPOINTS);

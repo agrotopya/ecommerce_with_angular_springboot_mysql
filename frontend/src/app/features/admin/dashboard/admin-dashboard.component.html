@@ -3,10 +3,39 @@
   <h2>Admin Dashboard</h2>
   <p>Welcome to the admin panel. Here you can manage users, products, orders, and more.</p>
 
+  <div class="chart-container" style="margin-top: 20px; margin-bottom: 20px;">
+    <h3>Monthly Sales Overview</h3>
+    <div *ngIf="isLoadingChart()" class="loading-indicator" style="text-align: center; padding: 20px;">
+      Loading chart data...
+    </div>
+    <ngx-charts-bar-vertical
+      *ngIf="!isLoadingChart() && salesData.length > 0"
+      [view]="view"
+      [scheme]="colorScheme"
+      [results]="salesData"
+      [gradient]="gradient"
+      [xAxis]="showXAxis"
+      [yAxis]="showYAxis"
+      [legend]="showLegend"
+      [showXAxisLabel]="showXAxisLabel"
+      [showYAxisLabel]="showYAxisLabel"
+      [xAxisLabel]="xAxisLabel"
+      [yAxisLabel]="yAxisLabel"
+      (select)="onSelect($event)">
+    </ngx-charts-bar-vertical>
+    <div *ngIf="!isLoadingChart() && salesData.length === 0" style="text-align: center; padding: 20px;">
+      No sales data available to display.
+    </div>
+  </div>
+
   <div class="dashboard-links">
     <a routerLink="/admin/user-management" class="dashboard-link">User Management</a>
     <a routerLink="/admin/product-management" class="dashboard-link">Product Management</a>
+    <a routerLink="/admin/categories" class="dashboard-link">Category Management</a>
     <a routerLink="/admin/orders" class="dashboard-link">Order Management</a>
+    <a routerLink="/admin/coupon-management" class="dashboard-link">Coupon Management</a>
+    <a routerLink="/admin/review-management" class="dashboard-link">Review Management</a>
+    <a routerLink="/admin/feel-management" class="dashboard-link">Feel Management</a>
     <!-- Diğer admin linkleri buraya eklenebilir -->
   </div>
 </div>

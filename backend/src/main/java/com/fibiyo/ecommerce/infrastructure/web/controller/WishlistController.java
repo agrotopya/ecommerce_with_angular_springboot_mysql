@@ -21,7 +21,7 @@ import java.util.Map; // isProductInWishlist için
 
 @RestController
 @RequestMapping("/api/wishlist") // /api/users/me/wishlist gibi de olabilirdi ama şimdilik ayrı tutalım
-@PreAuthorize("hasRole('CUSTOMER') or hasRole('SELLER')") // İstek listesi login gerektirir
+@PreAuthorize("hasRole('CUSTOMER') or hasRole('SELLER') or hasRole('ADMIN')") // İstek listesi login gerektirir
 public class WishlistController {
 
     private static final Logger logger = LoggerFactory.getLogger(WishlistController.class);

@@ -1,6 +1,6 @@
 // src/app/features/seller/seller.routes.ts
 import { Routes } from '@angular/router';
-import { DashboardComponent } from './dashboard/dashboard.component';
+import { SellerDashboardComponent } from './dashboard/seller-dashboard.component'; // DashboardComponent -> SellerDashboardComponent
 import { MyProductListComponent } from './product-management/my-product-list/my-product-list.component';
 import { ProductFormComponent } from './product-management/product-form/product-form.component';
 import { CreateFeelComponent } from './components/feel-management/create-feel/create-feel.component'; // Düzeltilmiş yol
@@ -16,7 +16,7 @@ export const SELLER_ROUTES: Routes = [
   },
   {
     path: 'dashboard',
-    component: DashboardComponent,
+    component: SellerDashboardComponent, // DashboardComponent -> SellerDashboardComponent
     // data: { breadcrumb: 'Dashboard' }
   },
   {

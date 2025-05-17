@@ -4,33 +4,43 @@
   <div *ngIf="errorMessage()" class="error-message">{{ errorMessage() }}</div>
 
   <div *ngIf="!isLoading() && product() as currentProduct; else notFound">
-    <div class="breadcrumb">
-      <a routerLink="/products">Products</a> >
-      <span *ngIf="currentProduct.categoryName">
-        <a [routerLink]="['/products']" [queryParams]="{ categoryId: currentProduct.categoryId }">{{ currentProduct.categoryName }}</a> >
-      </span>
-      <span>{{ currentProduct.name }}</span>
-    </div>
+    <!-- Dinamik Breadcrumbs -->
+    <nav aria-label="breadcrumb" class="product-breadcrumb mb-3">
+      <ol class="breadcrumb">
+        <ng-container *ngFor="let crumb of breadcrumbs(); let isLast = last">
+          <li class="breadcrumb-item" [class.active]="isLast" [attr.aria-current]="isLast ? 'page' : null">
+            <a *ngIf="crumb.isLink && crumb.slug" [routerLink]="crumb.slug">{{ crumb.name }}</a>
+            <span *ngIf="!crumb.isLink">{{ crumb.name }}</span>
+          </li>
+        </ng-container>
+      </ol>
+    </nav>
 
     <div class="detail-grid">
       <div class="product-gallery">
-        <img
-          *ngIf="currentProduct.mainImageUrl"
-          [ngSrc]="currentProduct.mainImageUrl"
-          [alt]="currentProduct.name"
-          width="400"
-          height="400"
-          priority />
-        <img
-          *ngIf="!currentProduct.mainImageUrl && currentProduct.productImages && currentProduct.productImages.length > 0"
-          [ngSrc]="currentProduct.productImages[0].imageUrl"
-          [alt]="currentProduct.name"
-          width="400"
-          height="400"
-          priority />
-        <ng-template #placeholder>
-          <div *ngIf="!currentProduct.mainImageUrl && (!currentProduct.productImages || currentProduct.productImages.length === 0)" class="image-placeholder-large">No Image Available</div>
-        </ng-template>
+        <!-- Ana Görsel Alanı -->
+        <div class="main-image-container mb-3 text-center">
+          <img
+            [ngSrc]="currentDisplayImageUrl() || 'assets/images/placeholder-image.png'"
+            [alt]="currentProduct.name"
+            width="400"
+            height="400"
+            priority
+            class="img-fluid rounded product-detail-main-image">
+        </div>
+
+        <!-- Küçük Resim Galerisi -->
+        <div *ngIf="currentProduct.productImages && currentProduct.productImages.length > 1" class="product-image-thumbnails d-flex justify-content-center flex-wrap">
+          <div *ngFor="let img of currentProduct.productImages"
+               class="thumbnail-item m-1"
+               (click)="selectImage(img.imageUrl)"
+               [class.active-thumbnail]="img.imageUrl === currentDisplayImageUrl()">
+            <img [ngSrc]="img.imageUrl" [alt]="img.altText || currentProduct.name" class="img-thumbnail" width="80" height="80">
+          </div>
+        </div>
+        <div *ngIf="currentProduct.productImages && currentProduct.productImages.length === 0 && !currentProduct.mainImageUrl" class="image-placeholder-large text-center">
+          No Image Available
+        </div>
       </div>
 
       <div class="product-info">
@@ -72,6 +82,12 @@
         <div class="description" *ngIf="currentProduct.description">
           <h3>Product Description</h3>
           <p [innerHTML]="currentProduct.description | nl2br"></p>
+        </div>
+
+        <!-- Fibi AI Review Summary Section -->
+        <div class="fibi-ai-summary" *ngIf="currentProduct.reviewSummaryAi && currentProduct.reviewSummaryAi.trim() !== ''">
+          <h3>Fibi AI diyor ki:</h3>
+          <p class="ai-summary-text">{{ currentProduct.reviewSummaryAi }}</p>
         </div>
       </div>
     </div>

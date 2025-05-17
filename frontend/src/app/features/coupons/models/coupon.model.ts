@@ -1,6 +1,7 @@
 // src/app/features/coupons/models/coupon.model.ts
+import { DiscountType } from '../../../shared/enums/discount-type.enum'; // Enum import edildi
 
-export type DiscountType = 'PERCENTAGE' | 'FIXED_AMOUNT';
+// export type DiscountType = 'PERCENTAGE' | 'FIXED_AMOUNT'; // Bu satır kaldırıldı, enum kullanılacak
 
 export interface CouponRequest {
   code: string; // Zorunlu, 3-50 karakter
@@ -21,7 +22,7 @@ export interface CouponResponse {
   discountValue: number;
   expiryDate: string; // ISO Date string
   minPurchaseAmount: number;
-  isActive: boolean;
+  active: boolean; // isActive -> active olarak değiştirildi
   usageLimit: number | null;
   timesUsed: number;
   createdAt: string; // ISO Date string

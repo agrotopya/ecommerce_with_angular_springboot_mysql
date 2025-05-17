@@ -39,8 +39,8 @@ export class MySellerOrderDetailComponent implements OnInit {
   updatableOrderStatuses: OrderStatus[] = [
     OrderStatus.PROCESSING,
     OrderStatus.SHIPPED,
-    // OrderStatus.DELIVERED, // Belki DELIVERED müşteri tarafından onaylanmalı
-    // OrderStatus.CANCELLED_BY_SELLER // İptal için ayrı bir buton/mantık olabilir
+    OrderStatus.DELIVERED, // Satıcının teslim edildi olarak işaretleyebilmesi için eklendi
+    // OrderStatus.CANCELLED_BY_SELLER // İptal için ayrı bir buton/mantık daha uygun olabilir
   ];
 
 

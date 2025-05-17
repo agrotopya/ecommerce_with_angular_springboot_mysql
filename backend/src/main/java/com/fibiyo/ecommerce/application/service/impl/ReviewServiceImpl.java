@@ -6,6 +6,7 @@ import com.fibiyo.ecommerce.application.exception.BadRequestException;
 import com.fibiyo.ecommerce.application.exception.ForbiddenException;
 import com.fibiyo.ecommerce.application.exception.ResourceNotFoundException;
 import com.fibiyo.ecommerce.application.mapper.ReviewMapper;
+import com.fibiyo.ecommerce.application.service.AiReviewAnalysisService; // Eklendi
 import com.fibiyo.ecommerce.application.service.ReviewService;
 import com.fibiyo.ecommerce.domain.entity.Product;
 import com.fibiyo.ecommerce.domain.entity.Review;
@@ -49,6 +50,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final UserRepository userRepository;
     private final ReviewMapper reviewMapper;
     private final OrderRepository orderRepository;
+    private final AiReviewAnalysisService aiReviewAnalysisService; // Eklendi
 
      // Opsiyonel: private final OrderRepository orderRepository;
 
@@ -71,12 +73,18 @@ public class ReviewServiceImpl implements ReviewService {
 
 
     @Autowired
-    public ReviewServiceImpl(ReviewRepository reviewRepository, ProductRepository productRepository, UserRepository userRepository, ReviewMapper reviewMapper, OrderRepository orderRepository) {
+    public ReviewServiceImpl(ReviewRepository reviewRepository,
+                             ProductRepository productRepository,
+                             UserRepository userRepository,
+                             ReviewMapper reviewMapper,
+                             OrderRepository orderRepository,
+                             AiReviewAnalysisService aiReviewAnalysisService) { // Eklendi
         this.reviewRepository = reviewRepository;
         this.productRepository = productRepository;
         this.userRepository = userRepository;
         this.reviewMapper = reviewMapper;
-        this.orderRepository = orderRepository; // OrderRepository'yi ekle
+        this.orderRepository = orderRepository;
+        this.aiReviewAnalysisService = aiReviewAnalysisService; // Eklendi
     }
 
     @Override
@@ -94,17 +102,26 @@ public class ReviewServiceImpl implements ReviewService {
             throw new BadRequestException("Bu ürüne zaten yorum yaptınız.");
         }
 
-     
+        // Kullanıcının bu ürünü satın alıp almadığını ve siparişin teslim edilip edilmediğini kontrol et
+        boolean hasPurchasedAndDelivered = orderRepository
+                .findFirstByCustomerIdAndOrderItems_Product_IdAndStatusOrderByOrderDateDesc(
+                        customer.getId(), productId, OrderStatus.DELIVERED)
+                .isPresent(); // .isPresent() ile varlık kontrolü
+
+        if (!hasPurchasedAndDelivered) {
+            logger.warn("Customer ID: {} has not purchased or received product ID: {} to add a review.", customer.getId(), productId);
+            throw new ForbiddenException("Yorum yapabilmek için bu ürünü satın almış ve teslim almış olmanız gerekmektedir.");
+        }
 
         Review review = reviewMapper.toReview(reviewRequest);
         review.setProduct(product);
         review.setCustomer(customer);
-        review.setApproved(true); // Varsayılan olarak onaylı (İş kuralına göre false olabilir)
+        review.setApproved(true); // Varsayılan olarak onaylı
 
-      // Opsiyonel: Kullanıcının bu ürünü sipariş edip etmediğini kontrol et
-orderRepository.findFirstByCustomerIdAndOrderItems_Product_IdAndStatusOrderByOrderDateDesc(
-    customer.getId(), productId, OrderStatus.DELIVERED
-).ifPresent(review::setOrder);
+        // İsteğe bağlı olarak, bulunan siparişi review'a bağlayabilirsiniz, ancak zorunlu değil.
+        // orderRepository.findFirstByCustomerIdAndOrderItems_Product_IdAndStatusOrderByOrderDateDesc(
+        // customer.getId(), productId, OrderStatus.DELIVERED
+        // ).ifPresent(review::setOrder);
 
         Review savedReview = reviewRepository.save(review);
         logger.info("Review added successfully with ID: {} for product ID: {} by customer ID: {}", savedReview.getId(), productId, customer.getId());
@@ -112,6 +129,14 @@ orderRepository.findFirstByCustomerIdAndOrderItems_Product_IdAndStatusOrderByOrd
          // Ürünün ortalama puanını ve yorum sayısını güncelle
         updateProductRatingAndCount(productId);
 
+        // AI Yorum Özetini Güncelle
+        try {
+            logger.info("Triggering AI review summary generation after new review for product ID: {}", productId);
+            aiReviewAnalysisService.generateAndSaveReviewSummary(productId);
+        } catch (Exception e) {
+            logger.error("Error triggering AI review summary generation for product ID {}: {}", productId, e.getMessage(), e);
+            // Bu hata ana işlemi etkilememeli, sadece loglanmalı.
+        }
 
         return reviewMapper.toReviewResponse(savedReview);
     }
@@ -196,10 +221,16 @@ orderRepository.findFirstByCustomerIdAndOrderItems_Product_IdAndStatusOrderByOrd
          // if(productId != null) { spec = spec.and(ReviewSpecifications.hasProduct(productId)); }
 
          // 3. Repository Çağrısı
-          Page<Review> reviewPage = reviewRepository.findAll(spec, pageable); // JpaSpecificationExecutor sayesinde çalışır
+         Page<Review> reviewPage = reviewRepository.findAll(spec, pageable); // JpaSpecificationExecutor sayesinde çalışır
 
          // 4. DTO Dönüşümü
-          return reviewPage.map(reviewMapper::toReviewResponse); // Sayfayı DTO sayfasına dönüştür
+         Page<ReviewResponse> responsePage = reviewPage.map(reviewMapper::toReviewResponse);
+         if (responsePage.hasContent()) {
+            responsePage.getContent().stream().limit(5).forEach(dto ->
+                logger.info("ReviewServiceImpl: Mapped ReviewResponse DTO - ID: {}, isApproved: {}", dto.getId(), dto.isApproved())
+            );
+         }
+         return responsePage;
     }
 
     @Override
@@ -220,7 +251,9 @@ orderRepository.findFirstByCustomerIdAndOrderItems_Product_IdAndStatusOrderByOrd
              logger.info("Review ID: {} approved by admin.", reviewId);
              // 4. Ürün Puanını Güncelle (Eğer durum değiştiyse)
              if(review.getProduct() != null) {
-                 updateProductRatingAndCount(review.getProduct().getId());
+                 Long productId = review.getProduct().getId();
+                 updateProductRatingAndCount(productId);
+                 // AI Yorum Özetini Güncelleme çağrısı buradan kaldırıldı, addReview'a taşındı.
              }
           } else {
               logger.warn("Review ID: {} was already approved.", reviewId); // Zaten onaylıysa tekrar işlem yapma
@@ -283,4 +316,3 @@ orderRepository.findFirstByCustomerIdAndOrderItems_Product_IdAndStatusOrderByOrd
     }
 
 }
-

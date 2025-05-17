@@ -1,39 +1,64 @@
 <!-- src/app/features/products/product-list/product-list.component.html -->
-<div class="product-list-container">
-  <h2>Products</h2>
+<div class="product-list-page-container container mt-4"> <!-- Ana konteyner için Bootstrap container ve margin -->
+  <div class="row">
+    <!-- Sol Sütun: Filtreler -->
+    <div class="col-lg-3 col-md-4 filter-sidebar mb-4">
+      <h4>Filters</h4>
+      <hr>
+      <div class="filter-group">
+        <label for="categoryFilter" class="form-label">Category:</label>
+        <select id="categoryFilter" class="form-select form-select-sm" [(ngModel)]="selectedCategoryId" (ngModelChange)="onCategoryChange()">
+          <option value="">All Categories</option>
+          <option *ngFor="let category of categories()" [value]="category.id">{{ category.name }}</option>
+        </select>
+        <div *ngIf="isLoadingCategories()" class="form-text">Loading categories...</div>
+      </div>
 
-  <!-- Filtreleme Alanı (Basit) -->
-  <div class="filters">
-    <input type="text" [(ngModel)]="searchTerm" (keyup.enter)="onSearch()" placeholder="Search products..." />
-    <button (click)="onSearch()">Search</button>
-
-    <select [(ngModel)]="selectedCategoryId" (ngModelChange)="onCategoryChange()">
-      <option value="">All Categories</option>
-      <option *ngFor="let category of categories()" [value]="category.id">{{ category.name }}</option>
-    </select>
-    <span *ngIf="isLoadingCategories()">Loading categories...</span>
-  </div>
-
-  <div *ngIf="isLoading()" class="loading-indicator">Loading products...</div>
-  <div *ngIf="errorMessage()" class="error-message">{{ errorMessage() }}</div>
-
-  <div *ngIf="!isLoading() && productsResponse() as response">
-    <div *ngIf="response.content && response.content.length > 0; else noProducts" class="products-grid">
-      <app-product-card *ngFor="let product of response.content" [product]="product"></app-product-card>
+      <div class="filter-group mt-3">
+        <label for="sortFilter" class="form-label">Sort by:</label>
+        <select id="sortFilter" class="form-select form-select-sm" [(ngModel)]="selectedSort" (ngModelChange)="onSortChange()">
+          <option *ngFor="let sortOpt of sortOptions" [value]="sortOpt.value">{{ sortOpt.label }}</option>
+        </select>
+      </div>
+      <!-- Gelecekte buraya fiyat aralığı, marka vb. filtreler eklenebilir -->
     </div>
-    <ng-template #noProducts>
-      <p class="no-products-message">No products found matching your criteria.</p>
-    </ng-template>
 
-    <!-- Sayfalama -->
-    <div *ngIf="response.totalPages > 1" class="pagination">
-      <button (click)="onPageChange(response.number - 1)" [disabled]="response.first">Previous</button>
-      <span *ngFor="let pageNum of pageNumbers">
-        <button (click)="onPageChange(pageNum)" [class.active]="pageNum === response.number">
-          {{ pageNum + 1 }}
-        </button>
-      </span>
-      <button (click)="onPageChange(response.number + 1)" [disabled]="response.last">Next</button>
+    <!-- Sağ Sütun: Ürün Listesi ve Başlık -->
+    <div class="col-lg-9 col-md-8 product-main-content">
+      <h2 class="mb-3">{{ pageTitle() }}</h2> <!-- pageTitle() metodu component'te olmalı -->
+
+      <div *ngIf="isLoading()" class="loading-indicator">Loading products...</div>
+      <div *ngIf="errorMessage()" class="alert alert-danger">{{ errorMessage() }}</div>
+
+      <div *ngIf="!isLoading() && productsResponse() as response">
+        <div *ngIf="response.content && response.content.length > 0; else noProducts" class="products-grid">
+          <app-product-card *ngFor="let product of response.content" [product]="product" class="product-card-wrapper"></app-product-card>
+        </div>
+        <ng-template #noProducts>
+          <p class="no-products-message text-center mt-4">No products found matching your criteria.</p>
+        </ng-template>
+
+        <!-- Sayfalama -->
+        <div *ngIf="response.totalPages > 1" class="pagination-controls d-flex justify-content-center mt-4">
+          <nav aria-label="Page navigation">
+            <ul class="pagination pagination-sm">
+              <li class="page-item" [class.disabled]="response.first">
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(response.number - 1)" aria-label="Previous">
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
+              <li class="page-item" *ngFor="let pageNum of pageNumbers" [class.active]="pageNum === response.number">
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(pageNum)">{{ pageNum + 1 }}</a>
+              </li>
+              <li class="page-item" [class.disabled]="response.last">
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(response.number + 1)" aria-label="Next">
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
     </div>
   </div>
 </div>

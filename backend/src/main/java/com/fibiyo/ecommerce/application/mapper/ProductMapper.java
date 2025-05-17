@@ -29,6 +29,7 @@ public interface ProductMapper {
     @Mapping(source = "seller.username", target = "sellerUsername")
     @Mapping(source = "mainImageUrl", target = "mainImageUrl") // Eklendi
     @Mapping(source = "productImages", target = "productImages") // Eklendi
+    @Mapping(source = "reviewSummaryAi", target = "reviewSummaryAi") // AI Özeti için eklendi
     ProductResponse toProductResponse(Product product);
 
     List<ProductResponse> toProductResponseList(List<Product> products);
