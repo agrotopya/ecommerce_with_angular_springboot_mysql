@@ -1,17 +1,18 @@
-import { Component, Input, inject, signal, OnInit } from '@angular/core';
+import { Component, Input, inject, signal, OnInit, ViewChild, ElementRef, effect, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Observable } from 'rxjs'; // Observable importu buraya taşındı
+import { Observable } from 'rxjs';
 import { FeelResponseDto } from '@shared/models/feel.model';
 import { AuthService } from '@core/services/auth.service';
 import { NotificationService } from '@core/services/notification.service';
-import { WishlistService } from '@features/wishlist/services/wishlist.service'; // Doğru import yolu
+import { WishlistService } from '@features/wishlist/services/wishlist.service';
 import { ReviewService } from '@features/reviews/services/review.service';
 import { ReviewResponseDto } from '@shared/models/review.model';
 import { Page } from '@shared/models/page.model';
 import { ProductService } from '@features/products/product.service';
-import { Product } from '@shared/models/product.model'; // Product modeli import edildi
+import { Product } from '@shared/models/product.model';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-feel-card',
@@ -20,8 +21,11 @@ import { Product } from '@shared/models/product.model'; // Product modeli import
   templateUrl: './feel-card.component.html',
   styleUrls: ['./feel-card.component.scss'],
 })
-export class FeelCardComponent implements OnInit {
+export class FeelCardComponent implements OnInit, OnChanges {
   @Input({ required: true }) feel!: FeelResponseDto;
+  @Input() isActive: boolean = false;
+
+  @ViewChild('videoPlayer') videoPlayerRef!: ElementRef<HTMLVideoElement>;
 
   private router = inject(Router);
   private authService = inject(AuthService);
@@ -30,39 +34,82 @@ export class FeelCardComponent implements OnInit {
   private reviewService = inject(ReviewService);
   private productService = inject(ProductService);
 
+  public env = environment;
 
   isInWishlist = signal(false);
   isTogglingWishlist = signal(false);
   productReviews = signal<ReviewResponseDto[]>([]);
   isLoadingReviews = signal(false);
-  showComments = signal(false); // Yorumları gösterme/gizleme durumu için sinyal
+  showComments = signal(false);
+  isPlaying = signal(false);
+  showPlayButton = signal(false);
 
-  // Feel'in kendi like/unlike mekanizması backend'de olduğu için onu koruyoruz.
-  // Kalp ikonu artık ürünün favorilere eklenmesiyle ilgili olacak.
-  // isFeelLiked = signal(this.feel?.isLikedByCurrentUser || false);
-  // isLikingFeel = signal(false);
+  constructor() {
+    effect(() => {
+      if (this.videoPlayerRef && this.videoPlayerRef.nativeElement) {
+        if (this.isActive) {
+          this.playVideo();
+        } else {
+          this.pauseVideo();
+        }
+      }
+    });
+  }
 
   ngOnInit(): void {
     if (this.feel.productId && this.authService.isAuthenticated()) {
       this.checkIfInWishlist();
     }
-    if (this.feel.productId) {
-      this.loadProductReviews();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['isActive']) {
+      console.log(`FeelCard ${this.feel.id} isActive changed to: ${this.isActive}`);
+      if (this.videoPlayerRef && this.videoPlayerRef.nativeElement) {
+        if (this.isActive) {
+          this.playVideo();
+        } else {
+          this.pauseVideo();
+        }
+      }
     }
-    // this.isFeelLiked.set(this.feel?.isLikedByCurrentUser || false);
+  }
+
+  private playVideo(): void {
+    if (this.videoPlayerRef && this.videoPlayerRef.nativeElement) {
+      this.videoPlayerRef.nativeElement.play().then(() => {
+        this.isPlaying.set(true);
+        console.log(`FeelCard ${this.feel.id}: Video playing`);
+      }).catch(error => {
+        console.warn(`FeelCard ${this.feel.id}: Video play failed`, error);
+        this.isPlaying.set(false);
+      });
+    }
+  }
+
+  private pauseVideo(): void {
+    if (this.videoPlayerRef && this.videoPlayerRef.nativeElement) {
+      this.videoPlayerRef.nativeElement.pause();
+      this.isPlaying.set(false);
+      console.log(`FeelCard ${this.feel.id}: Video paused`);
+    }
+  }
+
+  togglePlayPause(): void {
+    if (this.isPlaying()) {
+      this.pauseVideo();
+    } else {
+      this.playVideo();
+    }
   }
 
   checkIfInWishlist(): void {
     if (!this.feel.productId) return;
-    // isProductInWishlist yerine checkAndStoreProductWishlistStatus kullanılıyor.
-    // Bu metod zaten BehaviorSubject'i güncelliyor, bu yüzden subscribe içindeki set anlamsız olabilir
-    // ya da direkt BehaviorSubject'ten gelen değeri kullanabiliriz.
-    // Şimdilik component içindeki signal'i güncellemek için subscribe oluyoruz.
     this.wishlistService.checkAndStoreProductWishlistStatus(this.feel.productId).subscribe({
       next: (isInWishlist: boolean) => this.isInWishlist.set(isInWishlist),
       error: (err: HttpErrorResponse) => {
         console.error('Error checking wishlist status via subscription', err);
-        this.isInWishlist.set(false); // Hata durumunda false ayarla
+        this.isInWishlist.set(false);
       }
     });
   }
@@ -84,7 +131,7 @@ export class FeelCardComponent implements OnInit {
       : this.wishlistService.addProductToWishlist(this.feel.productId);
 
     operation$.subscribe({
-      next: (productOrNull: Product | void | null) => {
+      next: () => {
         this.isInWishlist.update((current) => !current);
         this.notificationService.showSuccess(
           this.isInWishlist() ? 'Ürün favorilere eklendi!' : 'Ürün favorilerden çıkarıldı.'
@@ -102,10 +149,6 @@ export class FeelCardComponent implements OnInit {
   loadProductReviews(): void {
     if (!this.feel.productId) return;
     this.isLoadingReviews.set(true);
-    // ReviewService'de getProductReviews metodu olduğunu varsayıyoruz.
-    // Bu metod Page<ReviewResponseDto> döndürüyorsa, .content kısmını almalıyız.
-    // Şimdilik sadece onaylanmış yorumları alacak şekilde (approvedOnly: true) varsayalım.
-    // getProductReviews metodu 4 argüman alıyor: productId, page, size, approvedOnly. Sort içeride handle ediliyor.
     this.reviewService.getProductReviews(this.feel.productId, 0, 5, true).subscribe({
       next: (page: Page<ReviewResponseDto>) => {
         this.productReviews.set(page.content);
@@ -119,85 +162,62 @@ export class FeelCardComponent implements OnInit {
   }
 
   navigateToProduct(): void {
+    console.log('navigateToProduct called. Feel data:', this.feel);
     if (this.feel.productSlug) {
-      this.router.navigate(['/products/slug', this.feel.productSlug]);
+      console.log('Navigating to product slug:', this.feel.productSlug);
+      this.router.navigate(['/products', this.feel.productSlug]);
     } else if (this.feel.productId) {
-      // Fallback eğer slug yoksa ama ID varsa (idealde slug her zaman olmalı)
+      console.log('Product slug not found, fetching product by ID:', this.feel.productId);
       this.productService.getPublicProductById(this.feel.productId).subscribe({
-        next: (product) => { // product: Product tipinde olmalı
+        next: (product) => {
           if (product && product.slug) {
-            this.router.navigate(['/products/slug', product.slug]);
+            console.log('Product found, navigating to slug:', product.slug);
+            this.router.navigate(['/products', product.slug]);
           } else {
+            console.error('Product or product slug not found after fetching by ID.');
             this.notificationService.showError('Ürün detayı bulunamadı.');
           }
         },
-        error: (err: HttpErrorResponse) => { // err: HttpErrorResponse tipinde olmalı
+        error: (err: HttpErrorResponse) => {
           this.notificationService.showError('Ürün detayı yüklenirken hata oluştu.');
           console.error('Error fetching product details for feel navigation', err);
         }
       });
     } else {
+      console.error('No productSlug or productId found on feel object.');
       this.notificationService.showError('Bu feel ile ilişkili bir ürün bulunamadı.');
     }
   }
 
-  // Feel'in kendi like/unlike mekanizması için (eğer backend'de varsa ve kullanılacaksa)
-  // onFeelLikeToggle(): void {
-  //   if (!this.authService.isAuthenticated()) {
-  //     this.notificationService.showInfo('Beğenmek için lütfen giriş yapın.');
-  //     this.router.navigate(['/auth/login'], { queryParams: { returnUrl: this.router.url } });
-  //     return;
-  //   }
-  //   this.isLikingFeel.set(true);
-  //   const operation$ = this.isFeelLiked()
-  //     ? this.feelService.unlikeFeel(this.feel.id) // feelService inject edilmeli
-  //     : this.feelService.likeFeel(this.feel.id); // feelService inject edilmeli
-
-  //   operation$.subscribe({
-  //     next: () => {
-  //       this.isFeelLiked.update(liked => !liked);
-  //       this.feel.likeCount = this.isFeelLiked() ? (this.feel.likeCount + 1) : (this.feel.likeCount - 1);
-  //       this.isLikingFeel.set(false);
-  //     },
-  //     error: (err) => {
-  //       this.notificationService.showError('Beğeni işlemi sırasında bir hata oluştu.');
-  //       console.error('Error toggling feel like', err);
-  //       this.isLikingFeel.set(false);
-  //     }
-  //   });
-  // }
-
-  // Kullanıcı adının üzerine tıklandığında satıcı profiline gitmek için (eğer varsa)
   navigateToSellerProfile(): void {
-    if (this.feel.sellerUsername) {
-      // Satıcı profil rotası '/sellers/:username' veya benzeri bir yapıda olmalı
-      // Örnek: this.router.navigate(['/sellers', this.feel.sellerUsername]);
-      // Şimdilik sadece log basıyoruz, çünkü seller profil sayfası henüz tanımlı değil.
-      console.log('Navigate to seller profile:', this.feel.sellerUsername);
-      this.notificationService.showInfo(`Satıcı profiline git: ${this.feel.sellerUsername} (henüz implemente edilmedi)`);
+    // Bu metodun doğru olduğundan emin olalım.
+    if (this.feel.sellerId) {
+      console.log('[Corrected Log] Navigating to seller profile for seller ID:', this.feel.sellerId);
+      this.router.navigate(['/sellers', this.feel.sellerId]);
+    } else {
+      console.warn('[Corrected Log] Cannot navigate to seller profile: sellerId is missing from feel data for feel ID:', this.feel.id);
+      this.notificationService.showError('Satıcı profili bilgisi eksik.');
     }
   }
 
   toggleComments(): void {
     this.showComments.update(current => !current);
     if (this.showComments() && this.productReviews().length === 0 && this.feel.productId) {
-      this.loadProductReviews(); // Yorumlar daha önce yüklenmediyse ve bölüm açılıyorsa yükle
+      this.loadProductReviews();
     }
   }
 
   shareFeel(): void {
-    // Web Share API kullanılabilir veya link kopyalama işlevi eklenebilir
     if (navigator.share) {
       navigator.share({
         title: this.feel.title,
         text: `Fibiyo'da bu harika feel'e göz at: ${this.feel.title}`,
-        url: window.location.href, // Veya feel'in kendi direkt linki varsa o
+        url: window.location.origin + this.router.createUrlTree(['/feels', this.feel.id]).toString(),
       })
       .then(() => console.log('Successful share'))
       .catch((error) => console.log('Error sharing', error));
     } else {
-      // Fallback: linki panoya kopyala
-      const feelUrl = window.location.origin + this.router.createUrlTree(['/feels', this.feel.id]).toString(); // Feel'in direkt linki
+      const feelUrl = window.location.origin + this.router.createUrlTree(['/feels', this.feel.id]).toString();
       navigator.clipboard.writeText(feelUrl).then(() => {
         this.notificationService.showSuccess('Feel linki panoya kopyalandı!');
       }).catch(err => {

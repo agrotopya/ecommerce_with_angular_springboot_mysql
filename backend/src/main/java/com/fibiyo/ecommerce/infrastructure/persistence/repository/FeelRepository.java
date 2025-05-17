@@ -19,4 +19,6 @@ public interface FeelRepository extends JpaRepository<Feel, Long>, JpaSpecificat
     Page<Feel> findBySellerId(Long sellerId, Pageable pageable);
 
     Page<Feel> findAllByActiveTrue(Pageable pageable);
+
+    boolean existsByProductId(Long productId); // EKLENDİ
 }

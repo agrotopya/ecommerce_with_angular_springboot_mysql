@@ -2,6 +2,7 @@ package com.fibiyo.ecommerce.application.service.impl;
 
 import com.fibiyo.ecommerce.application.dto.request.CreateFeelRequestDto;
 import com.fibiyo.ecommerce.application.dto.response.FeelResponseDto;
+import com.fibiyo.ecommerce.application.exception.ConflictException; // ConflictException import edildi
 import com.fibiyo.ecommerce.application.exception.ResourceNotFoundException;
 import com.fibiyo.ecommerce.application.mapper.FeelMapper;
 import com.fibiyo.ecommerce.application.service.FeelService;
@@ -24,7 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Objects; // Zaten vardı, tekrar eklenmesine gerek yok.
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -34,23 +35,25 @@ public class FeelServiceImpl implements FeelService {
     private final FeelRepository feelRepository;
     private final FeelLikeRepository feelLikeRepository;
     private final ProductRepository productRepository;
-    private final UserRepository userRepository; // Assuming you have a UserRepository
+    private final UserRepository userRepository;
     private final StorageService storageService;
     private final FeelMapper feelMapper;
 
     @Override
     public FeelResponseDto createFeel(CreateFeelRequestDto dto, User seller, MultipartFile videoFile, @Nullable MultipartFile thumbnailFile) {
         Objects.requireNonNull(seller, "Authenticated seller (currentUser) cannot be null when creating a feel.");
+        Objects.requireNonNull(dto.getProductId(), "Product ID cannot be null when creating a feel."); // DTO'da @NotNull var ama burada da kontrol edelim.
 
-        Product product = null;
-        if (dto.getProductId() != null) {
-            product = productRepository.findById(dto.getProductId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + dto.getProductId()));
+        // "Her Ürünün 1 Feeli Olsun" kuralı
+        if (feelRepository.existsByProductId(dto.getProductId())) {
+            throw new ConflictException("A feel already exists for product ID: " + dto.getProductId());
+        }
 
-            // Ensure the seller owns the product or is an admin
-            if (product.getSeller() == null || (!product.getSeller().getId().equals(seller.getId()) && !seller.getRole().equals(Role.ADMIN))) {
-                throw new AccessDeniedException("You do not have permission to create a feel for this product.");
-            }
+        Product product = productRepository.findById(dto.getProductId())
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + dto.getProductId()));
+
+        if (product.getSeller() == null || (!product.getSeller().getId().equals(seller.getId()) && !seller.getRole().equals(Role.ADMIN))) {
+            throw new AccessDeniedException("You do not have permission to create a feel for this product.");
         }
 
         String videoUrl = storageService.storeFile(videoFile, "feels/videos", "video");
@@ -66,7 +69,7 @@ public class FeelServiceImpl implements FeelService {
                 .thumbnailUrl(thumbnailUrl)
                 .product(product)
                 .seller(seller)
-                .active(true) // Default to active, admin can deactivate (isActive -> active)
+                .active(true)
                 .views(0L)
                 .likes(0L)
                 .build();
@@ -80,7 +83,6 @@ public class FeelServiceImpl implements FeelService {
         Feel feel = feelRepository.findById(feelId)
                 .orElseThrow(() -> new ResourceNotFoundException("Feel not found with id: " + feelId));
         if (!feel.isActive()) {
-             // Depending on requirements, might allow admin/owner to see inactive feels
             throw new ResourceNotFoundException("Feel not found or is inactive: " + feelId);
         }
         return feelMapper.toDto(feel);
@@ -109,7 +111,6 @@ public class FeelServiceImpl implements FeelService {
         if (activeOnly) {
             return feelRepository.findBySellerIdAndActiveTrue(sellerId, pageable).map(feelMapper::toDto);
         } else {
-            // This case might require a security check if it	 s for the seller	 s own view
             return feelRepository.findBySellerId(sellerId, pageable).map(feelMapper::toDto);
         }
     }
@@ -123,7 +124,6 @@ public class FeelServiceImpl implements FeelService {
             throw new AccessDeniedException("You do not have permission to delete this feel.");
         }
 
-        // Delete associated files from storage
         try {
             if (feel.getVideoUrl() != null) {
                 storageService.deleteFile(feel.getVideoUrl());
@@ -132,10 +132,8 @@ public class FeelServiceImpl implements FeelService {
                 storageService.deleteFile(feel.getThumbnailUrl());
             }
         } catch (Exception e) {
-            // Log the exception, but don	 let it stop the feel deletion
             System.err.println("Error deleting feel files: " + e.getMessage());
         }
-        // Delete likes associated with this feel first
         feelLikeRepository.findAll().stream()
                 .filter(fl -> fl.getFeel() != null && fl.getFeel().getId().equals(feelId))
                 .forEach(feelLikeRepository::delete);
@@ -148,7 +146,7 @@ public class FeelServiceImpl implements FeelService {
         Feel feel = feelRepository.findById(feelId)
                 .orElseThrow(() -> new ResourceNotFoundException("Feel not found with id: " + feelId));
         if (!feel.isActive()){
-            return; // Do not increment views for inactive feels
+            return;
         }
         feel.setViews(feel.getViews() + 1);
         feelRepository.save(feel);
@@ -163,7 +161,6 @@ public class FeelServiceImpl implements FeelService {
         }
 
         if (feelLikeRepository.findByUserIdAndFeelId(currentUser.getId(), feelId).isPresent()) {
-            // User has already liked this feel, maybe throw an exception or just do nothing
             throw new IllegalStateException("User has already liked this feel.");
         }
 
@@ -181,7 +178,6 @@ public class FeelServiceImpl implements FeelService {
     public void unlikeFeel(Long feelId, User currentUser) {
         Feel feel = feelRepository.findById(feelId)
                 .orElseThrow(() -> new ResourceNotFoundException("Feel not found with id: " + feelId));
-        // No need to check if feel is active to unlike
 
         FeelLike feelLike = feelLikeRepository.findByUserIdAndFeelId(currentUser.getId(), feelId)
                 .orElseThrow(() -> new ResourceNotFoundException("FeelLike record not found for this user and feel."));
@@ -196,7 +192,6 @@ public class FeelServiceImpl implements FeelService {
 
     @Override
     public FeelResponseDto updateFeelStatusByAdmin(Long feelId, boolean isActive) {
-        // This method should be secured for ADMIN role only, typically at controller level
         Feel feel = feelRepository.findById(feelId)
                 .orElseThrow(() -> new ResourceNotFoundException("Feel not found with id: " + feelId));
         feel.setActive(isActive);

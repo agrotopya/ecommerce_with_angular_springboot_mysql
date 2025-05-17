@@ -1,0 +1,42 @@
+<div class="seller-profile-container">
+  <app-loading-spinner *ngIf="isLoadingProfile() && !sellerProfile()"></app-loading-spinner>
+
+  <div *ngIf="sellerProfile() as profile" class="profile-header">
+    <!-- <img [ngSrc]="profile.avatar || 'default-avatar.png'" alt="{{ profile.username }}'s avatar" width="100" height="100"> -->
+    <h1>{{ profile.username }}'s Profile</h1>
+    <p *ngIf="profile.firstName && profile.lastName">{{ profile.firstName }} {{ profile.lastName }}</p>
+    <!-- Diğer satıcı bilgileri buraya eklenebilir (backend'den gelince) -->
+  </div>
+
+  <div *ngIf="!sellerProfile() && !isLoadingProfile()" class="alert alert-warning">
+    Seller profile information could not be loaded.
+  </div>
+
+  <section class="seller-content">
+    <h2>Feels by {{ sellerProfile()?.username || 'this seller' }}</h2>
+    <app-loading-spinner *ngIf="isLoadingFeels() && sellerFeels().length === 0"></app-loading-spinner>
+    <div class="feels-grid" *ngIf="sellerFeels().length > 0">
+      <app-feel-card *ngFor="let feel of sellerFeels()" [feel]="feel" [isActive]="false"></app-feel-card>
+      <!-- isActive burada false çünkü bu sayfada otomatik oynatma olmayacak, tıklayınca oynayabilir -->
+    </div>
+    <div *ngIf="!isLoadingFeels() && sellerFeels().length === 0 && !allFeelsLoaded" class="alert alert-info">
+      This seller has not posted any feels yet.
+    </div>
+    <button *ngIf="!allFeelsLoaded && !isLoadingFeels() && sellerFeels().length > 0" (click)="loadSellerFeels()" class="btn btn-secondary mt-3">
+      Load More Feels
+    </button>
+
+    <h2 class="mt-5">Products by {{ sellerProfile()?.username || 'this seller' }}</h2>
+    <app-loading-spinner *ngIf="isLoadingProducts() && sellerProducts().length === 0"></app-loading-spinner>
+    <div class="products-grid" *ngIf="sellerProducts().length > 0">
+      <!-- ProductCardComponent'in selector'ı app-product-card varsayılıyor -->
+      <app-product-card *ngFor="let product of sellerProducts()" [product]="product" class="product-card-item"></app-product-card>
+    </div>
+    <div *ngIf="!isLoadingProducts() && sellerProducts().length === 0 && !allProductsLoaded" class="alert alert-info">
+      This seller has no products listed.
+    </div>
+    <button *ngIf="!allProductsLoaded && !isLoadingProducts() && sellerProducts().length > 0" (click)="loadSellerProducts()" class="btn btn-secondary mt-3">
+      Load More Products
+    </button>
+  </section>
+</div>

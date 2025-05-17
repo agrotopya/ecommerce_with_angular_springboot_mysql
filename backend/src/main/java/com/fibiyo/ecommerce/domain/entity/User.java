@@ -2,17 +2,20 @@ package com.fibiyo.ecommerce.domain.entity;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection; // Eklendi
 import java.util.List;
+import java.util.stream.Collectors; // Eklendi
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
+import org.springframework.security.core.GrantedAuthority; // Eklendi
+import org.springframework.security.core.authority.SimpleGrantedAuthority; // Eklendi
+import org.springframework.security.core.userdetails.UserDetails; // Eklendi
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-
 
 import com.fibiyo.ecommerce.domain.enums.AuthProvider;
 import com.fibiyo.ecommerce.domain.enums.Role;
@@ -26,14 +29,14 @@ import lombok.ToString;
 
 @Entity
 @Table(name = "users", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "username", name = "uk_user_username"), // Kısıtlamaya isim vermek best practice tir
+        @UniqueConstraint(columnNames = "username", name = "uk_user_username"),
         @UniqueConstraint(columnNames = "email", name = "uk_user_email"),
         @UniqueConstraint(name = "uk_user_provider_id", columnNames = {"auth_provider", "provider_id"})
 })
-@Data // Lombok: Getter, Setter, equals, hashCode, toString
-@NoArgsConstructor // Lombok: Boş constructor
-@AllArgsConstructor // Lombok: Tüm alanları içeren constructor
-public class User {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class User implements UserDetails { // UserDetails implementasyonu eklendi
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,8 +53,9 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Size(max = 255) // BCrypt hash genellikle 60 karakterdir, ama geniş tutmak iyidir
-    @Column(name = "password_hash", nullable = true) // Sosyal medya ile girişte null olabilir
+    @Size(max = 255)
+    @Column(name = "password_hash", nullable = true)
+    @ToString.Exclude // Şifre toString'e dahil edilmesin
     private String passwordHash;
 
     @NotBlank(message = "İsim boş olamaz")
@@ -65,179 +69,121 @@ public class User {
     private String lastName;
 
     @NotNull(message = "Rol boş olamaz")
-    @Enumerated(EnumType.STRING) // Enum ı veritabanına String olarak kaydet
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private Role role = Role.CUSTOMER; // Varsayılan rol
+    private Role role = Role.CUSTOMER;
 
     @NotNull
     @Column(name = "is_active", nullable = false)
-    private boolean isActive = true; // Varsayılan olarak aktif
+    private boolean isActive = true;
 
-    @CreationTimestamp // Otomatik oluşturma zamanı (ilk kayıt)
+    @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp // Otomatik güncelleme zamanı
+    @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    // --- Sosyal Medya Login ---
     @Enumerated(EnumType.STRING)
     @Column(name = "auth_provider", nullable = true, length = 20)
     private AuthProvider authProvider;
 
-    @Column(name = "provider_id", nullable = true, length = 255) // Sağlayıcının kullanıcı ID si
+    @Column(name = "provider_id", nullable = true, length = 255)
     private String providerId;
 
-    // --- Abonelik ---
     @NotNull(message = "Abonelik türü boş olamaz")
     @Enumerated(EnumType.STRING)
     @Column(name = "subscription_type", nullable = false, length = 20)
-    private SubscriptionType subscriptionType = SubscriptionType.FREE; // Varsayılan abonelik
+    private SubscriptionType subscriptionType = SubscriptionType.FREE;
 
     @Column(name = "subscription_expiry_date", nullable = true)
     private LocalDateTime subscriptionExpiryDate;
 
-    // --- Diğer Özellikler ---
     @NotNull
     @Column(name = "loyalty_points", nullable = false)
-    private int loyaltyPoints = 0; // Başlangıç sadakat puanı
+    private int loyaltyPoints = 0;
 
     @NotNull
     @Column(name = "image_gen_quota", nullable = false)
-    private int imageGenQuota = 3; // Satıcılar için varsayılan AI imaj hakkı
+    private int imageGenQuota = 3;
 
     @Column(name = "avatar", length = 1024)
-    private String avatar; // Avatar URL
+    private String avatar;
 
-    // =============================================
-    // İLİŞKİLER (Relationships)
-    // =============================================
-    // Bir kullanıcının sattığı ürünler (Seller ise)
-    // mappedBy: Product entity sindeki User referansının adı ("seller")
-    // fetch: LAZY loading önerilir, ihtiyaç oldukça yüklenir
-    // cascade: Kullanıcı silinince ürünleri de silinsin mi? (CASCADE) Yoksa ürünleri pasif mi yapmalı? Proje gereksinimine bağlı.
-    //          Şimdilik, ürünlerin pasif yapılması veya başka bir satıcıya devri daha mantıklı olabilir. Bu yüzden cascade koymuyoruz, silme işlemi serviste ele alınır.
     @OneToMany(mappedBy = "seller", fetch = FetchType.LAZY)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private List<Product> productsSold = new ArrayList<>(); // NullPointerException önlemek için initialize et
+    private List<Product> productsSold = new ArrayList<>();
 
-    // Kullanıcının verdiği siparişler (Customer ise)
-    // mappedBy: Order entity sindeki User referansının adı ("customer")
-    // cascade: Kullanıcı silinince siparişleri de silinsin mi? Genellikle sipariş kayıtları saklanır. (RESTRICT) Bu yüzden cascade koymuyoruz.
     @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Order> orders = new ArrayList<>();
 
-    // Kullanıcının yazdığı yorumlar
-    // mappedBy: Review entity sindeki User referansının adı ("customer")
-    // cascade: Kullanıcı silinince yorumları da silinsin. (ALL veya REMOVE)
     @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Review> reviews = new ArrayList<>();
 
-    // Kullanıcıya gelen bildirimler
-    // mappedBy: Notification entity sindeki User referansının adı ("user")
-    // cascade: Kullanıcı silinince bildirimleri de silinsin. (ALL veya REMOVE)
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Notification> notifications = new ArrayList<>();
 
-    // Kullanıcının istek listesi
-    // mappedBy: WishlistItem entity sindeki User referansının adı ("user")
-    // cascade: Kullanıcı silinince istek listesi de silinsin. (ALL veya REMOVE)
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<WishlistItem> wishlistItems = new ArrayList<>();
 
-    // Satıcının oluşturduğu "Feel"ler (Seller ise)
     @OneToMany(mappedBy = "seller", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Feel> feels = new ArrayList<>();
 
-    // Lombok @Data constructor, getter/setter vb. ekler. Manuel metoda gerek yok şimdilik.
+    @Column(name = "password_reset_token", nullable = true, length = 100)
+    @ToString.Exclude
+    private String passwordResetToken;
 
-    // --- HashCode ve Equals (Lombok @Data tarafından sağlanır ama dikkat) ---
-    // İlişkiler (Listeler) üzerinden hashCode/equals hesaplaması performansı düşürebilir ve döngülere neden olabilir.
-    // Eğer sorun yaşanırsa Lombok @EqualsAndHashCode(exclude = {"productsSold", "orders", "reviews", "notifications", "wishlistItems", "feels"}) kullanılabilir.
-    // Veya sadece id üzerinden kontrol eden özel equals/hashCode yazılabilir.
+    @Column(name = "password_reset_token_expiry", nullable = true)
+    private LocalDateTime passwordResetTokenExpiry;
 
+    // UserDetails metodları
+    @Override
+    @Transient // Bu alan veritabanında bir sütuna karşılık gelmiyor
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // Rolü GrantedAuthority listesine çevir
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    }
 
-@Column(name = "password_reset_token", nullable = true, length = 100) // Token uzunluğunu ayarla
-private String passwordResetToken;
+    @Override
+    public String getPassword() {
+        return this.passwordHash;
+    }
 
-@Column(name = "password_reset_token_expiry", nullable = true)
-private LocalDateTime passwordResetTokenExpiry;
+    // getUsername() metodu zaten Lombok @Data tarafından sağlanıyor (this.username)
 
+    @Override
+    @Transient
+    public boolean isAccountNonExpired() {
+        return true; // Veya ek bir alanla yönetilebilir
+    }
 
+    @Override
+    @Transient
+    public boolean isAccountNonLocked() {
+        return true; // Veya ek bir alanla yönetilebilir
+    }
 
+    @Override
+    @Transient
+    public boolean isCredentialsNonExpired() {
+        return true; // Veya ek bir alanla yönetilebilir
+    }
+
+    @Override
+    @Transient
+    public boolean isEnabled() {
+        return this.isActive;
+    }
 }
-
-// Açıklamalar:
-
-// Paket:
-// com.fibiyo.ecommerce.domain.entity olarak ayarlandı.
-// Enum ların paketinin com.fibiyo.ecommerce.domain.enums olduğu varsayıldı.
-
-/*
- * Importlar:
- * Gerekli JPA, Validation, Lombok ve Java Time importları eklendi.
- */
-
-/*
- * JPA Annotation ları:
- * @Entity, @Table, @Id, @GeneratedValue, @Column (isim, null durumu, uzunluk, unique),
- * @Enumerated(EnumType.STRING) (Enum ların veritabanına metin olarak kaydedilmesi için) kullanıldı.
- */
-
-/*
- * Validation Annotation ları:
- * @NotBlank, @Email, @Size, @NotNull gibi temel doğrulamalar eklendi.
- * Bu, DTO dan entity e dönüşüm sırasında veya JPA kaydetme öncesi ekstra bir güvenlik katmanı sağlar.
- */
-
-/*
- * Lombok:
- * @Data, @NoArgsConstructor, @AllArgsConstructor ile kod kalabalığı azaltıldı.
- */
-
-/*
- * Zaman Damgaları:
- * @CreationTimestamp ve @UpdateTimestamp ile otomatik tarih/saat yönetimi sağlandı.
- */
-
-/*
- * İlişkiler:
- * Diğer entity lerle olan @OneToMany ilişkileri tanımlandı.
- */
-
-/*
- * mappedBy:
- * İlişkinin diğer taraftaki entity de hangi alan ile kurulduğunu belirtir.
- */
-
-/*
- * fetch = FetchType.LAZY:
- * Performans için genellikle en iyi seçenektir.
- * İlişkili entity ler sadece ihtiyaç duyulduğunda (get metodu çağrıldığında) veritabanından yüklenir.
- * EAGER genellikle önerilmez.
- */
-
-/*
- * cascade:
- * Bir entity üzerinde yapılan işlemin (kaydetme, silme vb.) ilişkili entity leri nasıl etkileyeceğini belirler.
- * Dikkatli kullanılmalıdır.
- * Yorumlar, bildirimler, istek listesi gibi doğrudan kullanıcıya ait olanlar için
- * CascadeType.ALL, orphanRemoval = true mantıklıdır (kullanıcı silinirse bunlar da silinir).
- * Siparişler veya ürünler gibi iş mantığı gerektiren durumlar için
- * cascade kullanmak yerine servis katmanında bu işlemler yönetilmelidir.
- */
-
-// List ler initialize edildi (= new ArrayList<>()) - bu NullPointerException hatalarını önlemek için önemlidir.
-

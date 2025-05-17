@@ -30,6 +30,53 @@
           </div>
         </div>
 
+        <!-- AI Enhancement Section -->
+        <div class="form-group ai-enhancement-section mt-3 p-3 border rounded">
+          <h5><i class="fas fa-wand-magic-sparkles"></i> Fibi AI Enhance</h5>
+          <p><small>Get AI-powered suggestions to improve your product listing.</small></p>
+          <button type="button" (click)="getAiEnhancements()" class="btn btn-outline-primary btn-sm mb-2" [disabled]="isEnhancingProductDetails()">
+            <i class="fas fa-lightbulb"></i> {{ isEnhancingProductDetails() ? 'Getting Suggestions...' : 'Get AI Suggestions' }}
+          </button>
+
+          <div *ngIf="isEnhancingProductDetails()" class="text-center my-2">
+            <app-loading-spinner></app-loading-spinner> <!-- diameter kaldırıldı -->
+            <p><small>Fibi is thinking...</small></p>
+          </div>
+
+          <div *ngIf="aiEnhancementError()" class="error-message mt-2">
+            <small>{{ aiEnhancementError() }}</small>
+          </div>
+
+          <div *ngIf="productEnhancements() as enhancements" class="ai-suggestions-box mt-2">
+            <h6><i class="fas fa-star"></i> Fibi's Recommendations:</h6>
+            <div *ngIf="enhancements.suggestedName" class="suggestion-item">
+              <strong>Suggested Name:</strong>
+              <p>{{ enhancements.suggestedName }}</p>
+              <button type="button" (click)="applySuggestion('name', enhancements.suggestedName!)" class="btn btn-sm btn-outline-success">Apply Name</button>
+            </div>
+            <div *ngIf="enhancements.suggestedDescription" class="suggestion-item mt-2">
+              <strong>Suggested Description:</strong>
+              <div class="suggestion-text">{{ enhancements.suggestedDescription }}</div>
+              <button type="button" (click)="applySuggestion('description', enhancements.suggestedDescription!)" class="btn btn-sm btn-outline-success">Apply Description</button>
+            </div>
+            <div *ngIf="enhancements.suggestedKeywords && enhancements.suggestedKeywords.length > 0" class="suggestion-item mt-2">
+              <strong>Suggested Keywords:</strong>
+              <p>{{ enhancements.suggestedKeywords.join(', ') }}</p>
+            </div>
+            <div *ngIf="enhancements.idealImagePrompt" class="suggestion-item mt-2">
+              <strong>Ideal Image Prompt (for AI Image Generation):</strong>
+              <p>{{ enhancements.idealImagePrompt }}</p>
+              <button type="button" (click)="applyImagePrompt(enhancements.idealImagePrompt!)" class="btn btn-sm btn-outline-info">Use this prompt for AI Image</button>
+            </div>
+            <div *ngIf="enhancements.generalTips" class="suggestion-item mt-2">
+              <strong>General Tips:</strong>
+              <p>{{ enhancements.generalTips }}</p>
+            </div>
+          </div>
+        </div>
+        <!-- End AI Enhancement Section -->
+
+
         <div class="form-group">
           <label for="rootCategory">Main Category:</label>
           <select id="rootCategory" class="form-select"
@@ -55,9 +102,6 @@
           </select>
         </div>
 
-        <!-- Orijinal categoryId form kontrolü gizli tutulabilir veya yukarıdaki childCategory'ye bağlanabilir.
-             Şu an childCategory seçildiğinde categoryId form kontrolünü güncelliyoruz.
-             Eğer sadece root kategori seçilirse, categoryId root'un ID'si olur. -->
         <div *ngIf="productForm.get('categoryId')?.invalid && productForm.get('categoryId')?.touched && !productForm.get('categoryId')?.value" class="error-message">
             <small *ngIf="productForm.get('categoryId')?.errors?.['required']">Category selection is required.</small>
         </div>
@@ -115,7 +159,6 @@
         </div>
       </div>
 
-      <!-- Mevcut görselleri gösterme (düzenleme modunda) - Bu kısım daha sonra detaylandırılacak -->
       <div *ngIf="isEditMode() && existingProductImages().length > 0" class="existing-images-container mt-4">
         <h5>Current Product Images:</h5>
         <div class="row">
@@ -125,22 +168,12 @@
                    [class.is-primary]="img.isPrimary" />
               <p class="image-name mt-1" [title]="img.altText || 'Image ' + (i+1)">{{ img.altText || ('Image ' + (i+1)) | slice:0:20 }}</p>
               <span *ngIf="img.isPrimary" class="badge bg-success primary-badge">Primary</span>
-              <!-- TODO: Silme ve Ana Görsel Yapma Butonları -->
-              <!--
-              <button type="button" (click)="deleteExistingImage(img.id)" class="btn btn-sm btn-danger btn-remove-image" title="Delete this image">
-                <i class="fas fa-trash"></i>
-              </button>
-              <button type="button" *ngIf="!img.isPrimary" (click)="setAsPrimaryImage(img.id)" class="btn btn-sm btn-info btn-set-primary" title="Set as primary">
-                <i class="fas fa-star"></i>
-              </button>
-              -->
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- AI Image Generation Section -->
     <div class="form-group ai-image-generation-section mt-4 p-3 border rounded">
       <h5><i class="fas fa-magic"></i> AI Image Generation (using gpt-image-1)</h5>
       <p><small>Generate a new image based on a prompt. You can optionally select one of your uploaded images above as a reference for style or content (image edit functionality may vary based on AI model).</small></p>
@@ -160,7 +193,7 @@
             </option>
           </optgroup>
           <optgroup label="Existing Images" *ngIf="isEditMode() && existingProductImages().length > 0">
-            <option *ngFor="let existingImg of existingProductImages()" [ngValue]="existingImg.imageUrl"> <!-- Veya ID'si backend'e gönderilecekse existingImg.id -->
+            <option *ngFor="let existingImg of existingProductImages()" [ngValue]="existingImg.imageUrl">
               {{ existingImg.altText || existingImg.imageUrl | slice:0:30 }}... (Existing)
             </option>
           </optgroup>

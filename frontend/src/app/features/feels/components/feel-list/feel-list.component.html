@@ -10,7 +10,7 @@
     <div *ngFor="let feel of feels(); trackBy: trackByFeelId; let i = index"
          class="feel-item-wrapper"
          [id]="'feel-item-' + feel.id">
-      <app-feel-card [feel]="feel"></app-feel-card>
+      <app-feel-card [feel]="feel" [isActive]="i === currentIndex()"></app-feel-card>
     </div>
   </div>
 

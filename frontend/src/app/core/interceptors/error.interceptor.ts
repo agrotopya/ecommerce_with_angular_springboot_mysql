@@ -26,6 +26,10 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       }
 
       switch (error.status) {
+        case 0: // Ağ hatası, CORS sorunu veya sunucuya ulaşılamıyor
+          console.error('ErrorInterceptor: Network error, CORS issue, or server unreachable. Status: 0', error);
+          notificationService.showError('Could not connect to the server. Please check your internet connection or try again later.');
+          break;
         case 401:
           console.warn('ErrorInterceptor: 401 Unauthorized.');
           // Sunucu taraflı render sırasında window/localStorage erişimi yok
@@ -57,7 +61,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           notificationService.showError(errorMessage || 'An internal server error occurred. Please try again later.');
           break;
         default:
-          console.error(`ErrorInterceptor: Unexpected Error. Status: ${error.status}`);
+          console.error(`ErrorInterceptor: Unexpected Error. Status: ${error.status}`, error);
           notificationService.showError(errorMessage);
       }
 

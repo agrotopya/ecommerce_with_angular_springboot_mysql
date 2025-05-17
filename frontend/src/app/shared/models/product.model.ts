@@ -3,8 +3,8 @@ import { CategoryResponseDto } from "./category.model"; // category.model olarak
 
 // Product arayüzü, backend'den gelen yanıta ve apidocs.md'ye göre güncellendi
 export interface Product {
-  brand: any;
-  stockQuantity: any;
+  brand: any; // TODO: Tipini belirle (string | null olabilir)
+  stockQuantity: any; // TODO: Tipini belirle (number | null olabilir)
   id: number;
   name: string;
   slug: string;
@@ -14,7 +14,6 @@ export interface Product {
   sku?: string | null;
   mainImageUrl?: string | null; // Backend'deki ProductResponseDto ile uyumlu hale getirildi
   productImages?: ProductImage[]; // ProductImageDto -> ProductImage olarak güncellendi
-  // imageUrl ve imageUrls alanları kaldırıldı, mainImageUrl ve productImages kullanılacak
   createdAt: string;
   updatedAt: string;
   averageRating?: number;
@@ -27,16 +26,20 @@ export interface Product {
   active: boolean; // isActive -> active (backend yanıtına göre)
   approved: boolean; // isApproved -> approved (backend yanıtına göre)
   salesCount?: number; // Eklendi
-  // Opsiyonel veya frontend'de olmayan alanlar:
   originalPrice?: number;
-  category?: CategoryResponseDto; // Backend'den gelmiyor, categoryId ve categoryName var
+  category?: CategoryResponseDto;
   tags?: string[];
-  // images?: ProductImageDto[]; // productImages ile değiştirildi veya birleştirildi
   attributes?: ProductAttributeDto[];
   isFeatured?: boolean;
   rejectionReason?: string;
   reviewSummaryAi?: string | null;
   aiGeneratedImageUrl?: string | null;
+}
+
+// Dropdown için sadece id ve name içeren arayüz
+export interface ProductSelectItem {
+  id: number;
+  name: string;
 }
 
 // ProductRequest arayüzü, backend'in beklediği alanlara göre güncellendi
@@ -46,16 +49,12 @@ export interface ProductRequest {
   price: number;
   stock: number; // stockQuantity -> stock
   categoryId: number;
-  brand?: string; // apidocs.md ProductRequest'te yok, frontend.md'de var. Opsiyonel bırakalım.
-  sku?: string; // apidocs.md ProductRequest'te yok, frontend.md'de var. Opsiyonel bırakalım.
-  active?: boolean; // Eklendi
-  // tags, images, attributes backend ProductRequest DTO'sunda yoksa kaldırılmalı.
-  // Şimdilik apidocs.md'deki ProductRequest'e göre (4.2.1) bu alanlar yok.
-  // imageUrl alanı da ProductRequest'te yok, görsel ayrı yükleniyor.
-  // isFeatured da ProductRequest'te yok, backend default atıyor.
+  brand?: string;
+  sku?: string;
+  active?: boolean;
 }
 
-export interface ProductImage { // ProductImageDto -> ProductImage olarak güncellendi
+export interface ProductImage {
   id?: number;
   imageUrl: string;
   isPrimary: boolean;
@@ -63,9 +62,9 @@ export interface ProductImage { // ProductImageDto -> ProductImage olarak günce
   displayOrder?: number;
 }
 
-export interface ProductAttributeDto { // Bu DTO da kullanılabilir
-  name: string; // e.g., "Color", "Size"
-  value: string; // e.g., "Red", "XL"
+export interface ProductAttributeDto {
+  name: string;
+  value: string;
 }
 
 // For admin approval
@@ -74,14 +73,11 @@ export interface ProductApprovalRequestDto {
   rejectionReason?: string;
 }
 
-// PaginatedProducts, Pageable ve Sort arayüzleri kaldırıldı.
-// Page<T> arayüzü page.model.ts dosyasında tanımlı.
-
 // Yardımcı fonksiyonlar güncellenmiş Product arayüzüne göre güncellendi.
 export function isProductApproved(product: Product): boolean {
-  return product.approved === true; // isApproved -> approved
+  return product.approved === true;
 }
 
 export function isProductActive(product: Product): boolean {
-  return product.active === true; // isActive -> active
+  return product.active === true;
 }

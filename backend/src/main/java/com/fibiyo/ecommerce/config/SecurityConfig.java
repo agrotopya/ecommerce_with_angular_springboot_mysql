@@ -72,6 +72,7 @@ public class SecurityConfig {
                 // .requestMatchers("/api/products/**").permitAll()  // Bu genel izin yerine daha spesifik GET izni aşağıda
                 .requestMatchers("/api/payments/stripe/webhook").permitAll() // <--- BU SATIR ÖNEMLİ
                 .requestMatchers("/uploads/**").permitAll() // Yüklenen dosyalara herkesin erişebilmesi için
+                .requestMatchers(HttpMethod.GET, "/feels/videos/**").permitAll() // VİDEO DOSYALARI İÇİN EKLENDİ
 
                 // Ürünleri, kategorileri, yorumları GET istekleri (okuma) herkese açık
                 .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
@@ -81,7 +82,8 @@ public class SecurityConfig {
 
                 // Swagger/OpenAPI dokümantasyonu için (kullanılırsa)
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-
+                .requestMatchers(HttpMethod.GET, "/api/feels").permitAll() // GET /api/feels herkese açık
+                .requestMatchers(HttpMethod.GET, "/api/feels/{id}").permitAll() // GET /api/feels/{id} herkese açık
                 // API yollarını açıkça belirtelim
                 .requestMatchers("/api/users/**").authenticated()
                 .requestMatchers("/api/seller/**").authenticated() // Tekrar authenticated yapıldı
@@ -125,6 +127,10 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         // Ayarları tüm "/api/**" path'leri için uygula
         source.registerCorsConfiguration("/api/**", configuration);
+        // Statik dosyalar için de CORS ayarı gerekebilir, özellikle farklı bir porttan sunuluyorsa
+        // veya frontend farklı bir domain/port kullanıyorsa.
+        // source.registerCorsConfiguration("/uploads/**", configuration); // Eğer /uploads için de CORS gerekiyorsa
+        // source.registerCorsConfiguration("/feels/videos/**", configuration); // Eğer /feels/videos için de CORS gerekiyorsa
         return source;
     }
 }

@@ -1,0 +1,82 @@
+.seller-profile-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.profile-header {
+  text-align: center;
+  margin-bottom: 30px;
+
+  img { // Eğer avatar eklenecekse
+    border-radius: 50%;
+    margin-bottom: 15px;
+    width: 120px; // Örnek boyut
+    height: 120px; // Örnek boyut
+    object-fit: cover;
+    border: 3px solid #eee;
+  }
+
+  h1 {
+    font-size: 2.2rem;
+    margin-bottom: 5px;
+    font-weight: 600;
+  }
+
+  p {
+    font-size: 1.1rem;
+    color: #555;
+  }
+}
+
+.seller-content {
+  h2 {
+    font-size: 1.8rem;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #007bff; // Ana renkle uyumlu bir çizgi
+    padding-bottom: 10px;
+    color: #333;
+  }
+}
+
+.feels-grid, .products-grid {
+  display: grid;
+  gap: 25px; // Biraz daha boşluk
+}
+
+.feels-grid {
+  // FeelCardComponent'in kendi boyutlandırmasına göre ayarlanacak
+  // Örnek: 3'lü bir grid için
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.products-grid {
+  // ProductCardComponent'in kendi boyutlandırmasına göre ayarlanacak
+  // Örnek: 4'lü bir grid için
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+}
+
+.alert {
+  margin-top: 20px;
+}
+
+.btn-secondary {
+  display: block;
+  width: fit-content;
+  margin: 20px auto 0;
+}
+
+// Yükleme ve hata mesajları için genel stiller
+app-loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 150px; // İçerik yüklenene kadar yer tutar
+}
+
+.alert-info, .alert-warning {
+  text-align: center;
+  padding: 15px;
+  border-radius: 5px;
+}

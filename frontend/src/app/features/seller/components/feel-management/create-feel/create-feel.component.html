@@ -1,5 +1,5 @@
 <div class="create-feel-container">
-  <h2 class="page-title">Create New Feel</h2>
+  <h2 class="page-title">{{ editMode() ? 'Edit Feel' : 'Create New Feel' }}</h2>
   <form [formGroup]="createFeelForm" (ngSubmit)="onSubmit()" class="create-feel-form">
     <!-- Title -->
     <div class="form-group">
@@ -21,19 +21,33 @@
       </div>
     </div>
 
-    <!-- Product ID (Opsiyonel) - Basit bir input olarak bırakıldı, geliştirilebilir -->
+    <!-- Related Product -->
     <div class="form-group">
-      <label for="productId">Related Product ID (Optional)</label>
-      <input type="number" id="productId" formControlName="productId" class="form-control" placeholder="Enter product ID if this feel is related to a specific product">
-      <!-- Gelişmiş ürün arama/seçme özelliği eklenebilir -->
+      <label for="productId">Related Product <span class="required-asterisk">*</span></label>
+      <select id="productId" formControlName="productId" class="form-control">
+        <option [ngValue]="null" disabled>
+          {{ isLoadingProducts() ? 'Loading products...' : 'Select a product' }}
+        </option>
+        <option *ngFor="let product of sellerProducts()" [ngValue]="product.id">
+          {{ product.name }}
+          <!-- TODO: Eğer ürünün zaten bir feel'i varsa, burada belirtilebilir veya ürün pasif yapılabilir -->
+          <!-- Örnek: (Already has a Feel) -->
+        </option>
+      </select>
+      <div *ngIf="createFeelForm.get('productId')?.invalid && (createFeelForm.get('productId')?.dirty || createFeelForm.get('productId')?.touched)" class="invalid-feedback">
+        <div *ngIf="createFeelForm.get('productId')?.errors?.['required']">Selecting a product is required.</div>
+      </div>
+      <div *ngIf="!isLoadingProducts() && sellerProducts().length === 0" class="form-text text-muted">
+        You don't have any products yet, or no products available to create a feel for. <a routerLink="/seller/products/new">Create a product first.</a>
+      </div>
     </div>
 
     <!-- Video File -->
     <div class="form-group">
-      <label for="videoFile">Video File <span class="required-asterisk">*</span></label>
+      <label for="videoFile">Video File <span *ngIf="!editMode()" class="required-asterisk">*</span></label>
       <input type="file" id="videoFile" (change)="onVideoFileSelected($event)" class="form-control-file" accept="video/*">
-      <div *ngIf="createFeelForm.get('videoFile')?.invalid && (createFeelForm.get('videoFile')?.dirty || createFeelForm.get('videoFile')?.touched) && !selectedVideoFile" class="invalid-feedback">
-        Video file is required.
+      <div *ngIf="createFeelForm.get('videoFile')?.invalid && (createFeelForm.get('videoFile')?.dirty || createFeelForm.get('videoFile')?.touched) && !selectedVideoFile && !editMode()" class="invalid-feedback">
+        Video file is required for a new feel.
       </div>
       <div *ngIf="videoPreviewUrl" class="preview-container mt-2">
         <p>Video Preview:</p>
@@ -52,11 +66,11 @@
     </div>
 
     <div class="form-actions">
-      <button type="submit" class="btn btn-primary btn-submit" [disabled]="isSubmitting()">
-        <span *ngIf="!isSubmitting()">Create Feel</span>
+      <button type="submit" class="btn btn-primary btn-submit" [disabled]="isSubmitting() || createFeelForm.invalid">
+        <span *ngIf="!isSubmitting()">{{ editMode() ? 'Update Feel' : 'Create Feel' }}</span>
         <span *ngIf="isSubmitting()">
           <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-          Creating...
+          {{ editMode() ? 'Updating...' : 'Creating...' }}
         </span>
       </button>
       <button type="button" class="btn btn-secondary" (click)="router.navigate(['/seller/dashboard'])" [disabled]="isSubmitting()">

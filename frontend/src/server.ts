@@ -42,13 +42,14 @@ app.use((req, res, next) => {
   res.setHeader(
     'Content-Security-Policy',
     "default-src 'self'; " +
-    "script-src 'self' https://js.stripe.com https://m.stripe.network https://b.stripecdn.com 'unsafe-inline' 'unsafe-eval'; " + // b.stripecdn.com eklendi
+    "script-src 'self' https://js.stripe.com https://m.stripe.network https://b.stripecdn.com 'unsafe-inline' 'unsafe-eval'; " +
     "style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; " +
-    "img-src 'self' http://localhost:8080 data: https: *.stripe.com; " + // http://localhost:8080 ve https: eklendi, *.stripe.com zaten vardı
-    "font-src 'self' https://fonts.gstatic.com data:; " + // data: eklendi
-    "connect-src 'self' http://localhost:8080 https://api.stripe.com https://q.stripe.com https://b.stripecdn.com *.stripe.com; " + // b.stripecdn.com ve *.stripe.com eklendi
-    "frame-src 'self' https://js.stripe.com https://b.stripecdn.com https://hooks.stripe.com https://m.stripe.network; " + // b.stripecdn.com ve m.stripe.network eklendi
-    "worker-src 'self' blob: https://js.stripe.com https://b.stripecdn.com https://m.stripe.network;" // b.stripecdn.com ve m.stripe.network eklendi
+    "img-src 'self' http://localhost:8080 data: https: *.stripe.com; " +
+    "font-src 'self' https://fonts.gstatic.com data:; " +
+    "connect-src 'self' http://localhost:8080 https://api.stripe.com https://q.stripe.com https://b.stripecdn.com *.stripe.com; " +
+    "media-src 'self' http://localhost:8080 data:; " + // data: EKLENDİ
+    "frame-src 'self' https://js.stripe.com https://b.stripecdn.com https://hooks.stripe.com https://m.stripe.network; " +
+    "worker-src 'self' blob: https://js.stripe.com https://b.stripecdn.com https://m.stripe.network;"
   );
   next();
 });

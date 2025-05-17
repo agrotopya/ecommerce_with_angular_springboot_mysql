@@ -1,57 +1,61 @@
 <div class="feel-player-container" *ngIf="feel">
   <video
+    #videoPlayer
     class="feel-video"
-    [src]="feel.videoUrl"
-    [poster]="feel.thumbnailUrl || ''"
-    autoplay
+    [src]="env.baseFileUrl + '/' + feel.videoUrl"
+    [poster]="feel.thumbnailUrl ? env.baseFileUrl + '/' + feel.thumbnailUrl : ''"
     loop
     muted
     playsinline
-    (click)="navigateToProduct()"
+    (click)="togglePlayPause()"
   ></video>
 
   <div class="feel-overlay">
     <div class="feel-header">
-      <!-- Geri butonu veya kapatma ikonu eklenebilir, şimdilik FeelListComponent yönetecek -->
-      <div class="seller-info" (click)="navigateToSellerProfile()"> <!-- navigateToSellerProfile() implemente edilecek -->
-        <img *ngIf="feel.sellerProfileImageUrl" [ngSrc]="feel.sellerProfileImageUrl" [alt]="feel.sellerUsername" class="seller-avatar" width="32" height="32">
+      <div class="seller-info" (click)="navigateToSellerProfile()">
+        <img *ngIf="feel.sellerProfileImageUrl" [ngSrc]="env.baseFileUrl + '/' + feel.sellerProfileImageUrl" [alt]="feel.sellerUsername" class="seller-avatar" width="32" height="32">
         <span *ngIf="!feel.sellerProfileImageUrl" class="material-icons seller-avatar-placeholder">account_circle</span>
         <span class="seller-username">{{ feel.sellerUsername }}</span>
       </div>
+      <!-- Oynat/Duraklat butonu (opsiyonel, videonun üzerine tıklama zaten var) -->
+      <button *ngIf="showPlayButton" class="play-pause-button" (click)="togglePlayPause(); $event.stopPropagation();">
+        <span class="material-icons">{{ isPlaying() ? 'pause_circle_filled' : 'play_circle_filled' }}</span>
+      </button>
     </div>
 
     <div class="feel-content-left">
       <h3 class="feel-title">{{ feel.title }}</h3>
       <p class="feel-description" *ngIf="feel.description">{{ feel.description }}</p>
-      <button class="btn btn-primary btn-view-product" (click)="navigateToProduct()" *ngIf="feel.productId">
+      <button class="btn btn-primary btn-view-product" (click)="navigateToProduct(); $event.stopPropagation();" *ngIf="feel.productId">
         <span class="material-icons">shopping_bag</span>
         Ürünü Gör
       </button>
     </div>
 
     <div class="feel-actions-right">
-      <button class="btn-action" (click)="toggleWishlist()" [disabled]="isTogglingWishlist()" title="Favorilere Ekle/Çıkar">
+      <button class="btn-action" (click)="toggleWishlist(); $event.stopPropagation();" [disabled]="isTogglingWishlist()" title="Favorilere Ekle/Çıkar">
         <span class="material-icons icon-action" [class.active]="isInWishlist()">
           {{ isInWishlist() ? 'favorite' : 'favorite_border' }}
         </span>
-        <!-- <span class="action-count">{{ feel.likeCount | number }}</span>  Bu artık ürünün favori sayısı değil, feel'in kendi like sayısı -->
       </button>
 
-      <button class="btn-action" (click)="toggleComments()" title="Yorumlar"> <!-- toggleComments() implemente edilecek -->
+      <button class="btn-action" (click)="toggleComments(); $event.stopPropagation();" title="Yorumlar">
         <span class="material-icons icon-action">comment</span>
-        <!-- <span class="action-count">{{ productReviews().length | number }}</span> Yorum sayısı -->
       </button>
 
-      <button class="btn-action" (click)="shareFeel()" title="Paylaş"> <!-- shareFeel() implemente edilecek -->
+      <button class="btn-action" (click)="shareFeel(); $event.stopPropagation();" title="Paylaş">
         <span class="material-icons icon-action">share</span>
       </button>
     </div>
   </div>
 
-  <div class="feel-comments-section" *ngIf="showComments()"> <!-- showComments sinyali eklenecek -->
-    <h4>Ürün Yorumları</h4>
+  <div class="feel-comments-section" [class.active]="showComments()" (click)="$event.stopPropagation();">
+    <h4>Ürün Yorumları ({{ productReviews().length }})</h4>
+    <button class="close-comments-btn" (click)="toggleComments()">
+      <span class="material-icons">close</span>
+    </button>
     <div *ngIf="isLoadingReviews()" class="loading-spinner">
-      <p>Yorumlar yükleniyor...</p> <!-- Basit bir yükleme göstergesi -->
+      <p>Yorumlar yükleniyor...</p>
     </div>
     <ul *ngIf="!isLoadingReviews() && productReviews().length > 0" class="comment-list">
       <li *ngFor="let review of productReviews()" class="comment-item">
@@ -63,9 +67,11 @@
         <small class="comment-date">{{ review.createdAt | date:'short' }}</small>
       </li>
     </ul>
-    <p *ngIf="!isLoadingReviews() && productReviews().length === 0">
+    <p *ngIf="!isLoadingReviews() && productReviews().length === 0 && feel.productId">
       Bu ürün için henüz yorum yapılmamış.
     </p>
-    <!-- Yorum ekleme formu buraya eklenebilir -->
+    <p *ngIf="!isLoadingReviews() && !feel.productId">
+      Bu feel bir ürünle ilişkili değil, bu yüzden ürün yorumları gösterilemiyor.
+    </p>
   </div>
 </div>

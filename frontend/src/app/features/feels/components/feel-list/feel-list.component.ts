@@ -10,7 +10,7 @@ import { FeelService } from '../../services/feel.service';
 import { FeelResponseDto } from '@shared/models/feel.model';
 import { LoadingSpinnerComponent } from '@shared/components/loading-spinner/loading-spinner.component';
 import { NotificationService } from '@core/services/notification.service';
-import { FeelCardComponent } from '../feel-card/feel-card.component'; // FeelCardComponent import edildi
+import { FeelCardComponent } from '../feel-card/feel-card.component';
 
 @Component({
   selector: 'app-feel-list',
@@ -19,7 +19,7 @@ import { FeelCardComponent } from '../feel-card/feel-card.component'; // FeelCar
     CommonModule,
     RouterLink,
     LoadingSpinnerComponent,
-    FeelCardComponent, // FeelCardComponent imports'a eklendi
+    FeelCardComponent,
   ],
   templateUrl: './feel-list.component.html',
   styleUrls: ['./feel-list.component.scss']
@@ -40,29 +40,32 @@ export class FeelListComponent implements OnInit, AfterViewInit, OnDestroy {
   loadingMore = signal(false);
 
   private page = 0;
-  private readonly PAGE_SIZE = 5; // Bir seferde kaç feel yükleneceği
+  private readonly PAGE_SIZE = 2; // Test için düşürüldü
   private allDataLoaded = false;
 
   private subscriptions: Subscription[] = [];
-  // IntersectionObserver veya scroll listener için
   @ViewChild('feelsContainer') feelsContainerRef!: ElementRef<HTMLDivElement>;
   private intersectionObserver?: IntersectionObserver;
-  private videoElements: Map<number, HTMLVideoElement> = new Map(); // Bu muhtemelen kaldırılacak veya değişecek
   private scrollTimeout: any;
 
-
-  constructor() {}
+  constructor() {
+    console.log('FeelListComponent constructor called. Current URL:', this.router.url);
+  }
 
   ngOnInit(): void {
+    console.log('FeelListComponent ngOnInit called. Current URL:', this.router.url);
     this.titleService.setTitle('Fibiyo Feels | Keşfet');
     this.metaService.updateTag({ name: 'description', content: 'Fibiyo ürün videolarını keşfedin - Son trendler ve yeni ürünler hakkında kısa videolar.' });
 
     const paramsSubscription = this.route.params.subscribe(params => {
       const id = params['id'];
+      console.log('FeelListComponent route params:', params);
       if (id && !isNaN(+id)) {
+        console.log('FeelListComponent loading feel by ID:', id);
         this.loadFeelById(+id);
       } else {
-        this.loadFeels(true); // Initial load
+        console.log('FeelListComponent loading initial feels list.');
+        this.loadFeels(true);
       }
     });
     this.subscriptions.push(paramsSubscription);
@@ -73,15 +76,11 @@ export class FeelListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    console.log('FeelListComponent ngOnDestroy called');
     this.subscriptions.forEach(sub => sub.unsubscribe());
     if (this.intersectionObserver) {
       this.intersectionObserver.disconnect();
     }
-    this.videoElements.forEach(video => {
-      video.pause();
-      video.src = ''; // Kaynakları temizle
-    });
-    this.videoElements.clear();
   }
 
   loadFeelById(id: number): void {
@@ -95,17 +94,17 @@ export class FeelListComponent implements OnInit, AfterViewInit, OnDestroy {
           this.feels.set([feel]);
           this.currentIndex.set(0);
           this.updateUrlWithCurrentFeel(feel.id);
-          this.page = 0; // Sayfalamayı sıfırla
-          this.allDataLoaded = false; // Daha fazla veri yüklenebilir
-          // playCurrentVideo çağrısı kaldırıldı. Aktif video yönetimi FeelCardComponent'e veya
-          // currentIndex değişikliğine bağlı olarak FeelCardComponent içinde ele alınacak.
-          // setTimeout(() => this.playCurrentVideo(), 0);
+          this.page = 0; // Sayfalamayı sıfırla, çünkü tek bir feel yüklüyoruz, devamı olmayacak.
+          this.allDataLoaded = true; // Tek bir feel yüklendiği için daha fazla veri yok.
+          console.log('loadFeelById: allDataLoaded set to true.');
+          setTimeout(() => this.observeFeelItems(), 0);
         } else {
           this.error.set('İstenen video bulunamadı.');
+          this.notificationService.showError('İstenen video bulunamadı.');
         }
       },
       error: (err) => {
-        console.error('Feel yüklenirken hata:', err);
+        console.error('Feel yüklenirken hata (loadFeelById):', err);
         this.error.set('Video yüklenirken bir hata oluştu.');
         this.notificationService.showError('Video yüklenemedi.');
       }
@@ -114,13 +113,18 @@ export class FeelListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   loadFeels(isInitialLoad: boolean = false): void {
-    if (this.loadingMore() || this.allDataLoaded) return;
+    console.log('loadFeels called. isInitialLoad:', isInitialLoad, 'loadingMore:', this.loadingMore(), 'allDataLoaded:', this.allDataLoaded);
+    if (this.loadingMore() || this.allDataLoaded) {
+      if(this.allDataLoaded) console.log('loadFeels: Aborting, all data already loaded.');
+      if(this.loadingMore()) console.log('loadFeels: Aborting, already loading more.');
+      return;
+    }
 
     if (isInitialLoad) {
       this.isLoading.set(true);
       this.page = 0;
-      this.allDataLoaded = false;
-      this.feels.set([]); // İlk yüklemede listeyi temizle
+      this.allDataLoaded = false; // İlk yüklemede sıfırla
+      this.feels.set([]);
     }
     this.loadingMore.set(true);
     this.error.set(null);
@@ -137,19 +141,25 @@ export class FeelListComponent implements OnInit, AfterViewInit, OnDestroy {
           this.page++;
           if (isInitialLoad && this.feels().length > 0) {
             this.currentIndex.set(0);
-            this.updateUrlWithCurrentFeel(this.feels()[0].id);
-            // playCurrentVideo çağrısı kaldırıldı.
-            // setTimeout(() => this.playCurrentVideo(), 0);
+            if (!this.route.snapshot.params['id']) {
+              this.updateUrlWithCurrentFeel(this.feels()[0].id);
+            }
           }
+          // Eğer dönen içerik PAGE_SIZE'dan azsa, tüm veriler yüklenmiş demektir.
+          if (response.content.length < this.PAGE_SIZE) {
+            this.allDataLoaded = true;
+            console.log('loadFeels: All data loaded (less than page size).');
+          }
+          setTimeout(() => this.observeFeelItems(), 0);
         } else {
-          this.allDataLoaded = true; // Daha fazla veri yok
+          this.allDataLoaded = true;
+          console.log('loadFeels: All data loaded (empty content).');
         }
-        // Observer'ları yeniden kurmaya gerek yok, yeni elemanlar için otomatik izleyecek
       },
       error: (err) => {
         this.error.set('Feels yüklenirken bir hata oluştu.');
         this.notificationService.showError('Feels yüklenemedi.');
-        console.error('Error loading feels:', err);
+        console.error('Error loading feels (loadFeels):', err);
       }
     });
     this.subscriptions.push(sub);
@@ -161,75 +171,73 @@ export class FeelListComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     const options = {
-      root: this.feelsContainerRef?.nativeElement, // Kaydırılabilir alan
+      root: this.feelsContainerRef?.nativeElement,
       rootMargin: '0px',
-      threshold: 0.75 // Elemanın %75'i göründüğünde
+      threshold: 0.5
     };
 
     this.intersectionObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        // IntersectionObserver içindeki videoElement.play() ve pause() kaldırılıyor.
-        // Bu mantık FeelCardComponent'e ait olacak.
-        // const videoElement = entry.target.querySelector('video');
         const feelItemWrapper = entry.target as HTMLElement;
         const feelIdAttr = feelItemWrapper.id.replace('feel-item-', '');
         const index = this.feels().findIndex(f => f.id.toString() === feelIdAttr);
 
+        console.log('IntersectionObserver: Entry details', {
+          isIntersecting: entry.isIntersecting,
+          targetId: feelIdAttr,
+          foundIndex: index,
+          currentIndex: this.currentIndex()
+        });
 
         if (entry.isIntersecting) {
           if (index !== -1 && index !== this.currentIndex()) {
+            console.log('IntersectionObserver: Updating current index and URL', { newIndex: index, feelId: this.feels()[index].id });
             this.currentIndex.set(index);
             this.updateUrlWithCurrentFeel(this.feels()[index].id);
             this.trackViewEvent(this.feels()[index].id);
           }
-          // videoElement?.play().catch(e => console.warn('Video play interrupted:', e));
-
-          // Sonsuz kaydırma için kontrol
-          // index'in geçerli olduğundan ve feels dizisinin sınırları içinde olduğundan emin ol
-          if (index !== -1 && index === this.feels().length - 2 && !this.loadingMore() && !this.allDataLoaded) {
+          // Sonsuz kaydırma için kontrol: Son eleman göründüğünde yükle
+          if (index !== -1 && index === this.feels().length - 1 && !this.loadingMore() && !this.allDataLoaded) {
+            console.log('IntersectionObserver: Loading more feels (last item visible).');
             this.loadFeels();
           }
-        } else {
-          // videoElement?.pause();
         }
       });
     }, options);
 
-    this.observeFeelItems(); // Bu metodun çağrıldığından emin olalım.
+    if (this.feels().length > 0) {
+        this.observeFeelItems();
+    }
   }
 
   observeFeelItems(): void {
-    if (!this.feelsContainerRef?.nativeElement || !this.intersectionObserver) return;
+    if (!this.feelsContainerRef?.nativeElement || !this.intersectionObserver) {
+      console.warn('IntersectionObserver: Container or observer not ready for observing items.');
+      return;
+    }
     const items = this.feelsContainerRef.nativeElement.querySelectorAll('.feel-item-wrapper');
-    // Önceki observer'ları temizle (eğer varsa ve yeniden çağrılıyorsa)
+    console.log('IntersectionObserver: Observing items count:', items.length);
     this.intersectionObserver.disconnect();
     items.forEach(item => this.intersectionObserver!.observe(item));
   }
-
-  // playCurrentVideo, onVideoEnded ve registerVideoElement metodları artık burada yönetilmeyecek.
-  // Bu işlevler FeelCardComponent içinde veya farklı bir yaklaşımla ele alınacak.
-  // videoElements map'i de bu durumda gereksizleşebilir.
 
   trackByFeelId(index: number, feel: FeelResponseDto): number {
     return feel.id;
   }
 
   onScroll(): void {
-    // Basit bir scroll ile yükleme mantığı. IntersectionObserver daha iyi bir seçenek olabilir.
-    // Bu metod, HTML'deki (scroll) event'ine bağlı.
-    // Eğer IntersectionObserver düzgün çalışıyorsa bu metoda gerek kalmayabilir.
-    // Şimdilik, scroll event'i çok sık tetikleneceği için debounce eklenebilir.
     clearTimeout(this.scrollTimeout);
     this.scrollTimeout = setTimeout(() => {
+      if (!this.feelsContainerRef?.nativeElement) return;
       const container = this.feelsContainerRef.nativeElement;
-      const threshold = 200; // Scroll bitimine ne kadar kala yükleneceği (pixel)
+      const threshold = 200;
       const atBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - threshold;
 
       if (atBottom && !this.loadingMore() && !this.allDataLoaded) {
-        console.log('Scrolled to bottom, loading more feels...');
+        console.log('Scrolled to bottom, loading more feels (onScroll)...');
         this.loadFeels();
       }
-    }, 100); // 100ms debounce
+    }, 100);
   }
 
   navigateToPreviousFeel(): void {
@@ -243,19 +251,19 @@ export class FeelListComponent implements OnInit, AfterViewInit, OnDestroy {
       this.scrollToFeel(this.currentIndex() + 1);
     }
   }
-  // scrollToFeel metodu .feel-item-wrapper'a göre güncellenmeli
+
   scrollToFeel(index: number): void {
     if (!this.feelsContainerRef?.nativeElement || index < 0 || index >= this.feels().length) return;
     const feelId = this.feels()[index].id;
+    console.log('Scrolling to feel with ID:', feelId, 'at index:', index);
     const element = this.feelsContainerRef.nativeElement.querySelector(`#feel-item-${feelId}`);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      // IntersectionObserver'ın tetiklenmesi beklenir, bu da currentIndex'i günceller.
-      // Eğer hemen güncelleme gerekiyorsa: this.currentIndex.set(index); this.updateUrlWithCurrentFeel(feelId);
     }
   }
 
   private updateUrlWithCurrentFeel(feelId: number): void {
+    console.log('Updating URL with feel ID:', feelId);
     this.location.replaceState(`/feels/${feelId}`);
     const currentFeel = this.feels().find(f => f.id === feelId);
     if (currentFeel) {
@@ -265,16 +273,12 @@ export class FeelListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private trackViewEvent(feelId: number): void {
-    // this.feelService.incrementViewCount(feelId).subscribe(); // Serviste bu metod varsa
     console.log(`Track view for feel ID: ${feelId}`);
   }
 
-  // HostListener'lar (Klavye ve Dokunma)
   @HostListener('window:keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent): void {
     if (!this.feelsContainerRef?.nativeElement.contains(document.activeElement)) {
-        // Sadece feels container focus olduğunda çalışsın (opsiyonel)
-        // return;
     }
     if (event.key === 'ArrowDown') {
       event.preventDefault();
@@ -289,7 +293,6 @@ export class FeelListComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  // Dokunma eventleri için basit bir implementasyon
   private touchStartY: number = 0;
   @HostListener('touchstart', ['$event'])
   handleTouchStart(event: TouchEvent): void {
@@ -303,12 +306,12 @@ export class FeelListComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.touchStartY === 0 || event.changedTouches.length === 0) return;
     const touchEndY = event.changedTouches[0].clientY;
     const diffY = this.touchStartY - touchEndY;
-    this.touchStartY = 0; // Reset
+    this.touchStartY = 0;
 
-    if (Math.abs(diffY) > 50) { // Minimum swipe mesafesi
-      if (diffY > 0 && this.currentIndex() < this.feels().length - 1) { // Swipe Up
+    if (Math.abs(diffY) > 50) {
+      if (diffY > 0 && this.currentIndex() < this.feels().length - 1) {
         this.scrollToFeel(this.currentIndex() + 1);
-      } else if (diffY < 0 && this.currentIndex() > 0) { // Swipe Down
+      } else if (diffY < 0 && this.currentIndex() > 0) {
         this.scrollToFeel(this.currentIndex() - 1);
       }
     }

@@ -167,3 +167,12 @@ export const SELLER_ENDPOINTS = {
   // Kargo takip no için de genel endpoint kullanılacak: ORDERS_ENDPOINTS.ORDER_TRACKING_UPDATE(orderId)
 };
 console.log('API_ENDPOINTS: SELLER_ENDPOINTS =', SELLER_ENDPOINTS);
+
+export const AI_ENDPOINTS = {
+  ENHANCE_PRODUCT_DETAILS: `/ai/enhance-product-details`, // POST
+  GENERATE_IMAGE: `/ai/generate-image` // Bu endpoint AiFeaturesController'da da vardı, SellerProductController'dan taşınabilir.
+                                        // Eğer SellerProductController'daki /seller/products/generate-image kullanılacaksa,
+                                        // bu satır SELLER_ENDPOINTS altında kalmalı ve buradaki kaldırılmalı.
+                                        // Şimdilik genel bir /ai/generate-image olduğunu varsayıyoruz.
+};
+console.log('API_ENDPOINTS: AI_ENDPOINTS =', AI_ENDPOINTS);

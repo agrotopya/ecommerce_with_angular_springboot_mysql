@@ -2,21 +2,19 @@ import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, tap, map, catchError, of, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { FEEL_ENDPOINTS } from '../../../../app/core/constants/api-endpoints'; // ADMIN_FEEL_ENDPOINTS kaldırıldı, FEEL_ENDPOINTS kullanılacak
+import { FEEL_ENDPOINTS } from '../../../../app/core/constants/api-endpoints';
 import { FeelResponseDto, CreateFeelRequestDto } from '../../../../app/shared/models/feel.model';
 import { ApiResponse } from '../../../../app/shared/models/api-response.model';
 import { NotificationService } from '../../../../app/core/services/notification.service';
 import { Page } from '../../../../app/shared/models/page.model';
-import { ApiService } from '@core/services/api.service'; // ApiService import edildi
+import { ApiService } from '@core/services/api.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FeelService {
-  private http = inject(HttpClient); // HttpClient kalabilir, ApiService de kullanılabilir
-  private apiService = inject(ApiService); // ApiService eklendi
+  private apiService = inject(ApiService);
   private notificationService = inject(NotificationService);
-  private apiUrl = environment.apiUrl;
 
   constructor() {}
 
@@ -25,7 +23,7 @@ export class FeelService {
       .set('page', page.toString())
       .set('size', size.toString())
       .set('sort', 'createdAt,desc');
-    return this.apiService.get<Page<FeelResponseDto>>(FEEL_ENDPOINTS.BASE, params).pipe( // { params } -> params
+    return this.apiService.get<Page<FeelResponseDto>>(FEEL_ENDPOINTS.BASE, params).pipe(
       catchError((error: HttpErrorResponse) => {
         this.notificationService.showError('Failed to load feels.');
         return throwError(() => error);
@@ -47,9 +45,23 @@ export class FeelService {
       .set('page', page.toString())
       .set('size', size.toString())
       .set('sort', 'createdAt,desc');
-    return this.apiService.get<Page<FeelResponseDto>>(FEEL_ENDPOINTS.BY_PRODUCT(productId), params).pipe( // { params } -> params
+    return this.apiService.get<Page<FeelResponseDto>>(FEEL_ENDPOINTS.BY_PRODUCT(productId), params).pipe(
       catchError((error: HttpErrorResponse) => {
         this.notificationService.showError(`Failed to load feels for product ${productId}.`);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  getFeelsBySeller(sellerId: number, page: number = 0, size: number = 10): Observable<Page<FeelResponseDto>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sort', 'createdAt,desc');
+    // FEEL_ENDPOINTS.BY_SELLER(sellerId) endpoint'inin /api/feels/seller/{sellerId} olduğunu varsayıyoruz.
+    return this.apiService.get<Page<FeelResponseDto>>(FEEL_ENDPOINTS.BY_SELLER(sellerId), params).pipe(
+      catchError((error: HttpErrorResponse) => {
+        this.notificationService.showError(`Failed to load feels for seller ${sellerId}.`);
         return throwError(() => error);
       })
     );
@@ -101,14 +113,8 @@ export class FeelService {
     if (thumbnailFile) {
       formData.append('thumbnailFile', thumbnailFile);
     }
-    // Backend'de PUT /api/feels/{feelId} endpoint'i yok, POST /api/feels (create) ve PATCH (admin status) var.
-    // Satıcının kendi feel'ini güncellemesi için backend'e PUT /api/feels/seller/{feelId} gibi bir endpoint eklenebilir.
-    // Şimdilik bu metodu yorum satırına alıyorum veya createFeel gibi POST'a yönlendirebiliriz (ama bu RESTful olmaz).
-    // Veya admin yetkisiyle genel bir update endpoint'i varsa o kullanılabilir.
-    // Geçici olarak createFeel gibi davranmasını sağlayalım, backend'de PUT /api/feels/{id} implemente edilmeli.
-    // return this.apiService.put<FeelResponseDto>(FEEL_ENDPOINTS.DETAIL(feelId), formData).pipe(
     console.warn('updateFeel called, but backend might not support PUT /feels/{id} for seller. Consider backend changes.');
-    return this.apiService.post<FeelResponseDto>(`${FEEL_ENDPOINTS.BASE}`, formData).pipe( // Geçici olarak POST kullanılıyor
+    return this.apiService.post<FeelResponseDto>(`${FEEL_ENDPOINTS.BASE}`, formData).pipe(
       tap(() => this.notificationService.showSuccess('Feel update attempted (used POST).')),
       catchError((error: HttpErrorResponse) => {
         this.notificationService.showError('Error updating feel.');
@@ -123,7 +129,7 @@ export class FeelService {
       .set('page', page.toString())
       .set('size', size.toString())
       .set('sort', 'createdAt,desc');
-    return this.apiService.get<Page<FeelResponseDto>>(FEEL_ENDPOINTS.MY_FEELS, params).pipe( // { params } -> params
+    return this.apiService.get<Page<FeelResponseDto>>(FEEL_ENDPOINTS.MY_FEELS, params).pipe(
       catchError((error: HttpErrorResponse) => {
         this.notificationService.showError('Failed to load your feels.');
         return throwError(() => error);
@@ -131,7 +137,7 @@ export class FeelService {
     );
   }
 
-  deleteFeel(feelId: number): Observable<ApiResponse> { // Bu satıcı kendi feel'ini siler
+  deleteFeel(feelId: number): Observable<ApiResponse> {
     return this.apiService.delete<ApiResponse>(FEEL_ENDPOINTS.DETAIL(feelId)).pipe(
       tap(() => this.notificationService.showSuccess('Feel deleted successfully.')),
       catchError((error: HttpErrorResponse) => {
@@ -150,8 +156,7 @@ export class FeelService {
     if (isActive !== undefined) {
       params = params.set('isActive', isActive.toString());
     }
-    // FEEL_ENDPOINTS.ADMIN_GET_ALL backend'de /api/feels/admin/all olarak tanımlanmalı
-    return this.apiService.get<Page<FeelResponseDto>>(FEEL_ENDPOINTS.ADMIN_GET_ALL, params).pipe( // { params } -> params
+    return this.apiService.get<Page<FeelResponseDto>>(FEEL_ENDPOINTS.ADMIN_GET_ALL, params).pipe(
       catchError((error: HttpErrorResponse) => {
         this.notificationService.showError('Failed to load feels for admin.');
         return throwError(() => error);
@@ -171,9 +176,6 @@ export class FeelService {
   }
 
   deleteFeelByAdmin(feelId: number): Observable<ApiResponse> {
-    // apidocs'a göre admin silmesi için de /api/feels/{feelId} kullanılıyor, yetki backend'de kontrol ediliyor.
-    // Eğer ayrı bir endpoint varsa (FEEL_ENDPOINTS.ADMIN_DELETE gibi) o kullanılmalı.
-    // Şimdilik FEEL_ENDPOINTS.DETAIL kullanılıyor.
     return this.apiService.delete<ApiResponse>(FEEL_ENDPOINTS.DETAIL(feelId)).pipe(
       tap(() => this.notificationService.showSuccess('Feel deleted by admin successfully.')),
       catchError((error: HttpErrorResponse) => {

@@ -12,7 +12,11 @@ export const FEEL_ROUTES: Routes = [
     component: FeelListComponent,
     title: 'Discover Feels | Fibiyo'
   },
-  // FeelDetailComponent rotası kaldırıldı.
+  {
+    path: ':id', // /feels/:id yolu eklendi
+    component: FeelListComponent, // Bu yol da FeelListComponent'i kullanacak
+    title: 'View Feel | Fibiyo' // Dinamik başlık FeelListComponent içinde ayarlanabilir
+  }
   // Satıcıya özel feel oluşturma ve yönetme rotaları seller.routes.ts içinde olacak.
   // Örnek:
   // {
