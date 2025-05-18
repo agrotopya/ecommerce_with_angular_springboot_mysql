@@ -1,5 +1,5 @@
 **Fibiyo E-Commerce Platform - Detailed Project Report**
-![fibiyo](readmeimages/fibiyo.png)
+![fibiyo](readmeimages/fibiyo.gif)
 **1. Introduction and Project Summary**
 
 Fibiyo is designed as a comprehensive e-commerce platform. It aims to provide a shopping experience for customers and enable sellers to list and sell their products. Additionally, an admin panel is included for platform management. The project is developed with a modern backend architecture (Spring Boot) and a reactive frontend (Angular). It incorporates innovative features such as artificial intelligence (AI) capabilities (image generation, review summarization), short video ("Feels") integration, and a subscription system.
