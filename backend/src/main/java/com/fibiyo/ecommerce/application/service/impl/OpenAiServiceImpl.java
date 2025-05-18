@@ -49,11 +49,8 @@ public class OpenAiServiceImpl implements AiService {
     private static final Logger logger = LoggerFactory.getLogger(OpenAiServiceImpl.class);
 
     private final StorageService storageService;
-    @Value("${openai.api.key}")
-    private String openAiApiKey;
-
-    @Value("${gemini.api.key}")
-    private String geminiApiKey;
+    private final String openAiApiKey;
+    private final String geminiApiKey;
 
     private final WebClient openAiWebClient;
     private final WebClient geminiWebClient;
@@ -61,13 +58,32 @@ public class OpenAiServiceImpl implements AiService {
 
 
     @Autowired
-    public OpenAiServiceImpl(StorageService storageService, ObjectMapper objectMapper) {
+    public OpenAiServiceImpl(
+            StorageService storageService,
+            ObjectMapper objectMapper,
+            @Value("${openai.api.key}") String injectedOpenAiApiKey,
+            @Value("${gemini.api.key}") String injectedGeminiApiKey
+    ) {
+        this.openAiApiKey = injectedOpenAiApiKey;
+        this.geminiApiKey = injectedGeminiApiKey;
+
+        logger.info("OpenAiServiceImpl constructor - Injected OpenAI API Key: '{}'", this.openAiApiKey);
+        logger.info("OpenAiServiceImpl constructor - Injected Gemini API Key: '{}'", this.geminiApiKey);
+
         this.storageService = storageService;
         this.objectMapper = objectMapper;
 
+        if (this.openAiApiKey == null || this.openAiApiKey.trim().isEmpty() || "null".equalsIgnoreCase(this.openAiApiKey.trim())) {
+            logger.error("CRITICAL: OpenAI API Key is null or effectively empty after constructor injection. OpenAI API calls will fail!");
+        }
+        
+        if (this.geminiApiKey == null || this.geminiApiKey.trim().isEmpty() || "null".equalsIgnoreCase(this.geminiApiKey.trim()) || "YOUR_GEMINI_API_KEY".equals(this.geminiApiKey.trim())) {
+            logger.warn("Gemini API Key is null, empty, or a placeholder. Gemini API calls may fail or be restricted.");
+        }
+
         this.openAiWebClient = WebClient.builder()
                 .baseUrl("https://api.openai.com/v1")
-                .defaultHeader("Authorization", "Bearer " + openAiApiKey)
+                .defaultHeader("Authorization", "Bearer " + this.openAiApiKey)
                 .exchangeStrategies(ExchangeStrategies.builder()
                     .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(10 * 1024 * 1024)) // 10MB
                     .build())
@@ -84,9 +100,9 @@ public class OpenAiServiceImpl implements AiService {
 
     @Override
     public AiImageGenerationResponse generateProductImage(@NonNull AiImageGenerationRequest request, @NonNull User requestingUser) { // Dönüş tipi güncellendi
-        String requestedModel = StringUtils.hasText(request.getModel()) ? request.getModel().toLowerCase() : "dall-e-3";
-        logger.info("AI Image Request: User ID: {}, Model: {}, Prompt: '{}...', RefImgId: {}",
-                    requestingUser.getId(), requestedModel,
+        String requestedModel = "gpt-image-1"; // Tüm OpenAI resim işlemleri için gpt-image-1 modelini zorla
+        logger.info("AI Image Request: User ID: {}, Forced Model: {}, Original Prompt: '{}...', RefImgId: {}",
+                    requestingUser.getId(), requestedModel, // Log mesajında forced model olduğunu belirt
                     request.getPrompt() != null ? request.getPrompt().substring(0, Math.min(request.getPrompt().length(), 30)) : "N/A",
                     request.getReferenceImageIdentifier());
         try {
@@ -101,9 +117,9 @@ public class OpenAiServiceImpl implements AiService {
 
             if (StringUtils.hasText(request.getReferenceImageIdentifier())) {
                 logger.info("Executing OpenAI Image EDIT/VARIATION for User ID: {} with model {}...", requestingUser.getId(), requestedModel);
-                 if (!"dall-e-2".equals(requestedModel)) {
-                    logger.warn("Image editing/variation is typically used with 'dall-e-2'. The provided model '{}' may not support it or behave as expected.", requestedModel);
-                     throw new BadRequestException("Image editing/variation is only supported with dall-e-2 model.");
+                 if (!("dall-e-2".equals(requestedModel) || "gpt-image-1".equals(requestedModel))) {
+                    logger.warn("Image editing/variation only supports 'dall-e-2' and 'gpt-image-1'. The provided model '{}' may not support it or behave as expected.", requestedModel);
+                     throw new BadRequestException("Image editing/variation only supports dall-e-2 and gpt-image-1 models.");
                 }
                 endpointUrl = "/images/edits"; 
 
@@ -120,9 +136,9 @@ public class OpenAiServiceImpl implements AiService {
                 } else {
                     throw new BadRequestException("Prompt is required for image editing.");
                 }
+                builder.part("model", requestedModel); // Model parametresini /images/edits isteğine ekle
                 builder.part("n", String.valueOf(baseRequestNode.get("n").asInt()));
                 builder.part("size", baseRequestNode.get("size").asText());
-                builder.part("response_format", baseRequestNode.get("response_format").asText());
                 
                 MultiValueMap<String, HttpEntity<?>> multipartBody = builder.build();
                 
