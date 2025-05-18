@@ -8,6 +8,9 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -102,5 +105,25 @@ public class CategoryController {
         // CategoryService'e yeni bir metod ekleyeceğiz: updateCategoryImage
         CategoryResponse updatedCategory = categoryService.updateCategoryImage(categoryId, file);
         return ResponseEntity.ok(updatedCategory);
+    }
+
+    // YENİ EKLENECEK METOD: Admin için tüm kategorileri sayfalama ve arama ile getirme
+    @GetMapping("/admin/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<CategoryResponse>> getAllCategoriesForAdmin(
+            @RequestParam(name = "name", required = false) String name, // Arama terimi (kategori adı için)
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+            // Gerekirse sıralama parametreleri de eklenebilir: @RequestParam(defaultValue = "id,asc") String[] sort
+    ) {
+        logger.info("GET /api/categories/admin/all requested with name: [{}], page: [{}], size: [{}]", name, page, size);
+        // Pageable nesnesi oluştur (Sıralama eklemek isterseniz: PageRequest.of(page, size, Sort.by(sortParam)))
+        Pageable pageable = PageRequest.of(page, size); 
+        
+        // CategoryService'inizde bu parametreleri alıp uygun veriyi çeken bir metod olmalı
+        // Bu metod, CategoryRepository'nizi kullanarak arama ve sayfalama yapmalı.
+        Page<CategoryResponse> categoriesPage = categoryService.findAllForAdmin(name, pageable); // Servis metodunuzun adını buna göre ayarlayın
+        
+        return ResponseEntity.ok(categoriesPage);
     }
 }

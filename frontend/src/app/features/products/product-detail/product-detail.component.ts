@@ -182,46 +182,43 @@ export class ProductDetailComponent implements OnInit {
   }
 
   async buildBreadcrumbs(product: Product): Promise<void> {
-    const crumbs: Array<{ name: string; slug: string | null; isLink: boolean }> = [];
-    if (!product || !product.categoryId) {
-      this.breadcrumbs.set([]);
-      return;
-    }
+    const productName = product?.name || 'Ürün Detayı'; // Ürün adı için fallback
+    const finalCrumbs: Array<{ name: string; slug: string | null; isLink: boolean }> = [];
+    const categoryHierarchy: Array<{ name: string; slug: string | null; isLink: boolean }> = [];
 
-    // Add current product name (not a link)
-    crumbs.push({ name: product.name, slug: null, isLink: false });
-
-    // Add current product's category (as a link)
-    crumbs.push({ name: product.categoryName, slug: `/category/${product.categorySlug}`, isLink: true });
-
-    let currentCategoryId: number | null | undefined = product.categoryId;
-    let categoryDetails: CategoryResponseDto | null = null;
-
-    // Fetch parent categories iteratively
-    // To avoid too many sequential calls, we can limit the depth or fetch all parents if API supports it
-    // For now, let's assume a reasonable depth and fetch one by one.
-    // We need to get the parentId from the product's category first.
-    try {
-      const currentCategory = await this.categoryService.getCategoryById(product.categoryId).toPromise() ?? null;
-
-      if (currentCategory && currentCategory.parentId) {
-        // Eğer bir üst kategorisi varsa, onu da çekelim
-        const parentCategory = await this.categoryService.getCategoryById(currentCategory.parentId).toPromise() ?? null;
-        if (parentCategory) {
-          crumbs.push({ name: parentCategory.name, slug: `/category/${parentCategory.slug}`, isLink: true });
+    if (product && product.categoryId) {
+      let categoryIdToFetch: number | undefined = product.categoryId;
+      while (categoryIdToFetch) {
+        try {
+          // Ensure categoryService and getCategoryById are correctly implemented and return expected CategoryResponseDto
+          const category: CategoryResponseDto | null = await this.categoryService.getCategoryById(categoryIdToFetch).toPromise() || null;
+          if (category && category.name && category.slug) {
+            // Add to the beginning of the array to maintain parent -> child order
+            categoryHierarchy.unshift({ name: category.name, slug: `/category/${category.slug}`, isLink: true });
+            categoryIdToFetch = category.parentId ?? undefined; // Move to the parent category, ensuring undefined if parentId is null
+          } else {
+            // If category data is incomplete or not found, stop ascending this path
+            categoryIdToFetch = undefined;
+          }
+        } catch (error) {
+          console.error('Error fetching parent category for breadcrumbs:', error);
+          categoryIdToFetch = undefined; // Stop on error
         }
       }
-      // Ürünün kendi kategorisi zaten product.categoryName ve product.categorySlug ile eklenmişti.
-      // Bu yüzden burada tekrar eklemeye gerek yok, yukarıdaki push yeterli.
-      // Eğer product nesnesinde parentId ve parentSlug gibi bilgiler olsaydı, daha az API çağrısı yapabilirdik.
-      // Mevcut yapıda, ürünün kategorisinin parentId'sini almak için ilk bir çağrı, sonra parent'ı almak için ikinci bir çağrı yapılıyor.
-
-    } catch (error) {
-      console.error('Error building breadcrumbs:', error);
     }
 
-    // Add "Products" as the root link
-    crumbs.push({ name: 'Products', slug: '/products', isLink: true });
-    this.breadcrumbs.set(crumbs.reverse()); // Products > Parent (varsa) > Current Category > Product Name
+    if (categoryHierarchy.length > 0) {
+      finalCrumbs.push(...categoryHierarchy);
+    } else {
+      // If no category hierarchy could be built (e.g., product has no category, or fetching failed),
+      // provide a default starting point. The screenshot implies "Products" is the start.
+      // Assuming '/products' is the slug for a general products listing page.
+      finalCrumbs.push({ name: 'Tüm Ürünler', slug: '/products', isLink: true });
+    }
+
+    // Add current product name (not a link) at the very end
+    finalCrumbs.push({ name: productName, slug: null, isLink: false });
+
+    this.breadcrumbs.set(finalCrumbs);
   }
 }

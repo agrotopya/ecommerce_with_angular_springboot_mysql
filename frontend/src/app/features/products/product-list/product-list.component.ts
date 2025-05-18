@@ -34,11 +34,16 @@ export class ProductListComponent implements OnInit {
   currentSort = signal('name,asc'); // Varsayılan sıralama
   currentSearchTerm = signal('');
   currentCategoryId = signal<number | undefined>(undefined);
+  currentMinPrice = signal<number | undefined>(undefined);
+  currentMaxPrice = signal<number | undefined>(undefined);
 
   // Kategori filtresi, arama terimi vb. için ngModel değişkenleri
   searchTerm: string = '';
   selectedCategoryId: string = ''; // Kategori ID'si string olarak alınıp number'a çevrilecek
   selectedSort: string = 'name,asc'; // Sıralama için ngModel
+  minPriceInput: string = '';
+  maxPriceInput: string = '';
+  priceErrorMessage: string | null = null;
 
   categories = signal<CategoryResponseDto[]>([]); // Kategori listesi için sinyal
   isLoadingCategories = signal(false); // Kategori yükleme durumu
@@ -62,6 +67,12 @@ export class ProductListComponent implements OnInit {
       this.currentSearchTerm.set(this.searchTerm);
       this.selectedCategoryId = params['categoryId'] || '';
       this.currentCategoryId.set(this.selectedCategoryId ? +this.selectedCategoryId : undefined);
+
+      this.minPriceInput = params['minPrice'] || '';
+      this.currentMinPrice.set(this.minPriceInput ? +this.minPriceInput : undefined);
+      this.maxPriceInput = params['maxPrice'] || '';
+      this.currentMaxPrice.set(this.maxPriceInput ? +this.maxPriceInput : undefined);
+      this.validatePriceInputs();
 
       this.loadProducts();
       this.loadCategories(); // Kategorileri yükle
@@ -94,6 +105,16 @@ export class ProductListComponent implements OnInit {
     const categoryId = this.currentCategoryId();
     if (categoryId != null) { // undefined veya null kontrolü
       params = params.set('categoryId', categoryId.toString());
+    }
+
+    const minPrice = this.currentMinPrice();
+    if (minPrice != null) {
+      params = params.set('minPrice', minPrice.toString());
+    }
+
+    const maxPrice = this.currentMaxPrice();
+    if (maxPrice != null) {
+      params = params.set('maxPrice', maxPrice.toString());
     }
 
     const searchTerm = this.currentSearchTerm();
@@ -139,6 +160,67 @@ export class ProductListComponent implements OnInit {
     this.updateUrlAndLoadProducts();
   }
 
+  onPriceInputChange(type: 'min' | 'max'): void {
+    this.priceErrorMessage = null;
+    const min = parseFloat(this.minPriceInput);
+    const max = parseFloat(this.maxPriceInput);
+
+    if (this.minPriceInput && this.maxPriceInput) {
+      if (!isNaN(min) && !isNaN(max) && min > max) {
+        if (type === 'min') {
+          this.priceErrorMessage = 'Min price cannot be greater than max price.';
+        } else {
+          // Eğer kullanıcı max fiyatı min fiyattan düşük girerse, bir anlığına min'i max yapabiliriz
+          // ya da sadece hata mesajı gösterebiliriz. Şimdilik hata mesajı ile devam edelim.
+          this.priceErrorMessage = 'Max price cannot be less than min price.';
+        }
+      } else {
+        this.validatePriceInputs(false); // Sadece geçerlilik kontrolü yap, updateUrl değil
+      }
+    }
+  }
+
+  applyPriceFilter(): void {
+    if (this.validatePriceInputs()) {
+        this.currentPage.set(0);
+        this.currentMinPrice.set(this.minPriceInput ? +this.minPriceInput : undefined);
+        this.currentMaxPrice.set(this.maxPriceInput ? +this.maxPriceInput : undefined);
+        this.updateUrlAndLoadProducts();
+    }
+  }
+
+  private validatePriceInputs(triggerUpdate: boolean = true): boolean {
+    this.priceErrorMessage = null;
+    const min = parseFloat(this.minPriceInput);
+    const max = parseFloat(this.maxPriceInput);
+
+    if (this.minPriceInput && isNaN(min)) {
+        this.priceErrorMessage = 'Min price must be a valid number.';
+        return false;
+    }
+    if (this.maxPriceInput && isNaN(max)) {
+        this.priceErrorMessage = 'Max price must be a valid number.';
+        return false;
+    }
+
+    if (!isNaN(min) && min < 0) {
+        this.priceErrorMessage = 'Min price cannot be negative.';
+        return false;
+    }
+    if (!isNaN(max) && max < 0) {
+        this.priceErrorMessage = 'Max price cannot be negative.';
+        return false;
+    }
+
+    if (this.minPriceInput && this.maxPriceInput) {
+        if (!isNaN(min) && !isNaN(max) && min > max) {
+            this.priceErrorMessage = 'Min price cannot be greater than max price.';
+            return false;
+        }
+    }
+    return true;
+  }
+
   private updateUrlAndLoadProducts(): void {
     this.router.navigate([], {
       relativeTo: this.route,
@@ -147,7 +229,9 @@ export class ProductListComponent implements OnInit {
         size: this.pageSize(),
         sort: this.currentSort(),
         search: this.currentSearchTerm() || null, // Boşsa null yap
-        categoryId: this.currentCategoryId() ?? null // Undefined ise null yap
+        categoryId: this.currentCategoryId() ?? null, // Undefined ise null yap
+        minPrice: this.currentMinPrice() ?? null,
+        maxPrice: this.currentMaxPrice() ?? null
       },
       queryParamsHandling: 'merge', // Mevcut query params'ları koru/birleştir
       replaceUrl: true // Tarayıcı geçmişinde yığılma yapma

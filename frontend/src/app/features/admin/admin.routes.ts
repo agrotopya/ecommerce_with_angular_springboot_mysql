@@ -3,7 +3,7 @@ import { Routes } from '@angular/router';
 import { AdminDashboardComponent } from './dashboard/admin-dashboard.component';
 import { UserManagementComponent } from './user-management/user-management.component';
 // Yeni oluşturulan kategori yönetimi component'lerini import et
-import { CategoryListComponent } from './category-management/category-list/category-list.component';
+import { AdminCategoryListComponent } from './category-management/category-list/category-list.component';
 import { CategoryFormComponent } from './category-management/category-form/category-form.component';
 
 export const ADMIN_ROUTES: Routes = [
@@ -71,7 +71,7 @@ export const ADMIN_ROUTES: Routes = [
   {
     path: 'categories',
     children: [
-      { path: '', component: CategoryListComponent, title: 'Category Management | Admin' },
+      { path: '', component: AdminCategoryListComponent, title: 'Category Management | Admin' },
       { path: 'new', component: CategoryFormComponent, title: 'Add New Category | Admin' },
       { path: 'edit/:categoryId', component: CategoryFormComponent, title: 'Edit Category | Admin' }
     ]

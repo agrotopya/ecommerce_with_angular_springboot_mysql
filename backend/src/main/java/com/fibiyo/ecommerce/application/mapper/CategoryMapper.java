@@ -17,6 +17,7 @@ public interface CategoryMapper {
     // Category -> CategoryResponse
     @Mapping(source = "parentCategory.id", target = "parentCategoryId")
     @Mapping(source = "parentCategory.name", target = "parentCategoryName") // Üst kategori adını map'le
+    @Mapping(target = "childrenCount", expression = "java(category.getSubCategories() != null ? category.getSubCategories().size() : 0)") // Alt kategori sayısını map'le
     CategoryResponse toCategoryResponse(Category category);
 
     List<CategoryResponse> toCategoryResponseList(List<Category> categories);

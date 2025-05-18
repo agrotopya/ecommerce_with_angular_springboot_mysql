@@ -1,75 +1,83 @@
 // src/app/features/auth/login/login.component.scss
 .login-container {
-  max-width: 400px;
+  max-width: 450px;
   margin: 50px auto;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  border: 1px solid var(--border-color, #ccc);
+  border-radius: var(--card-border-radius, 12px);
+  box-shadow: var(--card-shadow, 0 4px 12px rgba(0, 0, 0, 0.08));
+  background-color: var(--surface-color, var(--white));
 
   h2 {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+    font-size: var(--font-size-h2, 2rem);
+    font-weight: var(--font-weight-bold, 700);
   }
 
   form div {
-    margin-bottom: 15px;
+    margin-bottom: 1.25rem;
   }
 
   label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 0.5rem;
+    font-weight: var(--font-weight-semibold, 600);
+    color: var(--text-color-secondary);
+    font-size: 0.9rem;
   }
 
-  input[type='text'],
-  input[type='password'] {
-    width: calc(100% - 22px); // Göz önünde bulundurarak padding ve border
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
+  // input[type='text'],
+  // input[type='password'] {
+  //   width: calc(100% - 22px); // KALDIRILDI - Global stiller kullanılacak
+  //   padding: 10px; // KALDIRILDI - Global stiller kullanılacak
+  //   border: 1px solid #ddd; // KALDIRILDI - Global stiller kullanılacak
+  //   border-radius: 4px; // KALDIRILDI - Global stiller kullanılacak
+  // }
 
-  button[type='submit'] {
-    width: 100%;
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
+  // button[type='submit'] {
+  //   width: 100%; // KALDIRILDI - Global stiller ve HTML class'ları kullanılacak (.w-100)
+  //   padding: 10px; // KALDIRILDI - Global stiller kullanılacak
+  //   background-color: #007bff; // KALDIRILDI - Global stiller kullanılacak
+  //   color: white; // KALDIRILDI - Global stiller kullanılacak
+  //   border: none; // KALDIRILDI - Global stiller kullanılacak
+  //   border-radius: 4px; // KALDIRILDI - Global stiller kullanılacak
+  //   cursor: pointer; // KALDIRILDI - Global stiller kullanılacak
+  //   font-size: 16px; // KALDIRILDI - Global stiller kullanılacak
+  //
+  //   &:disabled {
+  //     background-color: #ccc; // KALDIRILDI - Global stiller kullanılacak
+  //     cursor: not-allowed; // KALDIRILDI - Global stiller kullanılacak
+  //   }
+  // }
 
-    &:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
-    }
-  }
-
-  .error-message {
-    color: red;
-    font-size: 0.9em;
-    margin-top: 5px;
-  }
+  // .error-message {
+  //   color: red; // KALDIRILDI - Global stiller kullanılacak
+  //   font-size: 0.9em; // KALDIRILDI - Global stiller kullanılacak
+  //   margin-top: 5px; // KALDIRILDI - Global stiller kullanılacak
+  // }
+  // Not: Global .error-message stili zaten styles.scss içinde mevcut.
 
   .global-error {
-    margin-top: 15px;
-    padding: 10px;
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-    border-radius: 4px;
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: rgba(var(--error-color-rgb, 220, 53, 69), 0.1);
+    border: 1px solid rgba(var(--error-color-rgb, 220, 53, 69), 0.3);
+    color: var(--error-color, #721c24);
+    border-radius: var(--border-radius, 8px);
     text-align: center;
+    font-size: 0.9rem;
   }
 
   p {
     text-align: center;
-    margin-top: 20px;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--text-color-secondary);
     a {
-      color: #007bff;
-      text-decoration: none;
-      &:hover {
-        text-decoration: underline;
-      }
+      font-weight: var(--font-weight-semibold, 600);
+      // Renk ve diğer stiller global <a> tanımından miras alınacak
     }
   }
 }

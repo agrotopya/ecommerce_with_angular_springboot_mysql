@@ -1,4 +1,103 @@
 <!-- src/app/layout/footer/footer.component.html -->
 <footer>
-  <p>© {{ currentYear }} E-Commerce Platform. All rights reserved.</p>
+  <div class="footer-container">
+    <div class="footer-top">
+      <div class="footer-section logo-section">
+        <h3 class="footer-logo">fibiyo</h3>
+        <p class="footer-slogan">Alışverişin yeni heyecanı</p>
+        <div class="social-links">
+          <a href="#" aria-label="Facebook" title="Facebook">
+            <span class="material-icons">facebook</span>
+          </a>
+          <a href="#" aria-label="Instagram" title="Instagram">
+            <span class="material-icons">photo_camera</span>
+          </a>
+          <a href="#" aria-label="Twitter" title="Twitter">
+            <span class="material-icons">speaker_notes</span>
+          </a>
+          <a href="#" aria-label="YouTube" title="YouTube">
+            <span class="material-icons">play_circle_filled</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-section links-section">
+        <h4>Fibiyo Hakkında</h4>
+        <ul>
+          <li><a href="#">Hakkımızda</a></li>
+          <li><a href="#">Kariyer</a></li>
+          <li><a href="#">İletişim</a></li>
+          <li><a href="#">Basında Biz</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-section links-section">
+        <h4>Yardım</h4>
+        <ul>
+          <li><a href="#">Sık Sorulan Sorular</a></li>
+          <li><a href="#">Kargo ve Teslimat</a></li>
+          <li><a href="#">İade ve Değişim</a></li>
+          <li><a href="#">Müşteri Hizmetleri</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-section links-section">
+        <h4>Kullanıcı İşlemleri</h4>
+        <ul>
+          <li><a routerLink="/auth/login">Giriş Yap</a></li>
+          <li><a routerLink="/auth/register">Kayıt Ol</a></li>
+          <li><a routerLink="/auth/forgot-password">Şifremi Unuttum</a></li>
+          <li><a routerLink="/profile/orders">Siparişlerim</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-section newsletter-section">
+        <h4>Bülten</h4>
+        <p>En yeni ürünlerden ve kampanyalardan haberdar olmak için bültenimize abone olun.</p>
+        <div class="newsletter-form">
+          <input type="email" placeholder="E-posta adresiniz" aria-label="E-posta adresi">
+          <button type="button" class="btn btn-primary">Abone Ol</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-middle">
+      <div class="payment-methods">
+        <h4>Ödeme Yöntemleri</h4>
+        <div class="payment-icons">
+          <span class="payment-icon" title="Kredi Kartı">
+            <span class="material-icons">credit_card</span>
+          </span>
+          <span class="payment-icon" title="Banka Havalesi">
+            <span class="material-icons">account_balance</span>
+          </span>
+          <span class="payment-icon" title="Kapıda Ödeme">
+            <span class="material-icons">home</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="shipping-methods">
+        <h4>Kargo Firmaları</h4>
+        <div class="shipping-icons">
+          <span class="shipping-icon" title="Hızlı Teslimat">
+            <span class="material-icons">local_shipping</span>
+          </span>
+          <span class="shipping-icon" title="Ücretsiz Kargo">
+            <span class="material-icons">card_giftcard</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="legal-links">
+        <a href="#">Kullanım Koşulları</a>
+        <a href="#">Gizlilik Politikası</a>
+        <a href="#">Çerez Politikası</a>
+        <a href="#">KVKK</a>
+      </div>
+      <p class="copyright">© {{ currentYear }} Fibiyo E-Commerce. Tüm hakları saklıdır.</p>
+    </div>
+  </div>
 </footer>

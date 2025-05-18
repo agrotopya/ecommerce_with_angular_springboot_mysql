@@ -1,22 +1,78 @@
 <!-- src/app/layout/admin-layout/admin-layout.component.html -->
 <div class="admin-layout-container">
-  <!-- İleride Admin Header eklenecek -->
-  <div style="background-color: #333; color: white; padding: 1rem; text-align: center;">
-    ADMIN PANEL HEADER PLACEHOLDER
-  </div>
+  <!-- Admin Panel Header -->
+  <header class="admin-header">
+    <div class="header-left">
+      <a routerLink="/" class="logo-link">
+        <span class="logo">fibiyo</span>
+      </a>
+      <span class="separator">|</span>
+      <h1 class="admin-title">Yönetici Paneli</h1>
+    </div>
+    <div class="header-right">
+      <button class="menu-toggle" (click)="toggleSidebar()" aria-label="Toggle Menu">
+        <span class="material-icons">menu</span>
+      </button>
+      <a routerLink="/" class="btn btn-outline-light" title="Mağazaya Dön">
+        <span class="material-icons md-18 mr-1">storefront</span>
+        <span class="btn-text">Mağazaya Dön</span>
+      </a>
+    </div>
+  </header>
 
   <div class="admin-main-content">
-    <!-- Geçici Admin Sidebar -->
-    <nav class="admin-temp-sidebar">
-      <ul>
-        <li><a routerLink="/admin/dashboard" routerLinkActive="active-link">Dashboard</a></li>
-        <li><a routerLink="/admin/user-management" routerLinkActive="active-link">User Management</a></li>
-        <li><a routerLink="/admin/product-management" routerLinkActive="active-link">Product Management</a></li>
-        <li><a routerLink="/admin/orders" routerLinkActive="active-link">Order Management</a></li>
-        <li><a routerLink="/admin/coupon-management" routerLinkActive="active-link">Coupon Management</a></li>
-        <li><a routerLink="/admin/feel-management" routerLinkActive="active-link">Feel Management</a></li>
-        <li><a routerLink="/admin/review-management" routerLinkActive="active-link">Review Management</a></li>
-        <!-- Diğer admin linkleri buraya eklenebilir -->
+    <!-- Admin Sidebar -->
+    <nav class="admin-sidebar" [class.collapsed]="isSidebarCollapsed()">
+      <ul class="nav-menu">
+        <li>
+          <a routerLink="/admin/dashboard" routerLinkActive="active-link">
+            <span class="material-icons">dashboard</span>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/user-management" routerLinkActive="active-link">
+            <span class="material-icons">people</span>
+            <span class="nav-text">Kullanıcı Yönetimi</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/product-management" routerLinkActive="active-link">
+            <span class="material-icons">inventory_2</span>
+            <span class="nav-text">Ürün Yönetimi</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/orders" routerLinkActive="active-link">
+            <span class="material-icons">shopping_bag</span>
+            <span class="nav-text">Sipariş Yönetimi</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/coupon-management" routerLinkActive="active-link">
+            <span class="material-icons">local_offer</span>
+            <span class="nav-text">Kupon Yönetimi</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/feel-management" routerLinkActive="active-link">
+            <span class="material-icons">play_circle</span>
+            <span class="nav-text">Feel Yönetimi</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/review-management" routerLinkActive="active-link">
+            <span class="material-icons">rate_review</span>
+            <span class="nav-text">Yorum Yönetimi</span>
+          </a>
+        </li>
+        <li class="nav-divider"></li>
+        <li>
+          <a routerLink="/admin/settings" routerLinkActive="active-link">
+            <span class="material-icons">settings</span>
+            <span class="nav-text">Ayarlar</span>
+          </a>
+        </li>
       </ul>
     </nav>
 
@@ -24,6 +80,6 @@
       <router-outlet></router-outlet>
     </div>
   </div>
-  <!-- İleride Admin Footer eklenebilir -->
-  <app-notification-container></app-notification-container> <!-- Eklendi -->
+
+  <app-notification-container></app-notification-container>
 </div>

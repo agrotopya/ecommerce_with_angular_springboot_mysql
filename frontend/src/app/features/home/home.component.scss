@@ -6,13 +6,14 @@
 
 // Hero Section
 .hero-section {
-  background-color: var(--bright-green);
-  color: var(--white);
-  padding: 1rem var(--container-padding, 15px); // Üst ve alt padding azaltıldı
-  // border-radius: var(--border-radius); // Tam genişlikte bu kaldırılabilir veya bırakılabilir
-  margin-bottom: 2rem;
-  position: relative; // Navigasyon ve dot'lar için
-  overflow: hidden; // Slide'ların taşmasını engellemek için
+  background-color: var(--primary-color-lighter); // Ana renk paletimizden daha açık bir ton
+  color: var(--text-color-inverse, var(--white)); // Arkaplana göre metin rengi (beyaz veya koyu tema için koyu)
+  padding: 2rem var(--container-padding, 20px); // Üst/alt padding artırıldı, yanlar global
+  margin-bottom: 3rem; // Diğer bölümlerle aradaki boşluk
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--card-border-radius, 12px); // Genel bir border-radius
+  box-shadow: var(--card-shadow, 0 4px 12px rgba(0, 0, 0, 0.08)); // Hafif bir gölge
 
   .hero-carousel-wrapper {
     width: 100%;
@@ -22,93 +23,128 @@
 
   .hero-carousel-slides {
     display: flex;
-    transition: transform 0.5s ease-in-out;
+    transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1); // Daha yumuşak bir geçiş
   }
 
   .hero-carousel-slide {
     min-width: 100%;
     box-sizing: border-box;
     display: flex;
-    align-items: center;
-    justify-content: center; // İçeriği ortala (görsel ve bilgi)
-    gap: 2rem;
-    padding: 2rem 4rem; // Slide içi padding, navigasyon okları için daha fazla yer
+    flex-direction: column; // Mobil için daha iyi, desktop'ta row'a çevrilebilir
+    align-items: center; // Mobil için
+    justify-content: center;
+    gap: 1.5rem; // İçerik arası boşluk
+    padding: 2rem 1rem; // Slide içi padding azaltıldı, mobil öncelikli
+
+    @media (min-width: 768px) { // Tablet ve üzeri
+      flex-direction: row;
+      padding: 3rem 4rem; // Desktop için padding
+      gap: 3rem;
+      align-items: center;
+      justify-content: space-between;
+    }
 
     .hero-slide-image-container {
-      flex: 0 0 auto;
-      max-width: 40%;
-      width: 40%; // Genişliği de set edelim
-      position: relative; // NgOptimizedImage fill modu için gerekli
-      // aspect-ratio: 16 / 9; // Veya istediğiniz bir en-boy oranı
-      height: 350px; // Sabit bir yükseklik verelim, veya aspect-ratio kullanalım
+      flex: 1 1 auto; // Esnek büyüme
+      max-width: 100%; // Mobil için tam genişlik
+      width: 100%;
+      position: relative;
+      aspect-ratio: 1 / 1; // YENİ EN-BOY ORANI (KARE)
+      // height: auto; // aspect-ratio ile yükseklik otomatik olacak
+      border-radius: var(--image-border-radius, 8px);
+      overflow: hidden; // Görselin taşmasını engelle
+
+      @media (min-width: 768px) {
+        max-width: 45%; // Desktop'ta %45
+        width: 45%;
+      }
 
       img.hero-slide-image {
-        // fill modu kullanıldığında width ve height %100 olur, object-fit ile sığdırılır
-        object-fit: contain; // veya 'cover', tasarıma göre
-        border-radius: var(--border-radius);
+        object-fit: cover; // Görseli tam kaplayacak şekilde
+        border-radius: var(--border-radius); // Konteynerin border-radius'unu alsın
       }
       .image-placeholder-hero {
         width: 100%;
-        min-height: 300px; // Görselle benzer yükseklik
+        height: 100%; // Konteyner yüksekliğini tam alsın
         background-color: rgba(0,0,0,0.1);
         display: flex;
         align-items: center;
         justify-content: center;
         border-radius: var(--border-radius);
         span {
-          color: var(--white);
-          opacity: 0.7;
+          color: var(--text-color-muted, var(--medium-gray)); // Placeholder metin rengi
+          font-style: italic;
         }
       }
     }
 
     .hero-product-info {
-      flex: 1 1 auto; // Kalan alanı alsın
-      max-width: 55%; // Genişliğin %55'ini alsın
-      text-align: left;
+      flex: 1 1 auto; // Esnek büyüme
+      max-width: 100%; // Mobil için tam genişlik
+      text-align: center; // Mobil için
+      display: flex;
+      flex-direction: column;
+      align-items: center; // Mobil için
+
+      @media (min-width: 768px) {
+        max-width: 50%; // Desktop'ta %50
+        text-align: left;
+        align-items: flex-start;
+      }
 
       .hero-title {
-        font-size: 2.5rem; // Daha kompakt
-        font-weight: 800;
-        color: var(--white);
-        margin-bottom: 0.5rem;
-        line-height: 1.1;
+        font-size: var(--font-size-h2, 2rem); // Global h2 boyutu
+        font-weight: var(--font-weight-bold, 700);
+        color: var(--text-color-inverse, var(--white)); // Arkaplana göre renk
+        margin-bottom: 0.75rem;
+        line-height: 1.2;
       }
 
       .hero-price {
-        font-size: 1.8rem; // Daha kompakt
-        font-weight: 700;
-        color: var(--white);
-        margin-bottom: 1.25rem;
+        font-size: var(--font-size-h3, 1.75rem); // Global h3 boyutu
+        font-weight: var(--font-weight-semibold, 600);
+        color: var(--accent-color, var(--vibrant-orange)); // Vurgu rengi
+        margin-bottom: 1.5rem;
       }
 
       .hero-actions {
         display: flex;
-        gap: 0.75rem; // Buton arası boşluk azaltıldı
-        justify-content: flex-start;
+        flex-wrap: wrap; // Butonlar sığmazsa alta atsın
+        gap: 0.75rem;
+        justify-content: center; // Mobil için
+
+        @media (min-width: 768px) {
+          justify-content: flex-start;
+        }
 
         .btn {
-          padding: 0.7rem 1.5rem; // Buton padding'i biraz azaltıldı
-          font-size: 0.9rem; // Buton yazı boyutu biraz azaltıldı
-          text-transform: none;
-          border-radius: 25px;
-          font-weight: 600; // Biraz inceltildi
-          color: var(--white);
-          border: none;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          // Global .btn stillerini miras alacak, burada sadece özelleştirmeler
+          // padding: var(--button-padding-y, 0.75rem) var(--button-padding-x, 1.5rem);
+          // font-size: var(--button-font-size, 0.95rem);
+          // border-radius: var(--button-border-radius-pill, 25px); // Hap şeklinde buton
+          // text-transform: none;
+          // font-weight: var(--font-weight-semibold, 600);
+          // box-shadow: var(--button-shadow, 0 2px 4px rgba(0,0,0,0.1));
+          // transition: var(--transition-short, all 0.2s ease-in-out);
+
+          // Aşağıdaki stiller zaten global .btn, .btn-primary vb. tanımlarından gelmeli.
+          // Burada spesifik renkleri ayarlamak gerekirse:
         }
-        .btn-add-to-cart {
-          background-color: var(--deep-purple);
-          &:hover { background-color: var(--deep-purple-darker); }
+        .btn-add-to-cart { // Bu zaten .btn-primary olmalı
+          // background-color: var(--primary-color);
+          // color: var(--button-text-color-primary, var(--white));
+          // &:hover { background-color: var(--primary-color-darker); }
         }
-        .btn-bestsellers {
-          background-color: var(--vibrant-orange);
-          &:hover { background-color: var(--vibrant-orange-darker); }
+        .btn-bestsellers { // Bu .btn-secondary veya .btn-accent olabilir
+          // background-color: var(--secondary-color);
+          // color: var(--button-text-color-secondary, var(--white));
+          // &:hover { background-color: var(--secondary-color-darker); }
         }
-        .btn-flash-deals {
-          background-color: rgba(255, 255, 255, 0.9);
-          color: var(--vibrant-orange);
-          &:hover { background-color: #f2e2d8; }
+        .btn-flash-deals { // Bu .btn-outline-primary veya farklı bir stil olabilir
+          // background-color: transparent;
+          // color: var(--primary-color);
+          // border: 1px solid var(--primary-color);
+          // &:hover { background-color: var(--primary-color); color: var(--button-text-color-primary, var(--white)); }
         }
       }
     }
@@ -118,60 +154,60 @@
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background-color: rgba(var(--deep-purple-rgb, 62, 30, 104), 0.4); // Biraz daha saydam
-    color: var(--white);
+    background-color: rgba(var(--text-color-inverse-rgb, 255, 255, 255), 0.2); // Arkaplana göre opaklık
+    color: var(--text-color-inverse, var(--white));
     border: none;
     border-radius: 50%;
-    width: 45px; // Biraz büyütüldü
-    height: 45px; // Biraz büyütüldü
-    font-size: 1.8rem; // İkon büyütüldü
+    width: 40px; // Biraz küçültüldü
+    height: 40px; // Biraz küçültüldü
+    font-size: 1.5rem; // İkon küçültüldü
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, transform 0.2s ease;
     z-index: 10;
 
     &:hover {
-      background-color: rgba(var(--deep-purple-rgb, 62, 30, 104), 0.7);
+      background-color: rgba(var(--text-color-inverse-rgb, 255, 255, 255), 0.4);
+      transform: translateY(-50%) scale(1.05);
     }
 
     &.prev {
-      left: 15px; // Kenara biraz daha yakın
+      left: 10px; // Kenara biraz daha yakın
     }
     &.next {
-      right: 15px; // Kenara biraz daha yakın
+      right: 10px; // Kenara biraz daha yakın
     }
   }
 
   .carousel-dots {
     position: absolute;
-    bottom: 15px; // Biraz yukarı alındı
+    bottom: 20px; // Biraz yukarı alındı
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 10px; // Noktalar arası boşluk artırıldı
+    gap: 8px; // Noktalar arası boşluk
     z-index: 10;
 
     .dot {
-      width: 10px; // Biraz küçültüldü
-      height: 10px; // Biraz küçültüldü
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
-      background-color: rgba(var(--white-rgb, 255, 255, 255), 0.4); // Daha saydam
-      border: 1px solid rgba(var(--deep-purple-rgb, 62, 30, 104), 0.3); // Hafif kenarlık
+      background-color: rgba(var(--text-color-inverse-rgb, 255, 255, 255), 0.3); // Arkaplana göre opaklık
+      border: none; // Kenarlık kaldırıldı
       padding: 0;
       cursor: pointer;
       transition: background-color 0.3s ease, transform 0.2s ease;
 
       &:hover {
-        background-color: rgba(var(--white-rgb, 255, 255, 255), 0.7);
+        background-color: rgba(var(--text-color-inverse-rgb, 255, 255, 255), 0.6);
         transform: scale(1.1);
       }
 
       &.active {
-        background-color: var(--white);
+        background-color: var(--text-color-inverse, var(--white));
         transform: scale(1.2);
-        border-color: var(--white);
       }
     }
   }
@@ -184,87 +220,109 @@
 
 // Category Icons Section
 .category-icons-section {
-  margin-bottom: 2.5rem;
-  padding: 1.5rem 0;
+  margin-bottom: 3rem; // Boşluk artırıldı
+  padding: 2rem 0; // Üst/alt padding
+  // background-color: var(--background-color-soft, #f9f9f9); // Hafif bir arkaplan rengi
+  // border-top: 1px solid var(--border-color-light, #eee);
+  // border-bottom: 1px solid var(--border-color-light, #eee);
 
   .category-icon-grid {
-    display: flex;
-    flex-wrap: wrap; // Gerekirse alta sarsın
-    justify-content: center; // İkonları ortala
+    display: grid; // Flex yerine grid kullanımı daha düzenli olabilir
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); // Otomatik sığdırma
+    justify-content: center;
     gap: 1.5rem; // İkonlar arası boşluk
+
+    @media (min-width: 768px) {
+      gap: 2rem; // Desktop için boşluk artırıldı
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    }
 
     .category-icon-item {
       display: flex;
       flex-direction: column;
       align-items: center;
+      text-align: center; // Metni ortala
       text-decoration: none;
-      color: var(--text-color);
-      width: 100px; // Her bir ikonun genişliği
-      transition: transform 0.2s ease;
+      color: var(--text-color, #333);
+      padding: 1rem 0.5rem; // İç padding
+      border-radius: var(--card-border-radius, 12px);
+      transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, background-color 0.2s ease-out;
 
       &:hover {
-        transform: translateY(-5px); // Hafif yukarı kalkma efekti
-        .category-icon-name {
-          color: var(--vibrant-orange);
-        }
+        transform: translateY(-4px);
+        box-shadow: var(--card-shadow-hover, 0 6px 16px rgba(0, 0, 0, 0.1));
+        background-color: var(--white); // Hover'da beyaz arkaplan
+        color: var(--primary-color); // Hover'da birincil renk
       }
 
       .icon-wrapper {
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
+        width: 60px; // İkon konteyner boyutu
+        height: 60px;
+        // background-color: var(--primary-color-lightest, #eef0f6); // Hafif bir arkaplan
+        border-radius: 50%; // Yuvarlak ikon arkaplanı
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 0.5rem;
-        // Farklı arka plan renkleri için :nth-child kullanılabilir veya
-        // kategori verisinden bir renk kodu gelebilir.
-        // Şimdilik tek renk veya görseldeki gibi karışık.
-        // Örnek: Görselde turuncu, yeşil, sarı tonları var.
-        // Bu renkleri doğrudan atayabiliriz veya kategoriye göre dinamik yapabiliriz.
-        // Şimdilik genel bir stil:
-        background-color: var(--light-gray); // Placeholder arka plan
-        // Örnek renkler (görseldeki gibi)
-        &:nth-child(6n+1) { background-color: var(--vibrant-orange); }
-        &:nth-child(6n+2) { background-color: var(--bright-green); }
-        &:nth-child(6n+3) { background-color: var(--vibrant-orange); } // Avantajlı ürün
-        &:nth-child(6n+4) { background-color: var(--bright-green); } // İndirim kuponları
-        &:nth-child(6n+5) { background-color: var(--vibrant-orange); } // Kediler
-        &:nth-child(6n+6) { background-color: var(--soft-yellow); color: var(--deep-purple); } // Yeni gelenler
+        margin-bottom: 0.75rem; // İkon ile metin arası boşluk
+        // box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        overflow: hidden; // Taşan görselleri gizle
 
-        .category-icon-image {
-          width: 40px; // İkon görsel boyutu
-          height: 40px;
+        img.category-icon-image {
+          max-width: 80%; // İkonun wrapper içinde biraz boşluğu olsun
+          max-height: 80%;
           object-fit: contain;
-          // SVG ikonlar için fill: var(--white); veya var(--deep-purple)
         }
       }
 
       .category-icon-name {
-        font-size: 0.85rem;
-        font-weight: 500;
-        text-align: center;
-        color: var(--text-color-secondary);
+        font-size: var(--font-size-small, 0.875rem);
+        font-weight: var(--font-weight-medium, 500);
+        line-height: 1.3;
       }
     }
   }
 }
 
-// Product Section (Popüler Ürünler, Yeni Gelenler)
+// Product Sections (En Çok Satanlar, Yeni Gelenler)
 .product-section {
-  margin-bottom: 2.5rem;
+  margin-bottom: 3rem;
 
   .section-title {
-    font-size: 1.8rem;
-    color: var(--deep-purple);
-    margin-bottom: 1.5rem;
-    text-align: center; // Veya sola dayalı
+    font-size: var(--font-size-h2, 2rem); // Global h2
+    font-weight: var(--font-weight-bold, 700);
+    color: var(--text-color-headings, var(--primary-color)); // Başlık rengi
+    text-align: center;
+    margin-bottom: 2rem; // Başlık ile grid arası boşluk
+    position: relative;
+    padding-bottom: 0.5rem;
+
+    // Başlık altına çizgi efekti
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background-color: var(--secondary-color, var(--vibrant-orange)); // İkincil renk
+      border-radius: 2px;
+    }
   }
 
   .product-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); // Duyarlı grid
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); // Kart min genişliği
     gap: 1.5rem; // Kartlar arası boşluk
+
+    @media (min-width: 768px) { // Tablet
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 2rem;
+    }
+    @media (min-width: 1024px) { // Desktop
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    }
+    // app-product-card stilleri kendi bileşeninde yönetilecek
   }
 }
 
@@ -272,8 +330,8 @@
 .loading-indicator-page {
   text-align: center;
   padding: 2rem;
-  font-size: 1.2rem;
-  color: var(--primary-color);
+  font-size: var(--font-size-large, 1.25rem);
+  color: var(--text-color-muted, var(--medium-gray));
 }
 
 

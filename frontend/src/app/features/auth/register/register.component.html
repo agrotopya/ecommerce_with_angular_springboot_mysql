@@ -56,8 +56,12 @@
       </div>
     </div>
 
-    <button type="submit" [disabled]="registerForm.invalid || isLoading()">
-      {{ isLoading() ? 'Registering...' : 'Register' }}
+    <button type="submit" class="btn btn-primary w-100" [disabled]="registerForm.invalid || isLoading()">
+      <span *ngIf="isLoading(); else notLoadingText">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        Registering...
+      </span>
+      <ng-template #notLoadingText>Register</ng-template>
     </button>
   </form>
 

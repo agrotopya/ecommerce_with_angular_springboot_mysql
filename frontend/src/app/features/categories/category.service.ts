@@ -62,4 +62,9 @@ export class CategoryService {
     // Endpoint: /api/categories/{categoryId}/image
     return this.apiService.post<CategoryResponseDto>(CATEGORY_ENDPOINTS.UPLOAD_IMAGE(categoryId), formData);
   }
+
+  // Admin için tüm kategorileri sayfalama ve filtreleme ile getiren metod
+  getAllCategoriesForAdmin(params?: HttpParams): Observable<Page<CategoryResponseDto>> {
+    return this.apiService.get<Page<CategoryResponseDto>>(ADMIN_ENDPOINTS.ADMIN_CATEGORIES_ALL, params);
+  }
 }

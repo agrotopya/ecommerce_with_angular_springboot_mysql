@@ -10,11 +10,18 @@
   }
 
   .review-form-section {
-    background-color: var(--light-gray);
-    padding: 1.5rem;
-    border-radius: var(--border-radius);
-    margin-bottom: 2rem;
-    box-shadow: var(--box-shadow);
+    background-color: var(--surface-color, var(--white));
+    padding: 2rem;
+    border-radius: var(--card-border-radius, 12px);
+    margin-bottom: 2.5rem;
+    box-shadow: var(--card-shadow, 0 4px 12px rgba(0, 0, 0, 0.08));
+    border: 1px solid var(--border-color, #e0e0e0);
+
+    h4 {
+      font-size: var(--font-size-lg, 1.25rem);
+      font-weight: var(--font-weight-semibold, 600);
+      margin-bottom: 1.5rem;
+    }
 
     .form-group {
       margin-bottom: 1rem;
@@ -31,8 +38,40 @@
         // padding, border, border-radius global stillerden gelir.
       }
     }
-    .rating-group select {
-      max-width: 250px; // Rating select daha dar olabilir
+    .rating-group {
+      label:not(.star-rating-input label) {
+         display: block;
+         margin-bottom: 0.5rem;
+         font-weight: 600;
+         color: var(--text-color-secondary);
+      }
+    }
+
+    .star-rating-input {
+      display: inline-flex;
+      flex-direction: row-reverse;
+      justify-content: flex-end;
+      line-height: 1;
+
+      input[type="radio"] {
+        display: none;
+      }
+
+      label {
+        font-size: 2em;
+        color: var(--star-empty-color, var(--medium-gray));
+        cursor: pointer;
+        padding: 0 0.05em;
+        transition: color 0.2s ease-in-out;
+        margin-bottom: 0;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      input[type="radio"]:checked ~ label,
+      label:hover,
+      label:hover ~ label {
+        color: var(--star-filled-color, var(--secondary-color));
+      }
     }
 
     .btn-primary { /* Global .btn-primary stilini kullanır */
@@ -62,10 +101,14 @@
     }
 
     .review-item {
-      padding: 1rem 0;
-      border-bottom: 1px solid var(--border-color);
+      background-color: var(--surface-color-lighter, #f8f9fa); // Hafif bir arka plan
+      padding: 1.5rem;
+      border-radius: var(--border-radius-md, 8px); // Köşe yuvarlaklığı
+      margin-bottom: 1rem; // Yorumlar arası boşluk
+      border: 1px solid var(--border-color-light, #e9ecef);
+
       &:last-child {
-        border-bottom: none;
+        border-bottom: 1px solid var(--border-color-light, #e9ecef); // Son elemanın da kenarlığı olsun (veya none)
       }
 
       .review-header {
@@ -85,12 +128,13 @@
       }
 
       .review-rating {
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.75rem; // Boşluk ayarı
         .star {
           font-size: 1.2em;
-          color: var(--medium-gray); // Boş yıldız rengi
+          color: var(--star-empty-color, var(--medium-gray)); // Boş yıldız rengi
+          margin-right: 2px; // Yıldızlar arası hafif boşluk
           &.filled {
-            color: var(--vibrant-orange); // Dolu yıldız rengi (turuncu)
+            color: var(--star-filled-color, var(--secondary-color)); // Dolu yıldız rengi (mevcut yeşil)
           }
         }
       }
@@ -103,8 +147,47 @@
       }
     }
 
-    .pagination { // Global pagination stilini kullanır
-      margin-top: 1.5rem;
+    .pagination {
+      margin-top: 2rem; // Üst boşluk artırıldı
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem; // Butonlar arası boşluk
+
+      button {
+        // Global .btn stilini temel alabilir veya özel stil verilebilir
+        // Şimdilik PaginatorComponent için tanımlanan temel stilleri kullanalım
+        padding: var(--paginator-btn-padding, 0.5rem 0.85rem);
+        border: 1px solid var(--paginator-btn-border-color, var(--border-color));
+        background-color: var(--paginator-btn-bg, var(--white));
+        color: var(--paginator-btn-color, var(--primary-color));
+        border-radius: var(--paginator-btn-radius, var(--border-radius-sm));
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        font-weight: var(--font-weight-medium, 500);
+
+        &:hover:not(:disabled) {
+          background-color: var(--paginator-btn-hover-bg, var(--primary-color-lighter));
+          border-color: var(--paginator-btn-hover-border-color, var(--primary-color));
+          color: var(--paginator-btn-hover-color, var(--white));
+        }
+
+        &.active {
+          background-color: var(--paginator-btn-active-bg, var(--primary-color));
+          border-color: var(--paginator-btn-active-border-color, var(--primary-color));
+          color: var(--paginator-btn-active-color, var(--white));
+          font-weight: var(--font-weight-bold, 700);
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          background-color: var(--paginator-btn-disabled-bg, var(--light-gray));
+          border-color: var(--paginator-btn-disabled-border-color, var(--border-color-light));
+          color: var(--paginator-btn-disabled-color, var(--text-color-light));
+        }
+      }
+      // Sayfa numaraları arasındaki span için özel bir stil gerekirse buraya eklenebilir
     }
 
     p { // "Be the first to review" mesajı için

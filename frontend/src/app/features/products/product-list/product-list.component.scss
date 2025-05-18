@@ -5,43 +5,57 @@
   // .container ve .mt-4 Bootstrap'ten geliyor.
 }
 
-.filter-sidebar {
-  // Varsayılan olarak Bootstrap sütun yapısı kullanılacak.
-  // Gerekirse ek stiller buraya eklenebilir.
-  // Örneğin, küçük ekranlarda filtrelerin görünümü için.
-
-  h4 {
-    font-size: 1.2rem; // Bootstrap h4'ten biraz daha küçük
-    color: var(--text-color, #333); // Temel metin rengi
-    margin-bottom: 0.75rem;
+.filters-bar {
+  .filter-controls-wrapper {
+    background-color: var(--surface-color);
+    // padding, border, border-radius, shadow Bootstrap sınıflarından geliyor.
+    // Gerekirse burada override edilebilir.
   }
 
-  hr {
-    margin-top: 0.5rem;
-    margin-bottom: 1rem;
-    border-top: 1px solid var(--border-color, #dee2e6);
-  }
-
-  .filter-group {
-    margin-bottom: 1.5rem; // Filtre grupları arası boşluk
+  .filter-item {
+    // Her bir filtre öğesi (etiket + input grubu)
+    // Bootstrap .me-3 ve .mb-2/.mb-md-0 ile boşlukları ayarlanıyor.
 
     .form-label {
-      font-weight: 600;
-      margin-bottom: 0.35rem;
-      font-size: 0.9rem;
+      font-weight: 500; // Biraz daha ince etiket
+      font-size: 0.85rem;
+      color: var(--text-color-secondary);
+      // Bootstrap .me-2 ile input'tan ayrılıyor.
     }
 
-    .form-select-sm {
-      // Bootstrap .form-select-sm zaten padding ve font boyutu ayarlar.
-      // Gerekirse üzerine yazılabilir.
-      // Örneğin:
-      // padding: 0.5rem 0.75rem;
-      // font-size: 0.875rem;
+    .form-select-sm,
+    .form-control-sm {
+      font-size: 0.85rem;
+      padding-top: 0.35rem;
+      padding-bottom: 0.35rem;
+      // Bootstrap .w-auto veya style="width: ..." ile genişlik ayarlanıyor.
+      &:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.25);
+      }
+    }
+
+    &.price-filter-item {
+      .price-filter-inputs {
+        // d-inline-flex ile zaten yan yana
+        input[type="number"] {
+          // style="width: 80px;" HTML'den geliyor.
+          text-align: center;
+        }
+        span {
+          color: var(--text-color-placeholder); // Ayırıcı için daha soluk renk
+          font-size: 0.9rem;
+        }
+      }
+      .error-message {
+        // text-danger, small, mt-1, ms-2 Bootstrap'ten geliyor.
+        // Daha fazla özelleştirme gerekirse buraya.
+      }
     }
 
     .form-text {
-      font-size: 0.8rem;
-      color: var(--text-color-secondary, #6c757d);
+      // text-muted, small, ms-2 Bootstrap'ten geliyor.
+      // Kategori yükleniyor yazısı için.
     }
   }
 }

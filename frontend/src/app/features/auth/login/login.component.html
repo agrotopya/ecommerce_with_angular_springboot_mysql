@@ -24,8 +24,12 @@
       </div>
     </div>
 
-    <button type="submit" [disabled]="loginForm.invalid || isLoading()">
-      {{ isLoading() ? 'Logging in...' : 'Login' }}
+    <button type="submit" class="btn btn-primary w-100" [disabled]="loginForm.invalid || isLoading()">
+      <span *ngIf="isLoading(); else notLoadingText">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        Logging in...
+      </span>
+      <ng-template #notLoadingText>Login</ng-template>
     </button>
   </form>
   <div *ngIf="errorMessage()" class="error-message global-error">

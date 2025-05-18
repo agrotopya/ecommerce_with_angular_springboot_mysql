@@ -1,33 +1,46 @@
 // src/app/features/products/product-card/product-card.component.scss
 .product-card {
-  background-color: var(--white); // Beyaz arka plan
-  border: 1px solid var(--medium-gray); // Hafif kenarlık
-  border-radius: 16px; // Daha yuvarlak köşeler
+  background-color: var(--surface-color, var(--white));
+  border: 1px solid var(--border-color, var(--medium-gray));
+  border-radius: var(--card-border-radius, 16px); // Talimattaki gibi 16px
   overflow: hidden;
   transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08); // Daha yumuşak gölge
+  height: 100%; // Parent grid item'a göre tam yükseklik
+  box-shadow: var(--card-shadow, 0 4px 8px rgba(0, 0, 0, 0.08));
 
-  a {
-    text-decoration: none;
-    color: inherit;
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-  }
+  // Kartın kendisine tıklanabilirliği kaldırdık, içerideki linkler ve butonlar sorumlu olacak
+  // a {
+  //   text-decoration: none;
+  //   color: inherit;
+  //   display: flex;
+  //   flex-direction: column;
+  //   flex-grow: 1;
+  // }
 
   &:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12); // Hover'da daha belirgin gölge
+    transform: translateY(-6px); // Talimattaki gibi -6px
+    box-shadow: var(--card-shadow-hover, 0 10px 20px rgba(0, 0, 0, 0.12)); // Talimattaki gibi
   }
 
   .product-image-container {
     width: 100%;
     padding-top: 100%; // 1:1 aspect ratio (kare resim alanı)
     position: relative;
-    background-color: var(--light-gray);
+    background-color: var(--background-color-soft, var(--light-gray)); // Daha yumuşak bir placeholder arkaplanı
+    overflow: hidden; // Resmin container dışına taşmasını engelle
+
+    // Ürün resmine tıklandığında ürün detayına gitmesi için linki buraya taşıyabiliriz.
+    // HTML'de product-image-container etrafına <a> eklenecek.
+    a {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
 
     img {
       position: absolute;
@@ -36,15 +49,29 @@
       width: 100%;
       height: 100%;
       object-fit: contain; // Resmin tamamını göster, kırpma
-      // border-bottom: 1px solid var(--border-color); // Çizgi kaldırıldı
+      transition: transform 0.3s ease; // Hover için yumuşak geçiş
     }
+
+    &:hover img {
+        transform: scale(1.05); // Resme hover'da hafif zoom efekti
+    }
+
     .product-image-placeholder {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      color: var(--dark-gray);
+      color: var(--text-color-muted, var(--dark-gray));
       font-size: 0.9em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      .material-icons {
+        font-size: 48px;
+        margin-bottom: 0.5rem;
+      }
     }
   }
 
@@ -53,139 +80,113 @@
     text-align: left;
     display: flex;
     flex-direction: column;
-    flex-grow: 1;
+    flex-grow: 1; // Kalan alanı kapla
+    position: relative; // Wishlist butonu için
+
+    .product-name-link {
+        text-decoration: none;
+        color: inherit; // Varsayılan metin rengini al
+        &:hover .product-name {
+            color: var(--primary-color); // Hover'da ürün adı renk değiştirsin
+        }
+    }
 
     .product-name {
-      font-size: 1.05rem; // Çok büyütmeyelim, okunabilirlik önemli
-      font-weight: 600; // Biraz daha az kalın
+      font-size: var(--font-size-base, 1rem); // Global temel font boyutu
+      font-weight: var(--font-weight-semibold, 600);
       margin: 0 0 0.4rem 0;
-      color: var(--text-color);
+      color: var(--text-color-headings, var(--black)); // Başlık rengi
       line-height: 1.4;
       display: -webkit-box;
-      -webkit-line-clamp: 2;
+      -webkit-line-clamp: 2; // İki satırla sınırla
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
-      min-height: 2.8em; // İki satır için
+      min-height: calc(1.4em * 2); // İki satır için yükseklik (line-height * satır sayısı)
+      transition: color 0.2s ease-in-out;
     }
 
     .product-category {
-      font-size: 0.75rem;
-      color: var(--text-color-secondary);
+      font-size: var(--font-size-small, 0.8rem); // Daha küçük
+      color: var(--text-color-muted, var(--dark-gray));
       margin: 0 0 0.6rem 0;
       text-transform: uppercase;
-      font-weight: 500;
+      font-weight: var(--font-weight-medium, 500);
     }
 
     .product-price {
-      font-size: 1.4rem; // Fiyat daha belirgin
-      font-weight: 700;
-      color: var(--vibrant-orange); // Fiyat turuncu
-      margin: auto 0 1rem 0;
+      font-size: var(--font-size-large, 1.3rem); // Biraz daha büyük
+      font-weight: var(--font-weight-bold, 700);
+      color: var(--accent-color, var(--bright-green)); // Fiyat rengi (Yeşil)
+      margin: auto 0 1rem 0; // Alt boşluğu artır
     }
   }
 
-  .add-to-cart-btn {
-    width: calc(100% - 2.5rem); // Yan padding'e göre ayarla (1.25rem * 2)
-    margin: 0 1.25rem 1.25rem 1.25rem;
-    background-color: var(--bright-green); // Sepete ekle butonu yeşil
-    color: var(--white);
-    font-weight: 600;
-    padding: 0.7rem 1.5rem; // Global .btn padding'ini kullanabilir veya özelleştirebiliriz
-    border-radius: 20px; // Buton için yuvarlak köşe
-    text-transform: none; // Büyük harf olmasın
+  // .add-to-cart-btn HTML'de .btn .btn-accent .w-100 gibi sınıflar alacak
+  // Bu yüzden özel .add-to-cart-btn stili kaldırılıyor.
+  // Sadece product-actions içindeki yerleşimini yöneteceğiz.
 
-    &:hover {
-      background-color: var(--bright-green-darker);
-    }
-
-    &:disabled {
-      background-color: var(--medium-gray);
-      color: var(--dark-gray);
-      cursor: not-allowed;
-    }
-  }
-
-  // .product-actions product-card.component.html içinde eklendi, stilleri buraya
   .product-actions {
     display: flex;
-    gap: 0.5rem; // Butonlar arası boşluğu biraz azaltalım
-    padding: 0 1.25rem 1.25rem 1.25rem; // Sepete ekle butonuyla aynı hizada
-    align-items: center; // Dikey hizalama
+    gap: 0.75rem; // Butonlar arası boşluk
+    padding: 0 1.25rem 1.25rem 1.25rem;
+    align-items: center;
 
     .btn-add-to-cart {
       flex-grow: 1; // Sepete ekle butonu kalan alanı kaplasın
-      // Stilleri yukarıdaki .add-to-cart-btn'den alacak
+      // Stil HTML class'larından gelecek: örn. class="btn btn-accent w-100"
+      // İkon eklemek için: <span class="material-icons">shopping_cart</span> {{ text }}
+      .material-icons {
+        font-size: 1.125rem; // 18px
+        margin-right: 0.35rem;
+        vertical-align: text-bottom;
+      }
     }
 
     .btn-wishlist {
-      flex-shrink: 0; // Butonun küçülmesini engelle
-      // Reset potential conflicting base button styles
-      background: rgba(255, 255, 255, 0.8); // Hafif transparan beyaz arka plan
-      border: 1px solid var(--border-color-light); // Çok hafif bir kenarlık
-      padding: 0; // Padding'i sıfırlayıp ikon boyutuna göre ayarlayalım
-      min-width: auto; // Minimum genişliği sıfırla
-      line-height: 1; // Satır yüksekliğini ayarla
-      text-indent: -9999px; // Olası metin içeriğini gizle
-      overflow: hidden; // Taşmayı gizle
-      // --- End Reset ---
-      border-radius: 50%; // Tamamen yuvarlak
-      color: var(--text-color-secondary);
-      display: inline-flex; // İkonu ortalamak için flex
-      align-items: center; // Dikeyde ortala
-      justify-content: center; // İkonu yatayda ortala
+      flex-shrink: 0;
+      background: transparent; // Arkaplan şeffaf
+      border: none; // Kenarlık yok
+      padding: 0.5rem; // İkon etrafında padding
+      border-radius: 50%;
+      color: var(--text-color-muted, var(--dark-gray));
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       transition: all 0.2s ease-in-out;
       cursor: pointer;
-      width: 38px; // Sabit genişlik
-      height: 38px; // Sabit yükseklik
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      // width: 38px; // Sabit genişlik yerine padding ile ayarlansın
+      // height: 38px;
 
       .material-icons {
-        font-family: 'Material Icons'; // Font ailesini açıkça belirt
         font-size: 24px; // Material Icons için standart boyut
-        margin: 0; // İkon etrafındaki olası boşlukları kaldır
-        transition: transform 0.2s ease-in-out;
-        display: inline-block; // İkon gibi davranmasını sağla
-        text-indent: 0; // İkon için metin girintisini sıfırla
-        speak: none; // Ekran okuyucu için
-        font-style: normal;
-        font-weight: normal;
-        font-variant: normal;
-        text-transform: none;
-        line-height: 1; // İkonun dikeyde ortalanmasını sağla
-        -webkit-font-smoothing: antialiased; // Daha iyi render
-        -moz-osx-font-smoothing: grayscale;
+        transition: transform 0.2s ease-in-out, color 0.2s ease-in-out;
       }
 
       &:hover:not(:disabled) {
-        background-color: var(--light-gray-hover);
-        border-color: var(--medium-gray);
-        color: var(--primary-color); // Hover rengi
-        transform: scale(1.1); // Hafif büyüme efekti
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        background-color: var(--background-color-soft-hover, var(--light-gray));
+        color: var(--primary-color);
+        .material-icons {
+          transform: scale(1.1); // Hafif büyüme efekti
+        }
       }
 
       &.wishlisted {
-        color: var(--danger-color); // Beğenildiğinde ikon rengi
-        border-color: transparent; // Beğenildiğinde kenarlık olmasın
-        background-color: rgba(255, 224, 224, 0.9); // Hafif kırmızımsı arka plan
-
+        color: var(--danger-color, #dc3545); // Beğenildiğinde ikon rengi (kırmızı)
         .material-icons {
           // İkon dolgun görünebilir (zaten 'favorite' ikonu ile oluyor)
         }
-
         &:hover:not(:disabled) {
-          background-color: var(--danger-light-color); // Hover'da daha belirgin kırmızı
-          color: var(--white); // Hover'da ikon rengi beyaz
-          border-color: var(--danger-color); // Hover'da kenarlık
+          background-color: rgba(var(--error-color-rgb, 220, 53, 69), 0.1);
+          color: var(--danger-color-darker, #a71d2a);
         }
       }
 
       &:disabled {
         opacity: 0.6;
         cursor: not-allowed;
-        background-color: var(--light-gray);
-        border-color: var(--border-color-light);
+        color: var(--text-color-disabled, var(--medium-gray));
+        background-color: transparent;
       }
     }
   }

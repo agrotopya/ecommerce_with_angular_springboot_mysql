@@ -10,6 +10,7 @@ public class CategoryResponse {
     private String description;
     private String imageUrl;
     private boolean isActive;
+    private Integer childrenCount;
 
     private Long parentCategoryId;
     private String parentCategoryName;

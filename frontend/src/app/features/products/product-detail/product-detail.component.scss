@@ -12,18 +12,64 @@
   }
   .error-message { color: red; }
 
+  // Modern Breadcrumb Stilleri
+  .product-breadcrumb {
+    margin-bottom: 1.5rem; // Alt boşluk
+    padding: 0.5rem 0; // Üst-alt iç boşluk, yanlar 0
+    // border-bottom: 1px solid var(--border-color-light, #e0e0e0); // İsteğe bağlı alt çizgi
+
   .breadcrumb {
-    margin-bottom: 20px;
-    font-size: 0.9em;
-    color: #555;
+      padding: 0; // Bootstrap padding'ini sıfırla
+      margin: 0;
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap; // Küçük ekranlarda alt satıra kayabilir
+      align-items: center;
+      font-size: var(--font-size-sm, 0.9rem); // Global küçük font boyutu
+
+      .breadcrumb-item {
+        display: flex;
+        align-items: center;
+        list-style-type: none !important;
+
     a {
-      color: #007bff;
+          color: var(--primary-color); // Global birincil renk
       text-decoration: none;
-      &:hover { text-decoration: underline; }
+          transition: color 0.2s ease;
+
+          &:hover,
+          &:focus {
+            color: var(--primary-color-darker); // Hover için koyu ton
+            text-decoration: underline;
+          }
     }
-    span:last-child {
-      font-weight: bold;
-      color: #333;
+
+        span { // Link olmayan son eleman (aktif sayfa)
+          color: var(--text-color-secondary, var(--dark-gray));
+          font-weight: var(--font-weight-normal, 400);
+        }
+
+        // Ayırıcı stil (CSS ile oluşturulan >)
+        &::after {
+          content: '/'; // Ayırıcı karakter
+          margin: 0 0.6rem; // Ayırıcı etrafındaki boşluk
+          color: var(--text-color-placeholder, #aaa); // Ayırıcı rengi
+          // display: inline-block; // Gerekirse
+        }
+
+        // Son elemanın ayırıcısı olmamalı
+        &:last-child::after {
+          content: none;
+        }
+
+        // Aktif (son) eleman için özel stil (isteğe bağlı, zaten span ile farklılaşıyor)
+        &.active {
+          span {
+            color: var(--text-color, var(--dark-gray-700));
+            font-weight: var(--font-weight-semibold, 600);
+          }
+        }
+      }
     }
   }
 
@@ -133,15 +179,32 @@
   }
 
   .description {
-    margin-top: 2rem;
+    margin-top: 2.5rem; // Üst boşluk biraz daha fazla olabilir
+    padding: 1.5rem; // İç boşluk
+    background-color: var(--surface-color-lighter, #f8f9fa); // Hafif bir arka plan (Fibi AI bölümüyle benzer)
+    border-radius: var(--border-radius-md, 8px); // Köşe yuvarlaklığı
+    border: 1px solid var(--border-color-light, #e9ecef); // Hafif bir kenarlık
+
     h3 {
-      margin-bottom: 0.75rem;
-      font-size: 1.3rem;
-      color: var(--text-color);
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 0.5rem;
+      margin-top: 0; // h3'ün varsayılan üst margin'ini sıfırla
+      margin-bottom: 1rem; // Alt boşluk
+      font-size: var(--font-size-xl, 1.5rem); // Global başlık hiyerarşisine uygun bir boyut
+      color: var(--headings-color, var(--primary-color-darker)); // Global başlık rengi
+      border-bottom: none; // Mevcut alt çizgiyi kaldır
+      padding-bottom: 0; // Alt çizgi için olan padding'i kaldır
+      font-weight: var(--font-weight-semibold, 600);
       }
-    // Missing closing brace for .description added below
+
+    p {
+      font-size: var(--font-size-base, 1rem);
+      line-height: var(--line-height-base, 1.7);
+      color: var(--text-color-secondary-darker, #4a4a4a);
+      margin-bottom: 0; // Paragrafın sonundaki varsayılan boşluğu kaldır
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
     }
 
   .product-reviews-section {
@@ -176,3 +239,280 @@
 // Bu alt kısımdaki .price-section, .stock-status, .actions, .description blokları
 // .product-info kapsamı dışında kalmış ve muhtemelen birleştirme hatası.
 // Yukarıdaki .product-info içindeki tanımlar geçerli olmalı.
+
+.product-details-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+  @media (min-width: 992px) {
+    grid-template-columns: 0.8fr 1.2fr; // Sol taraf biraz daha dar, sağ taraf daha geniş
+  }
+}
+
+// Ürün Meta Bilgileri (Kategori, SKU)
+.product-meta {
+  display: flex;
+  flex-wrap: wrap; // Küçük ekranlarda alt satıra kaymasını sağlar
+  gap: 0.75rem 1.25rem; // Dikey ve yatay boşluklar
+  margin-bottom: 1.25rem;
+  align-items: center; // Dikey hizalama
+
+  .category-tag,
+  .sku-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.3rem 0.75rem; // İç boşluklar
+    border-radius: var(--border-radius-md, 6px); // Yuvarlak köşeler
+    background-color: var(--surface-background, var(--light-gray-100)); // Hafif bir arka plan
+    font-size: var(--font-size-sm, 0.875rem); // Küçük font boyutu
+    color: var(--text-color-secondary, var(--dark-gray)); // İkincil metin rengi
+    border: 1px solid var(--border-color-light, var(--light-gray-200));
+
+    strong {
+      margin-right: 0.4rem;
+      font-weight: var(--font-weight-semibold, 600); // Etiket için kalınlık
+      color: var(--text-color, var(--dark-gray-700)); // Etiket için ana metin rengi
+    }
+  }
+
+  .category-tag {
+    a {
+      color: var(--primary-color); // Ana link rengi
+      text-decoration: none;
+      font-weight: var(--font-weight-medium, 500);
+
+      &:hover,
+      &:focus {
+        text-decoration: underline;
+        color: var(--primary-color-darker);
+      }
+    }
+  }
+
+  .sku-tag {
+    // SKU değeri için özel bir stil gerekirse buraya eklenebilir.
+  }
+}
+
+// Price, Stock, and Actions Styles
+.price-stock-container {
+  display: flex;
+  flex-direction: column; // Fiyat ve stok durumunu alt alta sırala
+  align-items: flex-start; // Sola hizala (ürün info genel hizalamasına göre)
+  gap: 0.5rem; // Fiyat ve stok arası boşluk
+  margin-bottom: 1.5rem; // Aksiyon butonlarıyla arasına boşluk (HTML'deki my-3'e ek olarak)
+
+  .price-section {
+    .current-price {
+      font-size: var(--font-size-xxl, 2.2rem); // Fiyatı daha belirgin yap
+      font-weight: var(--font-weight-bold, 700);
+      color: var(--primary-color-darker, var(--headings-color)); // Ana başlıklarla uyumlu veya özel bir fiyat rengi
+      line-height: 1.2;
+    }
+    // .old-price için stiller buraya eklenebilir (üstü çizili vb.)
+  }
+
+  .stock-status {
+    display: inline-flex; // İkon ve metni yan yana getir
+    align-items: center;
+    padding: 0.3rem 0.6rem;
+    border-radius: var(--border-radius-sm, 4px);
+    font-weight: var(--font-weight-semibold, 600);
+    font-size: var(--font-size-sm, 0.9rem);
+
+    .stock-icon {
+      font-size: 1.2em; // Metne göre ikon boyutu
+      margin-right: 0.4rem;
+    }
+
+    &.in-stock {
+      // background-color: var(--success-color-lighter, #e6f7e9); // Hafif yeşil arka plan
+      color: var(--success-color-darker, #1e7e34);
+      // border: 1px solid var(--success-color-light, #a7d7b4);
+      .stock-icon {
+        color: var(--success-color, var(--bright-green));
+      }
+    }
+
+    &.out-of-stock {
+      // background-color: var(--danger-color-lighter, #fbe9e7);
+      color: var(--danger-color-darker, #9a2020);
+      // border: 1px solid var(--danger-color-light, #f3c0c0);
+      .stock-icon {
+        color: var(--danger-color, #dc3545);
+      }
+    }
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem; // Butonlar arası boşluk
+  // margin-top: 1.5rem; // price-stock-container'dan sonraki boşluk yeterli olabilir
+
+  .btn-add-to-cart {
+    // Global .btn, .btn-primary, .btn-lg stilleri HTML'den uygulanacak.
+    // Özel padding veya font boyutu gerekirse buraya eklenebilir ama globalden gelmesi tercih edilir.
+    // Örneğin, ikon ve metin arasındaki boşluğu sağlamak için span içindeki ikona margin verilmişti (me-2).
+    // Eğer buton çok geniş oluyorsa max-width eklenebilir.
+    flex-grow: 1; // Mümkünse alanı kaplasın (isteğe bağlı)
+    max-width: 300px; // Veya belirli bir genişlik
+
+    .material-icons {
+      vertical-align: middle; // İkonun metinle dikey hizalaması
+    }
+  }
+
+  .btn-wishlist {
+    // Mevcut stiller (yuvarlak, ikonlu vb.) zaten iyi ve detaylı.
+    // Boyutunu .btn-add-to-cart (btn-lg) ile uyumlu hale getirmek için gerekirse width/height ayarlanabilir.
+    // width: 48px; // btn-lg yüksekliğiyle uyumlu (yaklaşık)
+    // height: 48px;
+    // .material-icons { font-size: 28px; } // İkon boyutu da artırılabilir
+    background-color: transparent; // Şeffaf arka plan
+    border: 2px solid var(--border-color, var(--medium-gray));
+    color: var(--text-color-secondary, var(--dark-gray));
+
+    &:hover:not(:disabled) {
+      background-color: var(--light-gray-hover, #f0f0f0);
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    &.wishlisted {
+      border-color: var(--danger-color);
+      color: var(--danger-color);
+      background-color: transparent; // Veya var(--danger-color-lightest)
+
+      &:hover:not(:disabled) {
+        background-color: var(--danger-color-lighter, #ffebee);
+        color: var(--danger-color-darker, #c62828);
+        border-color: var(--danger-color-darker, #c62828);
+      }
+    }
+  }
+}
+
+.product-reviews-section {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-color-light);
+}
+
+.loading-indicator, .error-message, .image-placeholder-large {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px; // Yüklenirken veya hata durumunda alan kaplaması için
+  font-size: 1.2rem;
+  color: var(--text-color-secondary);
+}
+
+.error-message {
+  color: var(--danger-color);
+}
+
+.image-placeholder-large {
+  background-color: var(--light-gray-color);
+  border-radius: var(--border-radius-lg);
+  width: 100%;
+  max-width: 400px; // Resim boyutuyla eşleşebilir
+  height: 400px;
+}
+
+.product-gallery {
+  display: flex;
+  flex-direction: column;
+  align-items: center; // Galeriyi ortala
+  gap: 1rem; // Ana görsel ve thumbnail'lar arası boşluk
+
+  .main-image-container {
+    width: 100%;
+    max-width: 450px; // Ana görsel için maksimum genişlik
+    aspect-ratio: 1 / 1; // Kare oranını koru veya ürün tipine göre ayarla
+    background-color: var(--surface-color-lighter, #f8f9fa); // Placeholder için hafif arkaplan
+    border: 1px solid var(--border-color-light, #dee2e6);
+    border-radius: var(--border-radius-lg, 0.8rem); // Daha büyük köşe yuvarlaklığı
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; // Görselin taşmasını engelle
+    box-shadow: var(--card-shadow-sm, 0 2px 4px rgba(0,0,0,0.05));
+
+    img.product-detail-main-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain; // Görselin tamamını göster, gerekirse 'cover' da olabilir
+    }
+  }
+
+  .product-image-thumbnails {
+    display: flex;
+    flex-wrap: wrap; // Çok fazla resim varsa alt satıra kaydır
+    justify-content: center;
+    gap: 0.75rem; // Thumbnail'lar arası boşluk
+    width: 100%;
+    max-width: 480px; // Thumbnail alanının maksimum genişliği
+
+    .thumbnail-item {
+      width: 80px;
+      height: 80px;
+      border: 2px solid var(--border-color-extra-light, #f1f3f5);
+      border-radius: var(--border-radius-md, 0.5rem);
+      cursor: pointer;
+      transition: border-color 0.2s ease-in-out, transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+      overflow: hidden;
+      background-color: var(--white);
+
+      img.img-thumbnail {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; // Thumbnail'larda 'cover' daha iyi durabilir
+        padding: 0; // Bootstrap img-thumbnail padding'ini sıfırla
+        border: none; // Bootstrap img-thumbnail border'ını sıfırla
+      }
+
+      &:hover {
+        border-color: var(--primary-color-lighter, #a991d4);
+        transform: scale(1.05);
+        box-shadow: var(--card-shadow-sm, 0 3px 6px rgba(0,0,0,0.07));
+      }
+
+      &.active-thumbnail {
+        border-color: var(--primary-color, #3E1E68);
+        box-shadow: 0 0 0 2px var(--primary-color); // Vurgu için dışarıdan bir çizgi
+        transform: scale(1.02); // Aktifken hafif bir büyüme
+      }
+    }
+  }
+
+  .image-placeholder-large {
+    width: 100%;
+    max-width: 450px;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--surface-color-lighter, #f0f2f5);
+    border: 1px dashed var(--border-color, #ced4da);
+    border-radius: var(--border-radius-lg, 0.8rem);
+    color: var(--text-color-placeholder, #6c757d);
+    font-size: var(--font-size-base, 1rem);
+
+    .material-icons {
+      font-size: 3rem; // İkon boyutu
+      margin-bottom: 0.5rem;
+    }
+  }
+}
+
+.product-info {
+  // ... existing code ...
+}

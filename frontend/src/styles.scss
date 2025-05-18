@@ -6,32 +6,52 @@
 
 // Renk Paleti CSS Değişkenleri
 :root {
-  --deep-purple: #3E1E68;
-  --vibrant-orange: #F7931E;
-  --bright-green: #75C043;
-  --soft-yellow: #FFD166;
+  // Ana Renkler
+  --deep-purple: #3E1E68;         // Primary
+  --vibrant-orange: #75C043;      // Secondary (ESKİ: #F7931E) - ARTIK YEŞİL
+  --bright-green: #75C043;        // Accent (Aynı zamanda yeni ikincil rengimiz)
+  --soft-yellow: #FFD166;         // Vurgu veya Uyarı için
+
+  // Nötr Renkler
   --white: #FFFFFF;
-  --black: #1a1a1a; // Koyu metinler için
-  --light-gray: #f8f9fa; // Açık arka planlar için
-  --medium-gray: #e9ecef; // Kenarlıklar, ayırıcılar için
-  --dark-gray: #495057;  // İkincil metinler için
+  --black: #1a1a1a;
+  --light-gray: #f8f9fa;
+  --medium-gray: #e9ecef;
+  --dark-gray: #495057;
 
-  // Tema Renkleri
+  // Tema Renkleri (Mevcutları güncelleyelim ve yenilerini ekleyelim)
   --primary-color: var(--deep-purple);
-  --secondary-color: var(--vibrant-orange);
-  --vibrant-orange-darker: #e08010; // Turuncunun %10 koyusu eklendi
-  --accent-color: var(--bright-green);
-  --bright-green-darker: #68ad3b; // Yeşilin %10 koyusu eklendi
+  --primary-color-rgb: 62, 30, 104;
+  --primary-color-lighter: #543682; // %10 açık
+  --primary-color-darker: #2d154f;  // %10 koyu (mevcut btn-primary:hover ile aynı)
 
-  // Notification renkleri için ek değişkenler
-  --info-color: #17a2b8; // Mavi tonu
-  --warning-color: #ffc107; // Sarı/Turuncu tonu
+  --secondary-color: var(--bright-green); // ESKİ: var(--vibrant-orange) - ARTIK YEŞİL
+  --secondary-color-rgb: 117, 192, 67;   // ESKİ: 247, 147, 30 (Yeşilin RGB'si)
+  --secondary-color-lighter: #8bca60;    // ESKİ: #f8a53f (Yeşilin açık tonu)
+  --secondary-color-darker: #68ad3b;     // ESKİ: #e08010 (Yeşilin koyu tonu)
 
-  --bright-green-darker-5: #6cb63c; // Yeşilin %5 koyusu (scrollbar için)
-  --soft-yellow-darker: #f2c052; // Yumuşak sarının %10 koyusu (login-prompt border için)
+  --accent-color: var(--bright-green); // Bu zaten yeşil, ikincil renk ile aynı olabilir veya farklı bir yeşil tonu da seçilebilir. Şimdilik aynı bırakıyorum.
+  --accent-color-rgb: 117, 192, 67;
+  --accent-color-lighter: #8bca60;  // %10 açık
+  --accent-color-darker: #68ad3b;  // %10 koyu (mevcut --bright-green-darker)
 
+  // Durum Renkleri
+  --success-color: var(--bright-green); // Mevcut --accent-color kullanılabilir
+  --success-color-rgb: 117, 192, 67;
+  --error-color: #dc3545;             // Standart kırmızı
+  --error-color-rgb: 220, 53, 69;
+  --warning-color: var(--soft-yellow);  // Mevcut --soft-yellow kullanılabilir
+  --warning-color-rgb: 255, 209, 102;
+  --info-color: #17a2b8;              // Mevcut mavi tonu
+  --info-color-rgb: 23, 162, 184;
+
+  // Ek Renkler (Mevcuttakileri koruyalım ve düzenleyelim)
+  --bright-green-darker-5: #6cb63c; // Scrollbar için
+  --soft-yellow-darker: #f2c052;    // Login-prompt border için
+
+  // Genel UI Renkleri
   --background-color: var(--white);
-  --surface-color: var(--white); // Kartlar, modal arka planları
+  --surface-color: var(--white);
   --text-color: var(--black);
   --text-color-secondary: var(--dark-gray);
   --border-color: var(--medium-gray);
@@ -73,19 +93,49 @@ html, body {
 // Temel Başlık Stilleri
 h1, h2, h3, h4, h5, h6 {
   margin-top: 0;
-  margin-bottom: 0.75rem;
-  font-weight: 700; // Daha belirgin başlıklar
   color: var(--primary-color); // Başlıklar ana renkte
 }
 
-h1 { font-size: 2.5rem; }
-h2 { font-size: 2rem; }
-h3 { font-size: 1.75rem; }
-h4 { font-size: 1.5rem; }
+h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.85rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+h4 {
+  font-size: 1.25rem; // Hiyerarşiye uygun olarak ayarlandı
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+h5 {
+  font-size: 1.1rem;  // Hiyerarşiye uygun olarak ayarlandı
+  font-weight: 600; // Biraz daha az vurgulu
+  margin-bottom: 0.5rem;
+}
+
+h6 {
+  font-size: 1rem;    // Hiyerarşiye uygun olarak ayarlandı
+  font-weight: 600; // Biraz daha az vurgulu
+  margin-bottom: 0.4rem;
+}
 
 p {
   margin-top: 0;
   margin-bottom: 1rem;
+  color: var(--text-color); // Talimata göre eklendi
 }
 
 a {
@@ -95,7 +145,7 @@ a {
 }
 
 a:hover {
-  color: var(--deep-purple); // Hover'da ana renge dönsün
+  color: var(--primary-color); // Talimattaki gibi --primary-color (mevcut --deep-purple ile aynı)
   text-decoration: underline;
 }
 
@@ -112,52 +162,149 @@ button, .btn {
   border: 1px solid transparent;
   padding: var(--button-padding);
   font-size: 1rem;
-  border-radius: var(--border-radius);
-  transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, transform 0.1s ease-in-out;
-  text-transform: uppercase; // Buton metinleri büyük harf
+  border-radius: 25px; // Hap şeklinde butonlar (talimat doğrultusunda değiştirildi)
+  transition: all 0.2s ease-in-out;
+  text-transform: none; // Büyük harf kullanımı kaldırıldı (talimat doğrultusunda)
   letter-spacing: 0.5px;
 }
 
 button:hover, .btn:hover {
-  background-color: var(--vibrant-orange-darker, #e08010); // Turuncunun biraz koyusu
-  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  background-color: var(--secondary-color-darker);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transform: translateY(-1px); // Hafif yükselme efekti (talimat doğrultusunda)
 }
 
 button:active, .btn:active {
-  transform: translateY(1px); // Tıklama efekti
+  transform: translateY(0); // Tıklama efekti
 }
 
 button:disabled, .btn:disabled {
   background-color: var(--medium-gray);
   color: var(--dark-gray);
   cursor: not-allowed;
-  opacity: 0.7;
+  opacity: 0.65; // Talimat doğrultusunda değiştirildi
+  transform: none;
+  box-shadow: none;
 }
 
 // Ana Buton (Primary)
 .btn-primary {
   background-color: var(--primary-color);
   color: var(--white);
+  border: 1px solid var(--primary-color);
 }
 .btn-primary:hover {
-  background-color: var(--deep-purple-darker, #2d154f); // Morun biraz koyusu
+  background-color: var(--primary-color-darker);
+  border-color: var(--primary-color-darker);
 }
 
-// Turuncu Buton (Secondary) - Hover için
-.btn-secondary:hover { // Eğer .btn-secondary var(--vibrant-orange) kullanıyorsa
-  background-color: var(--vibrant-orange-darker);
-}
-
-
-// Yeşil Buton (Accent)
-.btn-accent {
-  background-color: var(--bright-green);
+// İkincil Buton (Secondary)
+.btn-secondary {
+  background-color: var(--secondary-color);
   color: var(--white);
+  border: 1px solid var(--secondary-color);
+}
+.btn-secondary:hover {
+  background-color: var(--secondary-color-darker);
+  border-color: var(--secondary-color-darker);
+}
+
+// Vurgu Butonu (Accent)
+.btn-accent {
+  background-color: var(--accent-color);
+  color: var(--white);
+  border: 1px solid var(--accent-color);
 }
 .btn-accent:hover {
-  background-color: var(--bright-green-darker); // Önceden tanımlı değişkeni kullan
+  background-color: var(--accent-color-darker);
+  border-color: var(--accent-color-darker);
 }
 
+// Outline Butonlar
+// Primary Outline
+.btn-outline-primary {
+  background-color: transparent;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+.btn-outline-primary:hover {
+  background-color: var(--primary-color);
+  color: var(--white);
+}
+
+// Secondary Outline
+.btn-outline-secondary {
+  background-color: transparent;
+  color: var(--secondary-color);
+  border: 1px solid var(--secondary-color);
+}
+.btn-outline-secondary:hover {
+  background-color: var(--secondary-color);
+  color: var(--white);
+}
+
+// Accent Outline
+.btn-outline-accent {
+  background-color: transparent;
+  color: var(--accent-color);
+  border: 1px solid var(--accent-color);
+}
+.btn-outline-accent:hover {
+  background-color: var(--accent-color);
+  color: var(--white);
+}
+
+// Ek Buton Türleri
+.btn-danger {
+  background-color: var(--error-color);
+  color: var(--white);
+  border: 1px solid var(--error-color);
+}
+.btn-danger:hover {
+  background-color: color-mix(in srgb, var(--error-color), black 10%);
+  border-color: color-mix(in srgb, var(--error-color), black 10%);
+}
+
+.btn-outline-danger {
+  background-color: transparent;
+  color: var(--error-color);
+  border: 1px solid var(--error-color);
+}
+.btn-outline-danger:hover {
+  background-color: var(--error-color);
+  color: var(--white);
+}
+
+.btn-success {
+  background-color: var(--success-color);
+  color: var(--white);
+  border: 1px solid var(--success-color);
+}
+.btn-success:hover {
+  background-color: var(--accent-color-darker);
+  border-color: var(--accent-color-darker);
+}
+
+.btn-outline-success {
+  background-color: transparent;
+  color: var(--success-color);
+  border: 1px solid var(--success-color);
+}
+.btn-outline-success:hover {
+  background-color: var(--success-color);
+  color: var(--white);
+}
+
+// Boyut Varyantları
+.btn-sm {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.875rem;
+}
+
+.btn-lg {
+  padding: 0.8rem 1.8rem;
+  font-size: 1.1rem;
+}
 
 // Form Elemanları
 input[type="text"],
@@ -169,7 +316,7 @@ select {
   display: block;
   width: 100%;
   padding: var(--input-padding);
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-family: var(--font-family-sans-serif);
   color: var(--text-color);
   background-color: var(--white);
@@ -177,7 +324,7 @@ select {
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-  margin-bottom: 1rem; // Form elemanları arası boşluk
+  margin-bottom: 1rem;
 }
 
 input[type="text"]:focus,
@@ -186,9 +333,30 @@ input[type="password"]:focus,
 input[type="number"]:focus,
 textarea:focus,
 select:focus {
-  border-color: var(--secondary-color);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.25);
   outline: 0;
-  box-shadow: 0 0 0 0.2rem rgba(247, 147, 30, 0.25); // Turuncu focus glow
+}
+
+input[type="text"].ng-invalid.ng-touched,
+input[type="email"].ng-invalid.ng-touched,
+input[type="password"].ng-invalid.ng-touched,
+input[type="number"].ng-invalid.ng-touched,
+textarea.ng-invalid.ng-touched,
+select.ng-invalid.ng-touched {
+  border-color: var(--error-color);
+}
+
+input[type="text"]:disabled,
+input[type="email"]:disabled,
+input[type="password"]:disabled,
+input[type="number"]:disabled,
+textarea:disabled,
+select:disabled {
+  background-color: var(--medium-gray);
+  color: var(--dark-gray);
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 // Genel Konteyner Sınıfı (Merkezleme ve padding için)
@@ -215,22 +383,89 @@ select:focus {
 
 // Yardımcı Sınıflar
 .text-center { text-align: center; }
-.mt-1 { margin-top: 0.25rem; }
-.mt-2 { margin-top: 0.5rem; }
-.mt-3 { margin-top: 1rem; }
-.mb-1 { margin-bottom: 0.25rem; }
-.mb-2 { margin-bottom: 0.5rem; }
-.mb-3 { margin-bottom: 1rem; }
+.mt-1 { margin-top: 0.25rem !important; }
+.mt-2 { margin-top: 0.5rem !important; }
+.mt-3 { margin-top: 1rem !important; }
+.mt-4 { margin-top: 1.5rem !important; }
+.mt-5 { margin-top: 3rem !important; }
+.mb-1 { margin-bottom: 0.25rem !important; }
+.mb-2 { margin-bottom: 0.5rem !important; }
+.mb-3 { margin-bottom: 1rem !important; }
+.mb-4 { margin-bottom: 1.5rem !important; }
+.mb-5 { margin-bottom: 3rem !important; }
+.ml-1 { margin-left: 0.25rem !important; }
+.ml-2 { margin-left: 0.5rem !important; }
+.ml-3 { margin-left: 1rem !important; }
+.ml-4 { margin-left: 1.5rem !important; }
+.ml-5 { margin-left: 3rem !important; }
+.mr-1 { margin-right: 0.25rem !important; }
+.mr-2 { margin-right: 0.5rem !important; }
+.mr-3 { margin-right: 1rem !important; }
+.mr-4 { margin-right: 1.5rem !important; }
+.mr-5 { margin-right: 3rem !important; }
+.my-1 { margin-top: 0.25rem !important; margin-bottom: 0.25rem !important; }
+.my-2 { margin-top: 0.5rem !important; margin-bottom: 0.5rem !important; }
+.my-3 { margin-top: 1rem !important; margin-bottom: 1rem !important; }
+.my-4 { margin-top: 1.5rem !important; margin-bottom: 1.5rem !important; }
+.my-5 { margin-top: 3rem !important; margin-bottom: 3rem !important; }
+.mx-1 { margin-left: 0.25rem !important; margin-right: 0.25rem !important; }
+.mx-2 { margin-left: 0.5rem !important; margin-right: 0.5rem !important; }
+.mx-3 { margin-left: 1rem !important; margin-right: 1rem !important; }
+.mx-4 { margin-left: 1.5rem !important; margin-right: 1.5rem !important; }
+.mx-5 { margin-left: 3rem !important; margin-right: 3rem !important; }
+.pt-1 { padding-top: 0.25rem !important; }
+.pt-2 { padding-top: 0.5rem !important; }
+.pt-3 { padding-top: 1rem !important; }
+.pt-4 { padding-top: 1.5rem !important; }
+.pt-5 { padding-top: 3rem !important; }
+.pb-1 { padding-bottom: 0.25rem !important; }
+.pb-2 { padding-bottom: 0.5rem !important; }
+.pb-3 { padding-bottom: 1rem !important; }
+.pb-4 { padding-bottom: 1.5rem !important; }
+.pb-5 { padding-bottom: 3rem !important; }
+.pl-1 { padding-left: 0.25rem !important; }
+.pl-2 { padding-left: 0.5rem !important; }
+.pl-3 { padding-left: 1rem !important; }
+.pl-4 { padding-left: 1.5rem !important; }
+.pl-5 { padding-left: 3rem !important; }
+.pr-1 { padding-right: 0.25rem !important; }
+.pr-2 { padding-right: 0.5rem !important; }
+.pr-3 { padding-right: 1rem !important; }
+.pr-4 { padding-right: 1.5rem !important; }
+.pr-5 { padding-right: 3rem !important; }
+.py-1 { padding-top: 0.25rem !important; padding-bottom: 0.25rem !important; }
+.py-2 { padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
+.py-3 { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+.py-4 { padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
+.py-5 { padding-top: 3rem !important; padding-bottom: 3rem !important; }
+.px-1 { padding-left: 0.25rem !important; padding-right: 0.25rem !important; }
+.px-2 { padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
+.px-3 { padding-left: 1rem !important; padding-right: 1rem !important; }
+.px-4 { padding-left: 1.5rem !important; padding-right: 1.5rem !important; }
+.px-5 { padding-left: 3rem !important; padding-right: 3rem !important; }
+
+// Temel Flex ve Grid Hizalama Yardımcıları
+.d-flex { display: flex !important; }
+.d-inline-flex { display: inline-flex !important; }
+.justify-center { justify-content: center !important; }
+.justify-between { justify-content: space-between !important; }
+.justify-end { justify-content: flex-end !important; }
+.align-center { align-items: center !important; }
+.align-start { align-items: flex-start !important; }
+.align-end { align-items: flex-end !important; }
+.flex-column { flex-direction: column !important; }
+.flex-row { flex-direction: row !important; }
 
 // Hata ve Başarı Mesajları için Temel Stiller
 .error-message {
-  color: #dc3545; // Kırmızı
-  font-size: 0.875em;
+  color: var(--error-color);
+  font-size: 0.8em;
   margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
 }
 
 .success-message {
-  color: var(--bright-green); // Parlak Yeşil
+  color: var(--success-color);
   font-size: 0.875em;
   margin-top: 0.25rem;
 }
@@ -245,3 +480,17 @@ select:focus {
   color: var(--primary-color);
 }
 // Daha gelişmiş bir spinner eklenebilir.
+
+// Material Icons Boyutlandırma Standartları
+// Kullanım: <span class="material-icons md-20">icon_name</span>
+// Veya <mat-icon class="md-20">icon_name</mat-icon>
+.material-icons.md-18, .mat-icon.md-18 { font-size: 18px; width: 18px; height: 18px; }
+.material-icons.md-20, .mat-icon.md-20 { font-size: 20px; width: 20px; height: 20px; } // Talimatta önerilen
+.material-icons.md-24, .mat-icon.md-24 { font-size: 24px; width: 24px; height: 24px; } // Talimatta önerilen
+.material-icons.md-36, .mat-icon.md-36 { font-size: 36px; width: 36px; height: 36px; }
+.material-icons.md-48, .mat-icon.md-48 { font-size: 48px; width: 48px; height: 48px; }
+
+// Varsayılan olarak ikonların dikey hizalamasını iyileştirmek için
+.material-icons, .mat-icon {
+  vertical-align: middle;
+}

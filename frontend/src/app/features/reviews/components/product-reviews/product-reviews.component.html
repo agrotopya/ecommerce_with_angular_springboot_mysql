@@ -7,46 +7,45 @@
       <h4>Leave a Review</h4>
       <form [formGroup]="reviewForm" (ngSubmit)="onSubmitReview()">
         <div class="form-group rating-group">
-        <label for="rating">Rating:</label>
-        <select id="rating" formControlName="rating">
-          <option [ngValue]="null" disabled>Select a rating</option>
-          <option [ngValue]="5">5 Stars</option>
-          <option [ngValue]="4">4 Stars</option>
-          <option [ngValue]="3">3 Stars</option>
-          <option [ngValue]="2">2 Stars</option>
-          <option [ngValue]="1">1 Star</option>
-        </select>
-        <div *ngIf="reviewForm.get('rating')?.invalid && (reviewForm.get('rating')?.dirty || reviewForm.get('rating')?.touched)" class="error-message">
-          Rating is required (1-5 stars).
+          <label>Rating:</label>
+          <div class="star-rating-input">
+            <input type="radio" id="star5" formControlName="rating" [value]="5" /><label for="star5" title="5 stars">&#9733;</label>
+            <input type="radio" id="star4" formControlName="rating" [value]="4" /><label for="star4" title="4 stars">&#9733;</label>
+            <input type="radio" id="star3" formControlName="rating" [value]="3" /><label for="star3" title="3 stars">&#9733;</label>
+            <input type="radio" id="star2" formControlName="rating" [value]="2" /><label for="star2" title="2 stars">&#9733;</label>
+            <input type="radio" id="star1" formControlName="rating" [value]="1" /><label for="star1" title="1 star">&#9733;</label>
+          </div>
+          <div *ngIf="reviewForm.get('rating')?.invalid && (reviewForm.get('rating')?.dirty || reviewForm.get('rating')?.touched)" class="error-message">
+            Rating is required (1-5 stars).
+          </div>
         </div>
-      </div>
-      <div class="form-group">
-        <label for="comment">Comment (Optional):</label>
-        <textarea id="comment" formControlName="comment" rows="4"></textarea>
-        <div *ngIf="reviewForm.get('comment')?.hasError('maxlength')" class="error-message">
-          Comment cannot exceed 5000 characters.
+        <div class="form-group">
+          <label for="comment">Comment (Optional):</label>
+          <textarea id="comment" formControlName="comment" rows="4"></textarea>
+          <div *ngIf="reviewForm.get('comment')?.hasError('maxlength')" class="error-message">
+            Comment cannot exceed 5000 characters.
+          </div>
         </div>
+        <button type="submit" class="btn btn-primary" [disabled]="reviewForm.invalid || isSubmittingReview()">
+          {{ isSubmittingReview() ? 'Submitting...' : 'Submit Review' }}
+        </button>
+        <div *ngIf="errorSubmittingReview()" class="error-message submit-error">
+          {{ errorSubmittingReview() }}
+        </div>
+      </form>
+    </div>
+    <ng-template #alreadyReviewed>
+      <div class="already-reviewed-message">
+        <p>You have already reviewed this product. Thank you for your feedback!</p>
+        <!-- Opsiyonel: Kullanıcının mevcut yorumunu göstermek veya düzenleme linki eklenebilir -->
       </div>
-      <button type="submit" class="btn btn-primary" [disabled]="reviewForm.invalid || isSubmittingReview()">
-        {{ isSubmittingReview() ? 'Submitting...' : 'Submit Review' }}
-      </button>
-      <div *ngIf="errorSubmittingReview()" class="error-message submit-error">
-        {{ errorSubmittingReview() }}
-      </div>
-    </form>
+    </ng-template>
   </div>
-  <ng-template #alreadyReviewed>
-    <div class="already-reviewed-message">
-      <p>You have already reviewed this product. Thank you for your feedback!</p>
-      <!-- Opsiyonel: Kullanıcının mevcut yorumunu göstermek veya düzenleme linki eklenebilir -->
+  <ng-template #loginToReview>
+    <div class="login-prompt">
+      <p>You must be <a routerLink="/auth/login" [queryParams]="{ returnUrl: router.url }">logged in</a> to leave a review.</p>
     </div>
   </ng-template>
-</div>
-<ng-template #loginToReview>
-  <div class="login-prompt">
-    <p>You must be <a routerLink="/auth/login" [queryParams]="{ returnUrl: router.url }">logged in</a> to leave a review.</p>
-  </div>
-</ng-template>
 
   <!-- Yorum Listesi -->
   <div class="reviews-list-section">

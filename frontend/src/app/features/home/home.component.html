@@ -69,32 +69,7 @@
     </section>
   </ng-template>
 
-  <!-- Category Icons Section -->
-  <section class="category-icons-section container" *ngIf="featuredCategories().length > 0">
-    <div class="category-icon-grid">
-      <a *ngFor="let category of featuredCategories()"
-         [routerLink]="['/products']"
-         [queryParams]="{ category: category.slug }"
-         class="category-icon-item">
-        <!-- Kategori ikonu için placeholder veya category.imageUrl kullanılabilir -->
-        <div class="icon-wrapper">
-          <img [src]="category.imageUrl || 'assets/icons/default-category.svg'" [alt]="category.name" class="category-icon-image">
-        </div>
-        <span class="category-icon-name">{{ category.name }}</span>
-      </a>
-      <!-- Statik categoryIcons listesini kullanmak isterseniz:
-      <a *ngFor="let catIcon of categoryIcons"
-         [routerLink]="['/products']"
-         [queryParams]="{ category: catIcon.slug }"
-         class="category-icon-item">
-        <div class="icon-wrapper">
-          <img [src]="catIcon.icon" [alt]="catIcon.name" class="category-icon-image">
-        </div>
-        <span class="category-icon-name">{{ catIcon.name }}</span>
-      </a>
-      -->
-    </div>
-  </section>
+
 
   <!-- Popular Products Section (Artık En Çok Satanlar) -->
   <section class="product-section container" *ngIf="popularProducts().length > 0">

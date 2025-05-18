@@ -1,1 +1,103 @@
-<p>category-list works!</p>
+<div class="admin-category-list-container p-4">
+  <h2 class="text-2xl font-semibold mb-4 text-primary-color">Kategori Yönetimi</h2>
+
+  <!-- Üst Bar: Arama, Ekleme ve Sayfa Boyutu -->
+  <div class="flex flex-wrap justify-between items-center mb-4 gap-4 bg-white p-3 rounded-lg shadow">
+    <div class="flex items-center gap-2 flex-grow sm:flex-grow-0">
+      <input
+        type="text"
+        placeholder="Kategori ara..."
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange($event)"
+        class="form-input w-full sm:w-64 p-2 border border-gray-300 rounded-md focus:ring-primary-color focus:border-primary-color"
+      />
+    </div>
+
+    <div class="flex items-center gap-2">
+        <label for="pageSizeSelect" class="text-sm text-gray-700">Göster:</label>
+        <select
+            id="pageSizeSelect"
+            [ngModel]="pageSize()"
+            (ngModelChange)="onPageSizeChange($event)"
+            class="form-select p-2 border border-gray-300 rounded-md focus:ring-primary-color focus:border-primary-color">
+            <option [ngValue]="5">5</option>
+            <option [ngValue]="10">10</option>
+            <option [ngValue]="20">20</option>
+            <option [ngValue]="50">50</option>
+        </select>
+    </div>
+
+    <button (click)="navigateToAddCategory()" class="btn btn-primary">
+      <span class="material-icons align-middle mr-1">add_circle_outline</span>
+      Yeni Kategori Ekle
+    </button>
+  </div>
+
+  <!-- Kategori Tablosu -->
+  <div *ngIf="categories().length > 0; else noCategories" class="bg-white shadow-md rounded-lg overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Görsel</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ad</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alt Kat. Say.</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksiyonlar</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <tr *ngFor="let category of categories()" class="hover:bg-gray-50 transition-colors">
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 align-middle">{{ category.id }}</td>
+          <td class="px-6 py-4 text-sm text-gray-500 align-middle">
+            <img [src]="category.imageUrl || 'assets/images/placeholder-image.webp'"
+                 alt="{{category.name}} Kategori Görseli"
+                 style="width: 32px; height: 32px; object-fit: cover; display: inline-block; vertical-align: middle;"
+                 class="rounded-md border border-gray-200 mr-2">
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 align-middle">{{ category.name }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 align-middle">{{ category.slug }}</td>
+           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center align-middle">{{ category.childrenCount ?? 0 }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium align-middle">
+            <button (click)="navigateToEditCategory(category.id)" class="text-primary-color hover:text-primary-color-darker mr-3" title="Düzenle">
+              <span class="material-icons align-middle">edit</span>
+            </button>
+            <button (click)="openDeleteConfirmation(category.id)" class="text-error-color hover:text-red-700" title="Sil">
+              <span class="material-icons align-middle">delete</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Kategori Yok Mesajı -->
+  <ng-template #noCategories>
+    <div class="text-center py-10 bg-white shadow-md rounded-lg">
+      <span class="material-icons text-6xl text-gray-400">category</span>
+      <p class="mt-4 text-lg text-gray-600">Listelenecek kategori bulunamadı.</p>
+      <p class="text-sm text-gray-500">Arama kriterlerinizi değiştirmeyi veya yeni bir kategori eklemeyi deneyin.</p>
+    </div>
+  </ng-template>
+
+  <!-- Sayfalama -->
+  <div *ngIf="totalPages() > 0 && categories().length > 0" class="mt-4 flex justify-center">
+    <app-paginator
+      [currentPage]="currentPage()"
+      [totalPages]="totalPages()"
+      (pageChange)="onPageChange($event)">
+    </app-paginator>
+  </div>
+
+</div>
+
+<!-- Silme Onay Modalı -->
+<app-confirmation-modal *ngIf="showDeleteConfirmationModal()"
+  title="Kategoriyi Sil"
+  message="Bu kategoriyi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz."
+  confirmButtonText="Evet, Sil"
+  cancelButtonText="İptal"
+  (confirmed)="confirmDelete()"
+  (closed)="cancelDelete()"
+  confirmButtonClass="btn-danger">
+</app-confirmation-modal>

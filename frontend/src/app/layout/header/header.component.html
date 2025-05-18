@@ -2,103 +2,113 @@
 <header>
   <nav class="navbar">
     <div class="container navbar-content">
-      <a routerLink="/" class="logo">fibiyo</a>
+      <div class="logo-and-search">
+        <a routerLink="/" class="logo" aria-label="Anasayfa">fibiyo</a>
 
       <div class="search-bar">
-        <input type="text" placeholder="Ürün, kategori ya da marka ara" #searchInput (keyup.enter)="onSearch(searchInput.value)">
-        <button class="search-button" (click)="onSearch(searchInput.value)">
-          <!-- Arama ikonu (SVG veya font icon) eklenebilir -->
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18px" height="18px"><path d="M0 0h24v24H0z" fill="none"/><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          <input type="text" placeholder="Ürün, kategori ya da marka ara..." #searchInput (keyup.enter)="onSearch(searchInput.value)" aria-label="Arama">
+          <button class="search-button" (click)="onSearch(searchInput.value)" title="Ara" aria-label="Ara">
+            <span class="material-icons">search</span>
         </button>
+        </div>
       </div>
 
       <div class="actions">
-        <a routerLink="/feels" class="action-link feels-action" title="Discover Feels">
-          <!-- Feels Video İkonu -->
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24px" height="24px"><path d="M0 0h24v24H0z" fill="none"/><path d="M10 16.5l6-4.5-6-4.5v9zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
-          <span class="action-text">Feels</span> <!-- Opsiyonel: İkon yeterli değilse metin -->
+        <a routerLink="/feels" class="action-link feels-action" title="Feels Keşfet" aria-label="Feels Videoları">
+          <span class="material-icons">play_circle</span>
+          <span class="action-text">Feels</span>
         </a>
-        <a routerLink="/wishlist" class="action-link wishlist-action" *ngIf="isAuthenticated()" title="My Wishlist">
-          <!-- Kalp İkonu -->
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24px" height="24px"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-          <span class="action-text"></span> <!-- Opsiyonel -->
+
+        <a routerLink="/wishlist" class="action-link wishlist-action" *ngIf="isAuthenticated()" title="Favorilerim" aria-label="Favori Ürünlerim">
+          <span class="material-icons">favorite</span>
+          <span class="action-text">Favoriler</span>
         </a>
-        <a routerLink="/cart" class="action-link cart-action" *ngIf="isAuthenticated()">
-          <!-- Sepet ikonu -->
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24px" height="24px"><path d="M0 0h24v24H0z" fill="none"/><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zm-1.45-5c.59 0 1.08-.36 1.32-.88L21.71 4H7.21l-.94-2H3.01v2h2.1l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h10v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45zM6 4.05V4h1.71l.97 2.05H18.3l-3.28 6.39H8.53L6 4.05z"/></svg>
+        <a routerLink="/cart" class="action-link cart-action" *ngIf="isAuthenticated()" title="Sepetim" aria-label="Alışveriş Sepetim">
+          <span class="material-icons">shopping_cart</span>
           <span *ngIf="totalCartItems() > 0" class="cart-badge">{{ totalCartItems() }}</span>
+          <span class="action-text">Sepet</span>
         </a>
 
         <ng-container *ngIf="isAuthenticated(); else guestView">
           <div class="user-menu">
             <a (click)="toggleUserDropdown(); $event.stopPropagation()" class="action-link profile-action" role="button" aria-haspopup="true" [attr.aria-expanded]="isUserDropdownOpen()">
-              <!-- Profil ikonu -->
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24px" height="24px"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+              <span class="material-icons">person</span>
               <span>{{ currentUser()?.username }}</span>
-              <!-- Açılır ok ikonu eklenebilir -->
-              <svg class="dropdown-arrow" *ngIf="!isUserDropdownOpen()" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18px" height="18px"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>
-              <svg class="dropdown-arrow" *ngIf="isUserDropdownOpen()" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18px" height="18px"><path d="M7 14l5-5 5 5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>
+              <span class="material-icons dropdown-arrow" *ngIf="!isUserDropdownOpen()">arrow_drop_down</span>
+              <span class="material-icons dropdown-arrow" *ngIf="isUserDropdownOpen()">arrow_drop_up</span>
             </a>
             <ul class="dropdown-menu" [class.open]="isUserDropdownOpen()">
-              <li><a routerLink="/profile" (click)="isUserDropdownOpen.set(false)">Profile</a></li>
-              <li><a routerLink="/profile/orders" (click)="isUserDropdownOpen.set(false)">My Orders</a></li>
-              <li *ngIf="isAdmin()"><a routerLink="/admin" (click)="isUserDropdownOpen.set(false)">Admin Panel</a></li>
-              <li *ngIf="isSeller()"><a routerLink="/seller" (click)="isUserDropdownOpen.set(false)">Seller Panel</a></li>
+              <li><a routerLink="/profile" (click)="isUserDropdownOpen.set(false)">
+                <span class="material-icons">account_circle</span> Profilim
+              </a></li>
+              <li><a routerLink="/profile/orders" (click)="isUserDropdownOpen.set(false)">
+                <span class="material-icons">shopping_bag</span> Siparişlerim
+              </a></li>
+              <li *ngIf="isAdmin()"><a routerLink="/admin" (click)="isUserDropdownOpen.set(false)">
+                <span class="material-icons">admin_panel_settings</span> Yönetici Paneli
+              </a></li>
+              <li *ngIf="isSeller()"><a routerLink="/seller" (click)="isUserDropdownOpen.set(false)">
+                <span class="material-icons">store</span> Satıcı Paneli
+              </a></li>
               <li><hr class="dropdown-divider"></li>
-              <li><a (click)="logout(); isUserDropdownOpen.set(false)" class="logout-link">Logout</a></li>
+              <li><a (click)="logout(); isUserDropdownOpen.set(false)" class="logout-link">
+                <span class="material-icons">logout</span> Çıkış Yap
+              </a></li>
             </ul>
           </div>
         </ng-container>
         <ng-template #guestView>
-          <a routerLink="/auth/login" class="btn btn-secondary">Login</a>
-          <a routerLink="/auth/register" class="btn btn-primary">Register</a>
+          <div class="auth-buttons">
+            <a routerLink="/auth/login" class="btn btn-outline-primary">Giriş Yap</a>
+            <a routerLink="/auth/register" class="btn btn-primary">Kayıt Ol</a>
+          </div>
         </ng-template>
-        <button class="hamburger-menu" (click)="toggleMobileMenu()" [attr.aria-expanded]="isMobileMenuOpen()" aria-controls="mobileNavMenu">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28px" height="28px"><path d="M0 0h24v24H0z" fill="none"/><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+        <button class="hamburger-menu" (click)="toggleMobileMenu()" [attr.aria-expanded]="isMobileMenuOpen()" aria-controls="mobileNavMenu" title="Menü" aria-label="Mobil Menü">
+          <span class="material-icons">menu</span>
         </button>
       </div>
     </div>
   </nav>
 
-  <!-- Yeni N11 Tarzı Kategori Navigasyon Barı -->
+  <!-- Kategori Navigasyon Barı -->
   <nav class="category-navigation-bar" *ngIf="categoriesForMegaMenu().length > 0">
     <div class="container">
       <ul class="main-category-list">
         <li *ngFor="let category of categoriesForMegaMenu()"
             class="main-category-item"
-            (mouseenter)="openMegaMenu(category)"
-            (mouseleave)="scheduleCloseMegaMenu()">
-          <a [routerLink]="['/products']" [queryParams]="{ category: category.slug, categoryId: category.id, page: 0, size: 12, sort: 'name,asc' }">
-            <!-- <img *ngIf="category.iconUrl" [src]="category.iconUrl" alt="" class="category-icon"> -->
-            <!-- <i *ngIf="category.iconCssClass" [class]="category.iconCssClass"></i> -->
+            (mouseenter)="setActiveCategoryId(category.id)"
+            (mouseleave)="scheduleCloseCategoryDropdown()">
+          <a [routerLink]="['/products']"
+             [queryParams]="{ category: category.slug, categoryId: category.id, page: 0, size: 12, sort: 'name,asc' }"
+             [class.active]="isCategoryActive(category.id)">
+            <span class="material-icons">shopping_bag</span>
             <span>{{ category.name }}</span>
           </a>
-          <!-- Mega Menü İçeriği Buraya Gelecek (category.id === activeMegaMenuCategoryId() durumuna göre) -->
-          <div class="mega-menu-container"
-               [class.open]="activeMegaMenuCategoryId() === category.id"
-               (mouseenter)="cancelCloseMegaMenu()"
-               (mouseleave)="scheduleCloseMegaMenu()">
-            <div class="mega-menu-content">
-              <h4>{{ category.name }} Alt Kategorileri</h4>
-              <div class="subcategory-columns" *ngIf="category.children && category.children.length > 0">
-                <!-- Alt kategoriler sütunlar halinde listelenecek -->
-                <div class="column" *ngFor="let column of getSubCategoryColumns(category.children)">
-                  <ul>
-                    <li *ngFor="let subCat of column">
-                      <a [routerLink]="['/products']" [queryParams]="{ category: subCat.slug, categoryId: subCat.id, page: 0, size: 12, sort: 'name,asc' }">{{ subCat.name }}</a>
-                    </li>
-                  </ul>
-                </div>
+
+          <div class="category-dropdown"
+               [class.open]="activeCategoryId() === category.id"
+               (mouseenter)="cancelCloseCategoryDropdown()"
+               (mouseleave)="scheduleCloseCategoryDropdown()">
+            <div class="dropdown-content">
+              <div class="subcategory-list" *ngIf="category.children && category.children.length > 0">
+                <a *ngFor="let subCat of category.children"
+                  [routerLink]="['/products']"
+                  [queryParams]="{ category: subCat.slug, categoryId: subCat.id, page: 0, size: 12, sort: 'name,asc' }"
+                  [class.active]="isCategoryActive(subCat.id)">
+                  {{ subCat.name }}
+                </a>
               </div>
               <div *ngIf="!category.children || category.children.length === 0">
-                <p>Bu kategoride alt kategori bulunmamaktadır.</p>
+                <p>Bu kategoride henüz alt kategori bulunmuyor.</p>
               </div>
-              <!-- Buraya kategoriyle ilgili görseller veya özel linkler de eklenebilir -->
             </div>
           </div>
         </li>
         <li class="main-category-item all-categories-item">
-          <a routerLink="/products">Tüm Ürünler</a>
+          <a routerLink="/products" [class.active]="activeUrlCategoryId() === null">
+            <span class="material-icons">category</span>
+            <span>Tüm Ürünler</span>
+          </a>
         </li>
       </ul>
     </div>
@@ -107,31 +117,75 @@
   <!-- Mobil Navigasyon Menüsü -->
   <div class="mobile-nav-menu" [class.open]="isMobileMenuOpen()" id="mobileNavMenu">
     <div class="mobile-menu-header">
-      <span class="mobile-menu-title">Menu</span>
-      <button class="close-mobile-menu" (click)="closeMobileMenu()">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24px" height="24px"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+      <span class="mobile-menu-title">Menü</span>
+      <button class="close-mobile-menu" (click)="closeMobileMenu()" title="Kapat" aria-label="Menüyü Kapat">
+        <span class="material-icons">close</span>
       </button>
     </div>
+    <div class="mobile-search">
+      <div class="search-bar">
+        <input type="text" placeholder="Ürün, kategori ya da marka ara..." #mobileSearchInput (keyup.enter)="onSearch(mobileSearchInput.value); closeMobileMenu()" aria-label="Mobil Arama">
+        <button class="search-button" (click)="onSearch(mobileSearchInput.value); closeMobileMenu()" title="Ara">
+          <span class="material-icons">search</span>
+        </button>
+      </div>
+    </div>
     <ul class="mobile-nav-links">
-      <li><a routerLink="/" (click)="closeMobileMenu()">Home</a></li>
-      <li><a routerLink="/products" (click)="closeMobileMenu()">Products</a></li>
-      <li><a routerLink="/feels" (click)="closeMobileMenu()">Feels</a></li> <!-- Mobil menüye Feels linki eklendi -->
+      <li><a routerLink="/" (click)="closeMobileMenu()">
+        <span class="material-icons">home</span> Ana Sayfa
+      </a></li>
+
+      <!-- Mobil Kategori Menüsü -->
+      <li *ngFor="let category of categoriesForMegaMenu()">
+        <a [routerLink]="['/products']"
+            [queryParams]="{ category: category.slug, categoryId: category.id, page: 0, size: 12, sort: 'name,asc' }"
+            (click)="closeMobileMenu()"
+            [class.active]="isCategoryActive(category.id)">
+          <span class="material-icons">shopping_bag</span> {{ category.name }}
+        </a>
+      </li>
+      <li><a routerLink="/products"
+            (click)="closeMobileMenu()"
+            [class.active]="activeUrlCategoryId() === null">
+        <span class="material-icons">list</span> Tüm Ürünler
+      </a></li>
+
+      <li><a routerLink="/feels" (click)="closeMobileMenu()">
+        <span class="material-icons">play_circle</span> Feels
+      </a></li>
       <ng-container *ngIf="isAuthenticated()">
-        <li><a routerLink="/profile" (click)="closeMobileMenu()">Profile</a></li>
-        <li><a routerLink="/profile/orders" (click)="closeMobileMenu()">My Orders</a></li>
-        <li *ngIf="isAdmin()"><a routerLink="/admin" (click)="closeMobileMenu()">Admin Panel</a></li>
-        <li *ngIf="isSeller()"><a routerLink="/seller" (click)="closeMobileMenu()">Seller Panel</a></li>
-        <li><a routerLink="/cart" (click)="closeMobileMenu()">Cart <span *ngIf="totalCartItems() > 0">({{ totalCartItems() }})</span></a></li>
-        <li><a (click)="logout(); closeMobileMenu()" class="logout-link">Logout</a></li>
+        <li><a routerLink="/profile" (click)="closeMobileMenu()">
+          <span class="material-icons">person</span> Profilim
+        </a></li>
+        <li><a routerLink="/profile/orders" (click)="closeMobileMenu()">
+          <span class="material-icons">list_alt</span> Siparişlerim
+        </a></li>
+        <li *ngIf="isAdmin()"><a routerLink="/admin" (click)="closeMobileMenu()">
+          <span class="material-icons">admin_panel_settings</span> Yönetici Paneli
+        </a></li>
+        <li *ngIf="isSeller()"><a routerLink="/seller" (click)="closeMobileMenu()">
+          <span class="material-icons">store</span> Satıcı Paneli
+        </a></li>
+        <li><a routerLink="/cart" (click)="closeMobileMenu()">
+          <span class="material-icons">shopping_cart</span> Sepetim
+          <span *ngIf="totalCartItems() > 0" class="badge">{{ totalCartItems() }}</span>
+        </a></li>
+        <li><a routerLink="/wishlist" (click)="closeMobileMenu()">
+          <span class="material-icons">favorite</span> Favorilerim
+        </a></li>
+        <li><a (click)="logout(); closeMobileMenu()" class="logout-link">
+          <span class="material-icons">logout</span> Çıkış Yap
+        </a></li>
       </ng-container>
       <ng-container *ngIf="!isAuthenticated()">
-        <li><a routerLink="/auth/login" (click)="closeMobileMenu()">Login</a></li>
-        <li><a routerLink="/auth/register" (click)="closeMobileMenu()">Register</a></li>
+        <li><a routerLink="/auth/login" (click)="closeMobileMenu()">
+          <span class="material-icons">login</span> Giriş Yap
+        </a></li>
+        <li><a routerLink="/auth/register" (click)="closeMobileMenu()">
+          <span class="material-icons">person_add</span> Kayıt Ol
+        </a></li>
       </ng-container>
-      <!-- Kategori linkleri de buraya eklenebilir -->
     </ul>
   </div>
   <div class="mobile-menu-overlay" [class.open]="isMobileMenuOpen()" (click)="closeMobileMenu()"></div>
-
-  <!-- Kategori Navigasyon Barı TEMİZLENDİ -->
 </header>

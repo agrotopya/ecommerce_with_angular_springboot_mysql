@@ -1,31 +1,49 @@
 <!-- src/app/features/products/product-list/product-list.component.html -->
-<div class="product-list-page-container container mt-4"> <!-- Ana konteyner için Bootstrap container ve margin -->
-  <div class="row">
-    <!-- Sol Sütun: Filtreler -->
-    <div class="col-lg-3 col-md-4 filter-sidebar mb-4">
-      <h4>Filters</h4>
-      <hr>
-      <div class="filter-group">
-        <label for="categoryFilter" class="form-label">Category:</label>
-        <select id="categoryFilter" class="form-select form-select-sm" [(ngModel)]="selectedCategoryId" (ngModelChange)="onCategoryChange()">
-          <option value="">All Categories</option>
-          <option *ngFor="let category of categories()" [value]="category.id">{{ category.name }}</option>
-        </select>
-        <div *ngIf="isLoadingCategories()" class="form-text">Loading categories...</div>
-      </div>
+<div class="product-list-page-container container mt-4">
+  <!-- Filtre Barı -->
+  <div class="filters-bar row mb-4">
+    <div class="col-12">
+      <div class="d-flex flex-wrap align-items-center filter-controls-wrapper p-3 border rounded shadow-sm">
 
-      <div class="filter-group mt-3">
-        <label for="sortFilter" class="form-label">Sort by:</label>
-        <select id="sortFilter" class="form-select form-select-sm" [(ngModel)]="selectedSort" (ngModelChange)="onSortChange()">
-          <option *ngFor="let sortOpt of sortOptions" [value]="sortOpt.value">{{ sortOpt.label }}</option>
-        </select>
+        <div class="filter-item me-3 mb-2 mb-md-0">
+          <label for="categoryFilter" class="form-label me-2">Category:</label>
+          <select id="categoryFilter" class="form-select form-select-sm d-inline-block w-auto" [(ngModel)]="selectedCategoryId" (ngModelChange)="onCategoryChange()">
+            <option value="">All Categories</option>
+            <option *ngFor="let category of categories()" [value]="category.id">{{ category.name }}</option>
+          </select>
+          <div *ngIf="isLoadingCategories()" class="form-text text-muted small ms-2">Loading...</div>
+        </div>
+
+        <div class="filter-item me-3 mb-2 mb-md-0">
+          <label for="sortFilter" class="form-label me-2">Sort by:</label>
+          <select id="sortFilter" class="form-select form-select-sm d-inline-block w-auto" [(ngModel)]="selectedSort" (ngModelChange)="onSortChange()">
+            <option *ngFor="let sortOpt of sortOptions" [value]="sortOpt.value">{{ sortOpt.label }}</option>
+          </select>
+        </div>
+
+        <div class="filter-item price-filter-item me-3 mb-2 mb-md-0">
+          <label class="form-label me-2">Price (TRY):</label>
+          <div class="price-filter-inputs d-inline-flex align-items-center">
+            <input type="number" class="form-control form-control-sm" style="width: 80px;" placeholder="Min" [(ngModel)]="minPriceInput" (ngModelChange)="onPriceInputChange('min')" (blur)="applyPriceFilter()" [min]="0">
+            <span class="mx-1">-</span>
+            <input type="number" class="form-control form-control-sm" style="width: 80px;" placeholder="Max" [(ngModel)]="maxPriceInput" (ngModelChange)="onPriceInputChange('max')" (blur)="applyPriceFilter()" [min]="0">
+          </div>
+          <div *ngIf="priceErrorMessage" class="error-message text-danger small mt-1 ms-2">{{ priceErrorMessage }}</div>
+        </div>
+
+        <!-- Temizle Butonu (Opsiyonel) -->
+        <!-- <div class="filter-item ms-auto">
+          <button class="btn btn-sm btn-outline-secondary" (click)="clearFilters()">Clear Filters</button>
+        </div> -->
+
       </div>
-      <!-- Gelecekte buraya fiyat aralığı, marka vb. filtreler eklenebilir -->
     </div>
+  </div>
 
-    <!-- Sağ Sütun: Ürün Listesi ve Başlık -->
-    <div class="col-lg-9 col-md-8 product-main-content">
-      <h2 class="mb-3">{{ pageTitle() }}</h2> <!-- pageTitle() metodu component'te olmalı -->
+  <!-- Ürün Listesi Alanı -->
+  <div class="row">
+    <div class="col-12 product-main-content">
+      <h2 class="mb-3">{{ pageTitle() }}</h2>
 
       <div *ngIf="isLoading()" class="loading-indicator">Loading products...</div>
       <div *ngIf="errorMessage()" class="alert alert-danger">{{ errorMessage() }}</div>

@@ -19,6 +19,10 @@ import org.springframework.web.multipart.MultipartFile; // MultipartFile importu
 import java.nio.file.Paths; // Paths importu eklendi
 import java.util.List;
 
+// Page ve Pageable importları eklendi
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
@@ -201,5 +205,37 @@ public class CategoryServiceImpl implements CategoryService {
         logger.info("Image updated for category ID: {}. New image URL: {}", categoryId, newImageUrl);
 
         return categoryMapper.toCategoryResponse(updatedCategory);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<CategoryResponse> findAllForAdmin(String name, Pageable pageable) {
+        logger.info("findAllForAdmin called with name: '{}', pageable: {}", name, pageable); // Metod çağrısını logla
+        Page<Category> categoryPage;
+        if (name != null && !name.trim().isEmpty()) {
+            categoryPage = categoryRepository.findByNameContainingIgnoreCase(name, pageable);
+        } else {
+            categoryPage = categoryRepository.findAll(pageable);
+        }
+
+        logger.info("Fetched {} categories from repository.", categoryPage.getTotalElements());
+
+        // Entity'leri logla
+        categoryPage.getContent().forEach(cat -> {
+            String parentName = (cat.getParentCategory() != null) ? cat.getParentCategory().getName() : "NULL";
+            logger.info("ENTITY Category ID: {}, Name: {}, isActive: {}, ParentName: {}",
+                    cat.getId(), cat.getName(), cat.isActive(), parentName);
+        });
+
+        Page<CategoryResponse> responsePage = categoryPage.map(categoryMapper::toCategoryResponse);
+
+        // DTO'ları logla
+        responsePage.getContent().forEach(dto -> {
+            logger.info("DTO Category ID: {}, Name: {}, isActive: {}, parentCategoryName: {}, childrenCount: {}",
+                    dto.getId(), dto.getName(), dto.isActive(), 
+                    dto.getParentCategoryName(), dto.getChildrenCount());
+        });
+
+        return responsePage;
     }
 }

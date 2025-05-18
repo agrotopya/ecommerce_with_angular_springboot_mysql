@@ -1,86 +1,99 @@
 // src/app/features/auth/register/register.component.scss
-.register-container { // .login-container'dan kopyalandı ve adı değişti
-  max-width: 400px;
+.register-container { // .login-container ile aynı stil ve değişkenleri kullanacak
+  max-width: 480px; // Login'den biraz daha geniş olabilir, daha fazla alan var
   margin: 50px auto;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  border: 1px solid var(--border-color, #ccc);
+  border-radius: var(--card-border-radius, 12px);
+  box-shadow: var(--card-shadow, 0 4px 12px rgba(0, 0, 0, 0.08));
+  background-color: var(--surface-color, var(--white));
 
   h2 {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+    font-size: var(--font-size-h2, 2rem);
+    font-weight: var(--font-weight-bold, 700);
   }
 
   form div {
-    margin-bottom: 15px;
+    margin-bottom: 1.25rem; // Form grupları arası boşluk
   }
 
   label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 0.5rem;
+    font-weight: var(--font-weight-semibold, 600);
+    color: var(--text-color-secondary);
+    font-size: 0.9rem;
   }
 
-  input[type='text'],
-  input[type='email'], // Eklendi
-  input[type='password'] {
-    width: calc(100% - 22px);
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
+  // input[type='text'],
+  // input[type='email'],
+  // input[type='password'],
+  // select { // select için de global stil uygulanmalı
+    // width: calc(100% - 22px); // KALDIRILDI - Global stiller kullanılacak
+    // padding: 10px; // KALDIRILDI - Global stiller kullanılacak
+    // border: 1px solid #ddd; // KALDIRILDI - Global stiller kullanılacak
+    // border-radius: 4px; // KALDIRILDI - Global stiller kullanılacak
+  // }
 
-  button[type='submit'] {
-    width: 100%;
-    padding: 10px;
-    background-color: #28a745; // Farklı renk
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
+  // button[type='submit'] {
+    // width: 100%; // KALDIRILDI
+    // padding: 10px; // KALDIRILDI
+    // background-color: #28a745; // KALDIRILDI
+    // color: white; // KALDIRILDI
+    // border: none; // KALDIRILDI
+    // border-radius: 4px; // KALDIRILDI
+    // cursor: pointer; // KALDIRILDI
+    // font-size: 16px; // KALDIRILDI
+    //
+    // &:disabled {
+    //   background-color: #ccc; // KALDIRILDI
+    //   cursor: not-allowed; // KALDIRILDI
+    // }
+  // }
 
-    &:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
-    }
-  }
-
-  .error-message {
-    color: red;
-    font-size: 0.9em;
-    margin-top: 5px;
-  }
+  // .error-message {
+    // color: red; // KALDIRILDI - Global .error-message kullanılacak
+    // font-size: 0.9em; // KALDIRILDI
+    // margin-top: 5px; // KALDIRILDI
+  // }
 
   .global-error {
-    margin-top: 15px;
-    padding: 10px;
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-    border-radius: 4px;
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: rgba(var(--error-color-rgb, 220, 53, 69), 0.1);
+    border: 1px solid rgba(var(--error-color-rgb, 220, 53, 69), 0.3);
+    color: var(--error-color, #721c24);
+    border-radius: var(--border-radius, 8px);
     text-align: center;
+    font-size: 0.9rem;
   }
 
   .global-success { // Başarı mesajı için
-    margin-top: 15px;
-    padding: 10px;
-    background-color: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
-    border-radius: 4px;
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: rgba(var(--success-color-rgb, 117, 192, 67), 0.1);
+    border: 1px solid rgba(var(--success-color-rgb, 117, 192, 67), 0.3);
+    color: var(--success-color, #155724);
+    border-radius: var(--border-radius, 8px);
     text-align: center;
+    font-size: 0.9rem;
+    a {
+        font-weight: bold; // Login linki biraz daha belirgin olsun
+        // Global link rengini alacak
+    }
   }
 
   p {
     text-align: center;
-    margin-top: 20px;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--text-color-secondary);
     a {
-      color: #007bff;
-      text-decoration: none;
-      &:hover {
-        text-decoration: underline;
-      }
+      font-weight: var(--font-weight-semibold, 600);
+      // Renk ve diğer stiller global <a> tanımından miras alınacak
     }
   }
 }

@@ -47,24 +47,32 @@
         <h1>{{ currentProduct.name }}</h1>
         <div class="product-meta">
           <span class="category" *ngIf="currentProduct.categoryName">
-            Category: <a [routerLink]="['/products']" [queryParams]="{ categoryId: currentProduct.categoryId }">{{ currentProduct.categoryName }}</a>
+            <strong>Kategori:</strong> <a [routerLink]="['/products']" [queryParams]="{ categoryId: currentProduct.categoryId }">{{ currentProduct.categoryName }}</a>
           </span>
-          <span class="sku" *ngIf="currentProduct.sku">SKU: {{ currentProduct.sku }}</span>
+          <span class="sku" *ngIf="currentProduct.sku">
+            <strong>SKU:</strong> {{ currentProduct.sku }}
+          </span>
         </div>
 
+        <!-- Price and Stock Container -->
+        <div class="price-stock-container my-3">
         <div class="price-section">
           <span class="current-price">{{ currentProduct.price | currency:'TRY':'symbol':'1.2-2' }}</span>
         </div>
-
         <div class="stock-status" [class.in-stock]="currentProduct.stock && currentProduct.stock > 0" [class.out-of-stock]="!currentProduct.stock || currentProduct.stock === 0">
+            <span class="material-icons stock-icon" [class.in-stock-icon]="currentProduct.stock && currentProduct.stock > 0" [class.out-of-stock-icon]="!currentProduct.stock || currentProduct.stock === 0">
+              {{ (currentProduct.stock && currentProduct.stock > 0) ? 'check_circle' : 'remove_circle_outline' }}
+            </span>
+            <span class="stock-text">
           {{ (currentProduct.stock && currentProduct.stock > 0) ? 'In Stock (' + currentProduct.stock + ' available)' : 'Out of Stock' }}
+            </span>
+          </div>
         </div>
 
         <div class="actions">
-          <!-- Miktar seçici eklenebilir -->
-          <button (click)="addToCartHandler()" class="btn-add-to-cart"
+          <button (click)="addToCartHandler()" class="btn btn-primary btn-lg btn-add-to-cart"
                   [disabled]="!currentProduct.stock || currentProduct.stock === 0 || !isProductActive(currentProduct) || !isProductApproved(currentProduct)">
-            <span class="material-icons">shopping_cart</span>
+            <span class="material-icons me-2">shopping_cart</span>
             {{ (!currentProduct.stock || currentProduct.stock === 0) ? 'Out of Stock' :
                (!isProductActive(currentProduct) || !isProductApproved(currentProduct)) ? 'Unavailable' :
                'Add to Cart' }}
@@ -80,13 +88,16 @@
         </div>
 
         <div class="description" *ngIf="currentProduct.description">
-          <h3>Product Description</h3>
+          <h3>Ürün Açıklaması</h3>
           <p [innerHTML]="currentProduct.description | nl2br"></p>
         </div>
 
         <!-- Fibi AI Review Summary Section -->
         <div class="fibi-ai-summary" *ngIf="currentProduct.reviewSummaryAi && currentProduct.reviewSummaryAi.trim() !== ''">
-          <h3>Fibi AI diyor ki:</h3>
+          <h3 class="fibi-ai-title">
+            <span class="material-icons fibi-ai-icon">psychology</span>
+            Fibi AI diyor ki:
+          </h3>
           <p class="ai-summary-text">{{ currentProduct.reviewSummaryAi }}</p>
         </div>
       </div>

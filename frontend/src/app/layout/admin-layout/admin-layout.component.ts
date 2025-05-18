@@ -1,5 +1,5 @@
 // src/app/layout/admin-layout/admin-layout.component.ts
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { NotificationContainerComponent } from '../../shared/components/notification-container/notification-container.component'; // Eklendi
 // İleride admin header/sidebar bileşenleri import edilebilir
@@ -14,5 +14,20 @@ import { NotificationContainerComponent } from '../../shared/components/notifica
   styleUrls: ['./admin-layout.component.scss']
 })
 export class AdminLayoutComponent {
-  // Admin layout ile ilgili mantıklar buraya eklenebilir
+  // Admin sidebar durumu için signal
+  private sidebarCollapsed = signal(false);
+
+  /**
+   * Sidebar'ın daraltılmış durumda olup olmadığını döndürür
+   */
+  isSidebarCollapsed() {
+    return this.sidebarCollapsed();
+  }
+
+  /**
+   * Sidebar'ın görünümünü değiştirir
+   */
+  toggleSidebar() {
+    this.sidebarCollapsed.update(collapsed => !collapsed);
+  }
 }

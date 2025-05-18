@@ -1,44 +1,43 @@
 <!-- src/app/features/products/product-card/product-card.component.html -->
 <div class="product-card" *ngIf="product">
   <div class="product-card-content">
-    <a [routerLink]="['/products', product.slug]" class="product-link">
+    <a [routerLink]="['/products', product.slug]" class="product-image-container-link">
       <div class="product-image-container">
         <img *ngIf="product.mainImageUrl"
              [ngSrc]="product.mainImageUrl"
              [alt]="product.name"
-             width="200"
-             height="133"
+             fill
              priority="false"
-             loading="lazy"
              class="product-image"/>
         <img *ngIf="!product.mainImageUrl && product.productImages && product.productImages.length > 0"
              [ngSrc]="product.productImages[0].imageUrl"
              [alt]="product.name"
-             width="200"
-             height="133"
+             fill
              priority="false"
-             loading="lazy"
              class="product-image"/>
         <div *ngIf="!product.mainImageUrl && (!product.productImages || product.productImages.length === 0)" class="product-image-placeholder">
+          <span class="material-icons">inventory_2</span>
           <span>No Image</span>
         </div>
       </div>
-      <div class="product-info">
-        <h3 class="product-name">{{ product.name }}</h3>
-        <p class="product-price">{{ product.price | currency:'TRY':'symbol':'1.2-2' }}</p>
-        <p class="product-category" *ngIf="product.categoryName">{{ product.categoryName }}</p>
-      </div>
     </a>
+    <div class="product-info">
+      <a [routerLink]="['/products', product.slug]" class="product-name-link">
+        <h3 class="product-name">{{ product.name }}</h3>
+      </a>
+      <p class="product-category" *ngIf="product.categoryName">{{ product.categoryName }}</p>
+      <p class="product-price">{{ product.price | currency:'TRY':'symbol':'1.2-2' }}</p>
+    </div>
     <div class="product-actions">
       <button
         (click)="onAddToCart($event)"
-        class="btn btn-add-to-cart"
+        class="btn btn-accent w-100 btn-add-to-cart"
         [disabled]="!product.stock || product.stock === 0 || !isProductActive(product) || !isProductApproved(product)">
         <span class="material-icons">shopping_cart</span>
-        {{ (!product.stock || product.stock === 0) ? 'Out of Stock' : (!isProductActive(product) || !isProductApproved(product)) ? 'Unavailable' : 'Add to Cart' }}
+        <span>{{ (!product.stock || product.stock === 0) ? 'Out of Stock' : (!isProductActive(product) || !isProductApproved(product)) ? 'Unavailable' : 'Add to Cart' }}</span>
       </button>
       <button
-        class="btn btn-wishlist"
+        class="btn-wishlist"
         [class.wishlisted]="isWishlistedInput"
         (click)="onToggleWishlist($event)"
         [disabled]="isTogglingWishlist()">

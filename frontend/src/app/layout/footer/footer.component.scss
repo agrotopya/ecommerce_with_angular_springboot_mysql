@@ -1,10 +1,219 @@
 // src/app/layout/footer/footer.component.scss
 footer {
-  background-color: #f8f9fa;
-  color: #333;
-  text-align: center;
-  padding: 20px;
-  border-top: 1px solid #e7e7e7;
-  margin-top: auto; // İçeriği yukarı iter
+  background-color: var(--light-gray);
+  color: var(--text-color-secondary);
+  padding: 3rem 0 1rem;
+  margin-top: 4rem;
+  border-top: 1px solid var(--border-color);
   width: 100%;
+
+  .footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  .footer-top {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+
+    .footer-section {
+      h4 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 1.2rem;
+        color: var(--primary-color);
+      }
+    }
+
+    .logo-section {
+      .footer-logo {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+      }
+
+      .footer-slogan {
+        font-size: 0.9rem;
+        margin-bottom: 1.2rem;
+        color: var(--text-color-secondary);
+      }
+
+      .social-links {
+        display: flex;
+        gap: 0.8rem;
+
+        a {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 36px;
+          height: 36px;
+          background-color: var(--white);
+          color: var(--primary-color);
+          border-radius: 50%;
+          transition: all 0.2s ease;
+
+          &:hover {
+            background-color: var(--primary-color);
+            color: var(--white);
+            transform: translateY(-3px);
+          }
+        }
+      }
+    }
+
+    .links-section {
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
+        li {
+          margin-bottom: 0.7rem;
+
+          a {
+            color: var(--text-color-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+
+            &:hover {
+              color: var(--primary-color);
+              padding-left: 5px;
+            }
+          }
+        }
+      }
+    }
+
+    .newsletter-section {
+      p {
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+      }
+
+      .newsletter-form {
+        display: flex;
+        gap: 0.5rem;
+
+        input[type="email"] {
+          flex: 1;
+          padding: 0.6rem 1rem;
+          border: 1px solid var(--border-color);
+          border-radius: 25px;
+          font-size: 0.9rem;
+
+          &:focus {
+            border-color: var(--primary-color);
+            outline: none;
+          }
+        }
+
+        button {
+          white-space: nowrap;
+          padding: 0.6rem 1rem;
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+
+  .footer-middle {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 2rem;
+    padding-bottom: 2rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border-color);
+
+    h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--primary-color);
+    }
+
+    .payment-icons, .shipping-icons {
+      display: flex;
+      gap: 1rem;
+
+      .payment-icon, .shipping-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 30px;
+        background-color: var(--white);
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+
+        .material-icons {
+          color: var(--primary-color);
+        }
+      }
+    }
+  }
+
+  .footer-bottom {
+    text-align: center;
+
+    .legal-links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+
+      a {
+        color: var(--text-color-secondary);
+        font-size: 0.85rem;
+        text-decoration: none;
+
+        &:hover {
+          color: var(--primary-color);
+          text-decoration: underline;
+        }
+      }
+    }
+
+    .copyright {
+      font-size: 0.85rem;
+      color: var(--text-color-secondary);
+    }
+  }
+
+  // Responsive düzenlemeler
+  @media (max-width: 768px) {
+    padding: 2rem 0 1rem;
+    margin-top: 2rem;
+
+    .footer-top {
+      grid-template-columns: 1fr 1fr;
+
+      .logo-section, .newsletter-section {
+        grid-column: 1 / -1;
+      }
+
+      .newsletter-form {
+        flex-direction: column;
+      }
+    }
+
+    .footer-middle {
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .footer-bottom {
+      .legal-links {
+        flex-direction: column;
+        gap: 0.8rem;
+      }
+    }
+  }
 }

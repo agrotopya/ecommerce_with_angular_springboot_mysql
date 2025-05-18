@@ -121,3 +121,124 @@
     color: #5DAF34; // --bright-green (#75C043) renginin %10 koyulaştırılmış hali
   }
 }
+
+// Image Preview Specific Styles
+.image-previews-container,
+.existing-images-container,
+.ai-generated-images-container {
+  h5 {
+    color: var(--primary-color-darker);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color-light); // Daha açık bir border rengi
+  }
+}
+
+.image-preview-item {
+  position: relative;
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--border-radius-medium); // 8px gibi
+  padding: 0.75rem;
+  background-color: var(--white);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  text-align: center;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between; // İçeriği dikeyde yay
+  min-height: 220px; // Sabit bir yükseklik
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+
+  &.existing {
+    // Mevcut görseller için özel stil gerekirse
+  }
+
+  &.ai-generated {
+    // AI görselleri için özel stil gerekirse
+  }
+
+  .image-preview-thumb {
+    width: 130px; // Sabit genişlik
+    height: 130px; // Sabit yükseklik
+    object-fit: cover; // Orantıyı koru, alanı doldur
+    border-radius: var(--border-radius-small); // 4px gibi
+    margin-bottom: 0.5rem;
+    border: 1px solid var(--border-color-extra-light); // Çok açık bir çerçeve
+
+    &.is-primary {
+      border: 3px solid var(--success-color); // Birincil görsel için belirgin çerçeve
+      padding: 2px; // Çerçevenin içeri girmemesi için
+    }
+  }
+
+  .image-name {
+    font-size: 0.75rem; // Daha küçük font
+    color: var(--text-color-secondary);
+    margin-bottom: 0.5rem;
+    word-break: break-all; // Uzun isimler için kırılma
+    line-height: 1.2;
+    height: 2.4em; // Yaklaşık 2 satır
+    overflow: hidden;
+  }
+
+  .btn-remove-image {
+    position: absolute;
+    top: -5px; // Butonu biraz dışarı taşıralım
+    right: -5px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: var(--error-color);
+    color: var(--white);
+    border: 2px solid var(--white); // Etrafında beyaz bir çerçeve
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+
+    i {
+      font-size: 0.8rem; // İkon boyutu
+    }
+
+    &:hover {
+      background-color: var(--error-color-darker); // Daha koyu kırmızı
+      transform: scale(1.1);
+    }
+  }
+
+  .primary-badge { // Mevcut badge için stil
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    font-size: 0.7rem;
+    padding: 0.3em 0.5em;
+  }
+
+  .btn-success { // "Use This" butonu (AI) ve potansiyel "Set Primary"
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+  }
+}
+
+// AI Image Generation Section Specifics
+.ai-image-generation-section {
+  background-color: var(--surface-highlight-color); // Hafif farklı arka plan
+  border-color: var(--border-color-light);
+
+  h5 {
+    color: var(--primary-color);
+  }
+  label {
+    font-weight: 500; // Normalden biraz daha az kalın
+  }
+  .form-select-sm, .form-control-sm {
+    font-size: 0.85rem; // Biraz daha küçük inputlar
+  }
+}

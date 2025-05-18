@@ -1,7 +1,7 @@
 // src/app/layout/header/header.component.ts
-import { Component, inject, WritableSignal, Signal, signal } from '@angular/core'; // signal eklendi
-import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Component, inject, WritableSignal, Signal, signal, AfterViewInit, ElementRef, Renderer2, OnDestroy, HostListener, PLATFORM_ID, Inject } from '@angular/core'; // PLATFORM_ID ve Inject eklendi
+import { CommonModule, isPlatformBrowser, DOCUMENT } from '@angular/common'; // isPlatformBrowser ve DOCUMENT eklendi
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../features/cart/cart.service';
 import { User } from '../../shared/models/user.model';
@@ -19,11 +19,14 @@ import { map, switchMap } from 'rxjs/operators';
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   authService = inject(AuthService);
   cartService = inject(CartService);
-  private categoryService = inject(CategoryService); // Geri eklendi
+  private categoryService = inject(CategoryService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private elementRef = inject(ElementRef);
+  private renderer = inject(Renderer2);
 
   isAuthenticated: WritableSignal<boolean> = this.authService.isAuthenticated;
   currentUser: WritableSignal<User | null> = this.authService.currentUser;
@@ -31,15 +34,133 @@ export class HeaderComponent implements OnInit {
 
   isUserDropdownOpen = signal<boolean>(false);
   isMobileMenuOpen = signal<boolean>(false);
+  isCategoryDropdownOpen = signal<boolean>(false);
 
-  // Yeni kategori/mega menü için sinyaller ve özellikler
+  // Kategori menüsü için sinyaller
   categoriesForMegaMenu = signal<CategoryTreeNodeDto[]>([]);
-  activeMegaMenuCategoryId = signal<number | null>(null);
-  private megaMenuCloseTimer: any = null;
-  private readonly MEGA_MENU_CLOSE_DELAY = 200; // ms cinsinden gecikme
+
+  // Aktif kategori ID'si (URL parametresinden gelen categoryId)
+  activeUrlCategoryId = signal<number | null>(null);
+
+  // Kategori navigasyon için değişkenler
+  activeCategoryId = signal<number | null>(null);
+  private categoryDropdownCloseTimer: any = null;
+  private readonly CATEGORY_DROPDOWN_CLOSE_DELAY = 200; // ms cinsinden gecikme
+
+  // Resize handler için cleanup
+  private resizeListener: (() => void) | null = null;
+
+  constructor(@Inject(PLATFORM_ID) private platformId: Object, @Inject(DOCUMENT) private document: Document) {}
 
   ngOnInit(): void {
     this.loadCategoriesForMegaMenu();
+    if (isPlatformBrowser(this.platformId)) {
+      this.checkActiveCategoryFromUrl();
+      this.router.events.subscribe(() => {
+        this.checkActiveCategoryFromUrl();
+      });
+    }
+  }
+
+  ngAfterViewInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      setTimeout(() => {
+        this.updateElementHeights();
+        this.document.addEventListener('click', this.positionUserDropdown.bind(this));
+        this.resizeListener = this.renderer.listen('window', 'resize', () => {
+          this.updateElementHeights();
+          this.positionUserDropdown();
+          this.positionCategoryDropdowns();
+        });
+      }, 100);
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      if (this.resizeListener) {
+        this.resizeListener();
+      }
+      this.document.removeEventListener('click', this.positionUserDropdown.bind(this));
+    }
+  }
+
+  // Kullanıcı menüsü dropdown'ının konumunu ayarla
+  private positionUserDropdown(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      const userMenuTrigger = this.elementRef.nativeElement.querySelector('.user-menu .profile-action');
+      const userDropdown = this.elementRef.nativeElement.querySelector('.user-menu .dropdown-menu') as HTMLElement;
+
+      if (userMenuTrigger && userDropdown) {
+        const rect = userMenuTrigger.getBoundingClientRect();
+        userDropdown.style.right = `${this.document.defaultView!.innerWidth - rect.right}px`;
+      }
+    }
+  }
+
+  // Kategori dropdown'larının konumunu ayarla
+  private positionCategoryDropdowns(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      const categoryItems = this.elementRef.nativeElement.querySelectorAll('.main-category-item');
+      categoryItems.forEach((item: HTMLElement) => {
+        const trigger = item.querySelector('a') as HTMLElement;
+        const dropdown = item.querySelector('.category-dropdown') as HTMLElement;
+
+        if (trigger && dropdown) {
+          this.renderer.listen(trigger, 'mouseenter', () => {
+            const rect = trigger.getBoundingClientRect();
+            dropdown.style.left = `${rect.left}px`;
+            const dropdownWidth = dropdown.offsetWidth;
+            if (rect.left + dropdownWidth > this.document.defaultView!.innerWidth) {
+              dropdown.style.left = 'auto';
+              dropdown.style.right = '0px';
+            }
+          });
+        }
+      });
+    }
+  }
+
+  // Yükseklikleri dinamik olarak hesaplayıp CSS değişkenlerine ata
+  @HostListener('window:load')
+  private updateElementHeights(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      setTimeout(() => {
+        const navbar = this.elementRef.nativeElement.querySelector('.navbar');
+        if (navbar) {
+          const navbarHeight = navbar.offsetHeight;
+          this.document.documentElement.style.setProperty('--header-height', `${navbarHeight}px`);
+        }
+
+        const categoryBar = this.elementRef.nativeElement.querySelector('.category-navigation-bar');
+        if (categoryBar) {
+          const categoryHeight = categoryBar.offsetHeight;
+          this.document.documentElement.style.setProperty('--category-height', `${categoryHeight}px`);
+          const totalHeight = (navbar ? navbar.offsetHeight : 0) + categoryHeight;
+          this.document.body.style.paddingTop = `${totalHeight}px`;
+        } else if (navbar) {
+          this.document.body.style.paddingTop = `${navbar.offsetHeight}px`;
+        }
+      }, 100);
+    }
+  }
+
+  // URL'den aktif kategori ID'sini kontrol et
+  checkActiveCategoryFromUrl(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      const urlParams = new URLSearchParams(this.document.defaultView!.location.search);
+      const categoryId = urlParams.get('categoryId');
+      if (categoryId) {
+        this.activeUrlCategoryId.set(Number(categoryId));
+      } else {
+        this.activeUrlCategoryId.set(null);
+      }
+    }
+  }
+
+  // Bir kategorinin aktif olup olmadığını kontrol et
+  isCategoryActive(categoryId: number): boolean {
+    return this.activeUrlCategoryId() === categoryId;
   }
 
   loadCategoriesForMegaMenu(): void {
@@ -53,7 +174,6 @@ export class HeaderComponent implements OnInit {
             map(subCategories => ({
               ...rootCat,
               children: subCategories || [], // Alt kategori yoksa boş dizi
-              // expanded özelliği artık kullanılmıyor, activeMegaMenuCategoryId kullanılacak
             } as CategoryTreeNodeDto))
           )
         );
@@ -69,49 +189,46 @@ export class HeaderComponent implements OnInit {
     });
   }
 
-  openMegaMenu(category: CategoryTreeNodeDto): void {
-    console.log('openMegaMenu for:', category.name, 'ID:', category.id);
-    if (this.megaMenuCloseTimer) {
-      clearTimeout(this.megaMenuCloseTimer);
-      this.megaMenuCloseTimer = null;
-      console.log('Mega menu close timer cancelled.');
-    }
-    this.activeMegaMenuCategoryId.set(category.id);
-    console.log('activeMegaMenuCategoryId set to:', category.id);
-  }
+  // Kategori dropdown kontrolleri
+  setActiveCategoryId(categoryId: number): void {
+    if (isPlatformBrowser(this.platformId)) {
+      if (this.categoryDropdownCloseTimer) {
+        clearTimeout(this.categoryDropdownCloseTimer);
+        this.categoryDropdownCloseTimer = null;
+      }
+      this.activeCategoryId.set(categoryId);
 
-  scheduleCloseMegaMenu(): void {
-    console.log('scheduleCloseMegaMenu called. Timer will fire in', this.MEGA_MENU_CLOSE_DELAY, 'ms to set activeMegaMenuCategoryId to null.');
-    this.megaMenuCloseTimer = setTimeout(() => {
-      console.log('Mega menu close timer fired. Setting activeMegaMenuCategoryId to null.');
-      this.activeMegaMenuCategoryId.set(null);
-    }, this.MEGA_MENU_CLOSE_DELAY);
-  }
-
-  cancelCloseMegaMenu(): void {
-    console.log('cancelCloseMegaMenu called.');
-    if (this.megaMenuCloseTimer) {
-      clearTimeout(this.megaMenuCloseTimer);
-      this.megaMenuCloseTimer = null;
-      console.log('Mega menu close timer cancelled by cancelCloseMegaMenu.');
+      // Dropdown'ın konumunu güncelle
+      setTimeout(() => this.positionCategoryDropdowns(), 10);
     }
   }
 
-  // Alt kategorileri sütunlara bölmek için yardımcı metod
-  getSubCategoryColumns(children: CategoryTreeNodeDto[] | undefined, columns: number = 3): CategoryTreeNodeDto[][] {
-    if (!children || children.length === 0) {
-      return [];
+  scheduleCloseCategoryDropdown(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.categoryDropdownCloseTimer = setTimeout(() => {
+        this.activeCategoryId.set(null);
+      }, this.CATEGORY_DROPDOWN_CLOSE_DELAY);
     }
-    const itemsPerColumn = Math.ceil(children.length / columns);
-    const result: CategoryTreeNodeDto[][] = [];
-    for (let i = 0; i < columns; i++) {
-      const start = i * itemsPerColumn;
-      const end = start + itemsPerColumn;
-      if (start < children.length) {
-        result.push(children.slice(start, end));
+  }
+
+  cancelCloseCategoryDropdown(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      if (this.categoryDropdownCloseTimer) {
+        clearTimeout(this.categoryDropdownCloseTimer);
+        this.categoryDropdownCloseTimer = null;
       }
     }
-    return result.filter(col => col.length > 0); // Boş sütunları filtrele
+  }
+
+  // Kategori dropdown menüsünü açıp kapatma
+  toggleCategoryDropdown(event: Event): void {
+    event.stopPropagation(); // Event'in üst elementlere iletilmesini engelle
+    this.isCategoryDropdownOpen.update(isOpen => !isOpen);
+
+    // Kategori menüsü açıldığında, kullanıcı dropdown'ı açıksa onu kapat
+    if (this.isCategoryDropdownOpen() && this.isUserDropdownOpen()) {
+      this.isUserDropdownOpen.set(false);
+    }
   }
 
   logout(): void {
@@ -135,30 +252,28 @@ export class HeaderComponent implements OnInit {
   }
 
   toggleUserDropdown(): void {
-    this.isUserDropdownOpen.update((isOpen: boolean) => !isOpen); // isOpen parametresine tip eklendi
+    this.isUserDropdownOpen.update((isOpen: boolean) => !isOpen);
+
+    // Kullanıcı menüsü açıldığında, kategori dropdown'ı açıksa kapat
+    if (this.isUserDropdownOpen() && this.isCategoryDropdownOpen()) {
+      this.isCategoryDropdownOpen.set(false);
+    }
   }
 
   toggleMobileMenu(): void {
     this.isMobileMenuOpen.update(isOpen => !isOpen);
-    // Mobil menü açıldığında, kullanıcı dropdown'ı açıksa onu kapatabiliriz.
-    if (this.isMobileMenuOpen() && this.isUserDropdownOpen()) {
-      this.isUserDropdownOpen.set(false);
+    // Mobil menü açıldığında, açık olan tüm dropdown'ları kapat
+    if (this.isMobileMenuOpen()) {
+      if (this.isUserDropdownOpen()) {
+        this.isUserDropdownOpen.set(false);
+      }
+      if (this.isCategoryDropdownOpen()) {
+        this.isCategoryDropdownOpen.set(false);
+      }
     }
   }
 
   closeMobileMenu(): void {
     this.isMobileMenuOpen.set(false);
   }
-
-  // Opsiyonel: Dışarıya tıklandığında dropdown'ı kapatmak için
-  // @HostListener('document:click', ['$event'])
-  // onDocumentClick(event: MouseEvent): void {
-  //   const targetElement = event.target as HTMLElement;
-  //   // Dropdown ve onu açan buton dışına tıklandıysa kapat
-  //   if (this.isUserDropdownOpen() && !this.elementRef.nativeElement.contains(targetElement)) {
-  //     this.isUserDropdownOpen.set(false);
-  //   }
-  // }
-  // Not: HostListener için ElementRef inject etmek gerekebilir: private elementRef = inject(ElementRef);
-  // Şimdilik bu kısmı eklemiyoruz, gerekirse sonra eklenebilir.
 }
